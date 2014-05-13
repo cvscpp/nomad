@@ -24,6 +24,21 @@ sdocs_DATA = $(directory)/html/search/*.html \
 	$(directory)/html/search/*.js
 
 
+$(directory)/html/*.png:
+$(directory)/html/*.css:
+$(directory)/html/*.html:
+$(directory)/html/*.jpg:
+$(directory)/html/*.m*:
+$(directory)/html/*.js:
+
+$(directory)/html/search/*.png:
+$(directory)/html/search/*.css:
+$(directory)/html/search/*.html:
+$(directory)/html/search/*.js:
+
+
+
+
 all-local: doxyfile.stamp
 clean-local:
 	rm -rf $(top_srcdir)/docs/html
