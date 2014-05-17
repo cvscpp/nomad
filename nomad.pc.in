@@ -7,4 +7,4 @@ Name: nomad
 Version: @VERSION@
 Description: NOMAD
 Libs: ${libdir}/libnomad.a -lc -lm
-Cflags: -I${includedir}
+Cflags: -I${includedir}/nomad
