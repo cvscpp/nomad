@@ -1,5 +1,5 @@
 AC_INIT(nomad, 3.6.1, miroslav.shaltev@shaltev.de)
-AC_PREREQ([2.67])
+AC_PREREQ([2.63])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
