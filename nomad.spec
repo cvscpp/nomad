@@ -1,7 +1,7 @@
 %define _prefix /usr
 
 Name: nomad
-Version: 3.6.1
+Version: 3.7.2
 Release: 1
 Summary: NOMAD (Nonsmooth Optimization by Mesh Adaptive Direct Search)
 License: LGPL
