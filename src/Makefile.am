@@ -36,7 +36,7 @@ pkginclude_HEADERS = Cache_File_Point.hpp Cache.hpp Cache_Point.hpp\
 	Quad_Model_Search.hpp Random_Pickup.hpp RNG.hpp Search.hpp\
 	Set_Element.hpp Signature_Element.hpp Signature.hpp\
 	Single_Obj_Quad_Model_Evaluator.hpp Slave.hpp Speculative_Search.hpp\
-	Stats.hpp TGP_Model_Evaluator.hpp Uncopyable.hpp utils.hpp Variable_Group.hpp\
+	Stats.hpp Uncopyable.hpp utils.hpp Variable_Group.hpp\
 	VNS_Search.hpp Barrier.hpp OrthogonalMesh.hpp
 
 bin_PROGRAMS = nomad
