@@ -1,17 +1,24 @@
-EXE                 = psdmads.exe
-COMPILATOR = mpic++
-SUNAME = $(shell uname)
-OSS=$(findstring MINGW32,$(SUNAME)) 
-ifneq "$(strip $(OSS))" ""
-COMPILATOR = g++
+UNAME := $(shell uname)
+
+EXE                    = psdmads.exe
+
+COMPILATOR             = mpic++
+COMPILATOR_OPTIONS     = -ansi -O2
+
+LIB_DIR                = $(NOMAD_HOME)/lib
+LIB_NOMAD              = libnomad.so 
+
+CXXFLAGS               = 
+ifeq ($(UNAME), Linux)
+CXXFLAGS              += -Wl,-rpath,'$(LIB_DIR)'
+CXXFLAGS              += -ansi
 endif
 
-COMPILATOR_OPTIONS  = -ansi -O2
-L1                  = $(NOMAD_HOME)/lib/nomad.a
-LIBS                = $(L1) -lm -lmpi
-INCLUDE             = -I$(NOMAD_HOME)/src -I.
-COMPILE             = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
-OBJS                = main.o Cache_Server.o Master_Slaves.o
+LDLIBS                 = -lm -lnomad
+
+INCLUDE                = -I$(NOMAD_HOME)/src -I.
+COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
+OBJS                   = main.o Cache_Server.o Master_Slaves.o
 
 ifndef NOMAD_HOME
 define ECHO_NOMAD
@@ -20,11 +27,15 @@ define ECHO_NOMAD
 endef
 endif
 
-$(EXE): $(OBJS) $(L1)
+$(EXE): $(OBJS) 
 	$(ECHO_NOMAD)
-	$(COMPILATOR) -o $(EXE) $(OBJS) $(LIBS) $(COMPILATOR_OPTIONS)
+	$(COMPILATOR) -o $(EXE) $(OBJS) $(LDLIBS) $(CXXFLAGS) -L$(LIB_DIR) 
+ifeq ($(UNAME), Darwin)
+	@install_name_tool -change $(LIB_NOMAD) $(NOMAD_HOME)/lib/$(LIB_NOMAD) $(EXE)
+endif
 
 main.o: main.cpp Master_Slaves.o
+	$(ECHO_NOMAD)
 	$(COMPILE) main.cpp
 
 Master_Slaves.o: Master_Slaves.cpp Master_Slaves.hpp Cache_Server.o
@@ -34,9 +45,6 @@ Master_Slaves.o: Master_Slaves.cpp Master_Slaves.hpp Cache_Server.o
 Cache_Server.o: Cache_Server.cpp Cache_Server.hpp 
 	$(ECHO_NOMAD)
 	$(COMPILE) Cache_Server.cpp
-	
-$(L1): ;
-	$(ECHO_NOMAD)	
 
 clean:
 	@echo "cleaning obj files"

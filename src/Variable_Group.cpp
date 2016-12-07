@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -45,11 +52,10 @@
 /*-------------------------------------------------------------*/
 /*     check (also removes fixed variables from the group)     */
 /*-------------------------------------------------------------*/
-bool NOMAD::Variable_Group::check
-( const NOMAD::Point                      & fixed_vars ,
- const std::vector<NOMAD::bb_input_type> & bbit       ,
- std::vector<bool>                       * in_group   ,
- bool									 & mod           )
+bool NOMAD::Variable_Group::check( const NOMAD::Point                      & fixed_vars ,
+                                  const std::vector<NOMAD::bb_input_type> & bbit       ,
+                                  std::vector<bool>                       * in_group   ,
+                                  bool                                     & mod           )
 {
     
     // initial checks:
@@ -141,15 +147,17 @@ bool NOMAD::Variable_Group::check
 /*---------------------------------------------------------*/
 /*                compute the directions                   */
 /*---------------------------------------------------------*/
-void NOMAD::Variable_Group::get_directions ( std::list<NOMAD::Direction>	& dirs		,
-                                            NOMAD::poll_type				poll		,
-                                            const NOMAD::OrthogonalMesh		& mesh		)
+void NOMAD::Variable_Group::get_directions ( std::list<NOMAD::Direction>    & dirs  ,
+                                            NOMAD::poll_type                  poll  ,
+                                            const NOMAD::OrthogonalMesh     & mesh  )
 {
-    
-    _directions->compute ( dirs	,
-                          poll	,
+    // vectors are of size nc :
+    // ------------------------
+    _directions->compute ( dirs   ,
+                          poll    ,
                           mesh );
     return;
+    
 }
 
 /*---------------------------------------------------------*/
@@ -166,7 +174,8 @@ bool NOMAD::Variable_Group::operator < ( const NOMAD::Variable_Group & vg ) cons
     std::set<int>::const_iterator it1 ,
     it2 = vg._var_indexes.begin() ,
     end = _var_indexes.end();
-    for ( it1 = _var_indexes.begin() ; it1 != end ; ++it1 , ++it2 ) {
+    for ( it1 = _var_indexes.begin() ; it1 != end ; ++it1 , ++it2 )
+    {
         if ( *it1 < *it2 )
             return true;
         if ( *it1 > *it2 )

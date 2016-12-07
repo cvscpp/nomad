@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -137,7 +144,7 @@ void NOMAD::LH_Search::search ( NOMAD::Mads              & mads           ,
     int                      m          = _p.get_bb_nb_outputs();
     int                      pm1        = p-1;
     
-    // mesh sizes:
+    // mesh size:
     NOMAD::Point delta_max = signature->get_mesh()->get_delta_max ();
     NOMAD::Double delta_i;
     NOMAD::Point  delta;
@@ -180,7 +187,7 @@ void NOMAD::LH_Search::search ( NOMAD::Mads              & mads           ,
                 {
                     pts[i] = new NOMAD::Point ( p );
                     
-                    // for the initial mesh: delta is not used and there will
+                    // for the initial mesh: delta_m is not used and there will
                     // be no projection on mesh:
                     if ( !_initial_search )
                         delta_i = delta[i];

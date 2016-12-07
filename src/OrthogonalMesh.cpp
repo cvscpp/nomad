@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -44,68 +51,79 @@
 #include "OrthogonalMesh.hpp"
 
 /// Constructor (called only by derived objects).
-NOMAD::OrthogonalMesh::OrthogonalMesh (const NOMAD::Point	& Delta_0   ,
-                                       const NOMAD::Point	& Delta_min ,
-                                       const NOMAD::Point	& delta_min ,
-                                       const NOMAD::Point  & fixed_variables ,
-                                       NOMAD::Double		update_basis,
-                                       int					coarsening_step,
-                                       int					refining_step,
-                                       int                  limit_mesh_index ) :
-_delta_0			( Delta_0 ),
-_Delta_0			( Delta_0 ),
-_Delta_min			( Delta_min ),
-_delta_min			( delta_min ),
-_update_basis		( update_basis ),
-_coarsening_step	( coarsening_step ),
-_refining_step		( refining_step ),
+NOMAD::OrthogonalMesh::OrthogonalMesh (bool                    anisotropic_mesh ,
+                                       const NOMAD::Point    & Delta_0          ,
+                                       const NOMAD::Point    & Delta_min        ,
+                                       const NOMAD::Point    & delta_min        ,
+                                       const NOMAD::Point    & fixed_variables  ,
+                                       const NOMAD::Point    & granularity      ,
+                                       NOMAD::Double           update_basis     ,
+                                       int                     coarsening_step  ,
+                                       int                     refining_step    ,
+                                       int                     limit_mesh_index ) :
+_delta_0            ( Delta_0 ),
+_Delta_0            ( Delta_0 ),
+_Delta_min          ( Delta_min ),
+_delta_min          ( delta_min ),
+_fixed_variables    ( fixed_variables ),
+_granularity        ( granularity ),
+_anisotropic_mesh   ( anisotropic_mesh ),
+_update_basis       ( update_basis ),
+_coarsening_step    ( coarsening_step ),
+_refining_step      ( refining_step ),
 _limit_mesh_index   ( limit_mesh_index )
 {
-
-    _Delta_min_is_defined=_Delta_min.is_defined();
-    _Delta_min_is_complete=_Delta_min.is_complete();
     
-    bool chkMesh  = delta_min.is_defined();
-    bool chkPoll  = _Delta_min_is_defined;
+    
+    _Delta_min_is_defined = _Delta_min.is_defined();
+    _Delta_min_is_complete = _Delta_min.is_complete();
+    
+    _delta_min_is_defined = _delta_min.is_defined();
+    _delta_min_is_complete = _delta_min.is_complete();
+    
     _n = Delta_0.size();
     
+    _n_free_variables = _n - _fixed_variables.nb_defined();
     
-    _n_free_variables = _n - fixed_variables.nb_defined();
-    
-    // The delta_0 are decreased
-    _delta_0*=pow(_n_free_variables,-0.5);
+    if ( _granularity.is_defined() && ( ! _granularity.is_complete() || _granularity.size() != _n ) )
+        throw NOMAD::Exception ( "OrthogonalMesh.hpp" , __LINE__ ,
+                                "NOMAD::OrthogonalMesh::OrthogonalMesh(): granularity has undefined values" );
     
     if ( !_Delta_0.is_complete() )
         throw NOMAD::Exception (  "OrthogonalMesh.hpp" , __LINE__ ,
                                 "NOMAD::OrthogonalMesh::OrthogonalMesh(): delta_0 has undefined values" );
     
-    if ( chkMesh && delta_min.size() != _n )
+    if ( _delta_min_is_defined && delta_min.size() != _n )
         throw NOMAD::Exception ( "OrthogonalMesh.hpp" , __LINE__ ,
                                 "NOMAD::OrthogonalMesh::OrthogonalMesh(): delta_0 and delta_min have different sizes" );
     
-    if ( chkPoll && Delta_min.size() != _n )
+    if ( _Delta_min_is_defined && Delta_min.size() != _n )
         throw NOMAD::Exception ( "OrthogonalMesh.hpp" , __LINE__ ,
                                 "NOMAD::OrthogonalMesh::OrthogonalMesh(): Delta_0 and Delta_min have different sizes" );
     
     
     std::string error;
+    _all_granular = ( _granularity.is_defined() && _granularity.is_complete() ) ? true:false ;
     for ( int k = 0 ; k < _n ; ++k )
     {
         // we check that Delta_min <= Delta_0 and that delta_min <= delta_0:
-        if ( chkMesh &&
-            _delta_min[k].is_defined()						&&
-            _delta_0[k] < _delta_min[k]		)
+        if ( _delta_min_is_defined      &&
+            _delta_min[k].is_defined()  &&
+            _delta_0[k] < _delta_min[k] )
         {
             error = "NOMAD::OrthogonalMesh::OrthogonalMesh(): delta_0 < delta_min";
             break;
         }
-        if ( chkPoll &&
-            _Delta_min[k].is_defined()						&&
+        if ( _Delta_min_is_defined &&
+            _Delta_min[k].is_defined()                        &&
             _Delta_0[k] < _Delta_min[k]     )
         {
             error = "NOMAD::OrthogonalMesh::OrthogonalMesh(): Delta_0 < Delta_min";
             break;
         }
+        
+        if ( _all_granular && _granularity[k] == 0 )
+            _all_granular = false;
         
     }
     
@@ -137,42 +155,88 @@ void NOMAD::OrthogonalMesh::set_min_mesh_sizes ( const NOMAD::Point & delta_min 
     if ( ! delta_min.is_defined() )
     {
         _delta_min.clear();
+        _delta_min_is_defined = false;
+        _delta_min_is_complete = false;
         return;
     }
     
-    // If delta_min defined test that everything is consistent
+    // Test that given delta_min is valid
     if ( delta_min.size() != _n )
-        throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
-                                "NOMAD::OrthogonalMesh::set_min_mesh_sizes() delta_min has dimension different than mesh dimension" );
+        throw NOMAD::Exception ( "OrthogonalMesh.cpp" , __LINE__ ,
+                                "set_min_mesh_sizes() delta_min has dimension different than mesh dimension" );
     
-    if ( !delta_min.is_complete() )
+    if ( ! delta_min.is_complete() )
         throw NOMAD::Exception (  "OrthogonalMesh.hpp" , __LINE__ ,
-                                "NOMAD::OrthogonalMesh::set_min_mesh_sizes(): delta_min has some defined and undefined values" );
+                                "set_min_mesh_sizes(): delta_min has some defined and undefined values" );
+    
+    _delta_min.reset(_n);
+    _delta_min_is_defined = true;
+    _delta_min_is_complete = true;
+    _delta_min=delta_min;
     
     std::string error;
     for ( int k = 0 ; k < _n ; ++k )
     {
         
         // we check that Delta_min <= Delta_0 and that delta_min <= delta_0:
-        if ( delta_min[k].is_defined()						&&
-            _delta_0[k] < delta_min[k]		)
+        if ( delta_min[k].is_defined()    &&
+            _delta_0[k] < delta_min[k]    )
         {
-            error = "NOMAD::OrthogonalMesh::set_delta_min(): delta_0 < delta_min";
-            break;
+            _delta_min[k]=_delta_0[k];
         }
-        if ( delta_min[k].is_defined()						&&
+        if ( delta_min[k].is_defined()    &&
             _Delta_0[k] < delta_min[k]     )
         {
-            error = "NOMAD::OrthogonalMesh::set_delta_min(): Delta_0 < delta_min";
-            break;
+            _delta_min[k]=_Delta_0[k];
         }
         
     }
     
     if ( !error.empty() )
-        throw NOMAD::Exception ( "OrthogonalMesh.hpp" , __LINE__ , error );
+        throw NOMAD::Exception ( "OrthogonalMesh.cpp" , __LINE__ , error );
     
-    _delta_min=delta_min;
+    
+}
+
+
+/// Manually set the min poll size per coordinate.
+void NOMAD::OrthogonalMesh::set_min_poll_sizes ( const NOMAD::Point & Delta_min )
+{
+    
+    // If Delta_min undefined than _Delta_min->undefined
+    if ( ! Delta_min.is_defined() )
+    {
+        _Delta_min.clear();
+        _Delta_min_is_defined = false;
+        _Delta_min_is_complete = false;
+        return;
+    }
+    
+    // Test that given Delta_min is valid
+    if ( Delta_min.size() != _n )
+        throw NOMAD::Exception ( "OrthogonalMesh.cpp" , __LINE__ ,
+                                "set_min_poll_sizes() Delta_min has dimension different than mesh dimension" );
+    
+    // Test that the given Delta_min is complete
+    if ( ! Delta_min.is_complete() )
+        throw NOMAD::Exception (  "OrthogonalMesh.hpp" , __LINE__ ,
+                                "set_min_poll_sizes(): Delta_min has some defined and undefined values" );
+    
+    _Delta_min.reset( _n );
+    _Delta_min = Delta_min;
+    _Delta_min_is_defined = true;
+    _Delta_min_is_complete = true;
+    
+    std::string error;
+    for ( int k = 0 ; k < _n ; ++k )
+    {
+        // we check that Delta_min <= Delta_0 :
+        if ( Delta_min[k].is_defined() && _Delta_0[k] < Delta_min[k] )
+            _Delta_min[k]=_Delta_0[k];
+    }
+    
+    if ( !error.empty() )
+        throw NOMAD::Exception ( "OrthogonalMesh.cpp" , __LINE__ , error );
     
 }
 

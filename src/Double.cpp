@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -150,7 +157,8 @@ bool NOMAD::Double::atof ( const std::string & ss )
     std::string s = ss;
     NOMAD::toupper(s);
     
-    if ( s == "-" || ss == NOMAD::Double::_undef_str ) {
+    if ( s == "-" || ss == NOMAD::Double::_undef_str )
+    {
         _value   = 0.0;
         _defined = false;
         return true;
@@ -158,13 +166,15 @@ bool NOMAD::Double::atof ( const std::string & ss )
     
     if ( s == "INF" ||  s == "+INF" ||
         ss == NOMAD::Double::_inf_str ||
-        ss == ("+" + NOMAD::Double::_inf_str) ) {
+        ss == ("+" + NOMAD::Double::_inf_str) )
+    {
         _value   = NOMAD::INF;
         _defined = true;
         return true;
     }
     
-    if ( s == "-INF" || ss == ("-" + NOMAD::Double::_inf_str) ) {
+    if ( s == "-INF" || ss == ("-" + NOMAD::Double::_inf_str) )
+    {
         _value   = -NOMAD::INF;
         _defined = true;
         return true;
@@ -178,8 +188,10 @@ bool NOMAD::Double::atof ( const std::string & ss )
     
     size_t n = s.size();
     for ( size_t k = 1 ; k < n ; ++k )
-        if ( !isdigit(s[k]) && s[k] != '.' ) {
-            if ( s[k] == 'E' ) {
+        if ( !isdigit(s[k]) && s[k] != '.' )
+        {
+            if ( s[k] == 'E' )
+            {
                 if ( s.size() == k+1 )
                     return false;
                 ++k;
@@ -200,7 +212,8 @@ bool NOMAD::Double::atof ( const std::string & ss )
 /*-------------------------------------------------*/
 bool NOMAD::Double::relative_atof ( const std::string & s , bool & relative )
 {
-    if ( std::toupper(s[0]) == 'R' ) {
+    if ( std::toupper(s[0]) == 'R' )
+    {
         relative  = true;
         std::string ss = s;
         ss.erase(ss.begin());
@@ -368,7 +381,8 @@ NOMAD::Double & NOMAD::Double::operator = ( double r )
 /*------------------------------------------*/
 void NOMAD::Double::display ( const NOMAD::Display & out ) const
 {
-    if ( _defined ) {
+    if ( _defined )
+    {
         if ( _value == NOMAD::INF )
             out << NOMAD::Double::_inf_str;
         else if ( _value == -NOMAD::INF )
@@ -484,18 +498,22 @@ void NOMAD::Double::display ( const NOMAD::Display & out    ,
                 out.precision ( prec );
             
             if ( c == 'f' )
+            {
                 out.setf ( std::ios::fixed );
-            
+                out << _value;
+            }
             else if ( c == 'e' )
             {
                 out.unsetf ( std::ios::fixed );
                 out.setf   ( std::ios::scientific );
+                out << _value;
             }
             
             else if ( c == 'E' )
             {
                 out.unsetf ( std::ios::fixed );
                 out.setf   ( std::ios::scientific | std::ios::uppercase );
+                out << _value;
             }
             
             else if ( c == 'g' )
@@ -509,10 +527,11 @@ void NOMAD::Double::display ( const NOMAD::Display & out    ,
                 streamS.setf( std::ios::scientific);
                 streamS << _value;
                 streamF << _value;
-                if (streamS.str().length() < streamF.str().length())
-                    out.setf(std::ios::scientific);
+                
+                if ( streamS.str().length() < streamF.str().length() )
+                    out << streamS.str();
                 else
-                    out.setf(std::ios::fixed);
+                    out << streamF.str();
                 
             }
             
@@ -522,18 +541,16 @@ void NOMAD::Double::display ( const NOMAD::Display & out    ,
                 streamS.precision ( prec );
                 streamF.precision ( prec );
                 streamF.unsetf(std::ios::scientific);
-                streamF.setf( std::ios::fixed );
+                streamF.setf( std::ios::fixed | std::ios::uppercase );
                 streamS.unsetf(std::ios::fixed);
-                streamS.setf( std::ios::scientific);
+                streamS.setf( std::ios::scientific | std::ios::uppercase );
                 streamS << _value ;
                 streamF << _value ;
                 if (streamS.str().length() < streamF.str().length())
-                    out.setf(std::ios::scientific | std::ios::uppercase );
+                    out << streamS.str();
                 else
-                    out.setf(std::ios::fixed | std::ios::uppercase );
+                    out << streamF.str();
             }
-            
-            out << _value;
             
             out.precision ( old_prec  );
             out.flags     ( old_flags );
@@ -543,6 +560,7 @@ void NOMAD::Double::display ( const NOMAD::Display & out    ,
         out << NOMAD::Double::_undef_str;
 }
 
+
 /*------------------------------------------*/
 /*                  round                   */
 /*------------------------------------------*/
@@ -551,8 +569,31 @@ int NOMAD::Double::round ( void ) const
     if ( !_defined )
         throw Not_Defined ( "Double.cpp" , __LINE__ ,
                            "NOMAD::Double::round(): value not defined" );
-    return static_cast<int>(_value < 0.0 ? -std::floor(.5-_value) : std::floor(.5+_value));
+    
+    double d = (_value < 0.0 ? -std::floor(.5-_value) : std::floor(.5+_value));
+  
+    if ( d > NOMAD::P_INF_INT || d < NOMAD::M_INF_INT )
+        throw Invalid_Value ( "Double.cpp" , __LINE__ ,
+                           "NOMAD::Double::round(): value cannot be rounded to integer because it is outside of range" );
+
+    return static_cast<int> (d);
 }
+
+/*------------------------------------------*/
+/*              round to double             */
+/*------------------------------------------*/
+const NOMAD::Double NOMAD::Double::roundd ( void ) const
+{
+    if ( !_defined )
+        throw Not_Defined ( "Double.cpp" , __LINE__ ,
+                           "NOMAD::Double::round(): value not defined" );
+    
+    NOMAD::Double d = (_value < 0.0 ? -std::floor(.5-_value) : std::floor(.5+_value));
+    
+    return (_value < 0.0 ? -std::floor(.5-_value) : std::floor(.5+_value));
+    
+}
+
 
 
 /*------------------------------------------*/
@@ -563,7 +604,7 @@ const NOMAD::Double NOMAD::Double::ceil ( void ) const
     if ( !_defined )
         throw Not_Defined ( "Double.cpp" , __LINE__ ,
                            "NOMAD::Double::ceil(): value not defined" );
-    return NOMAD::Double(std::ceil(_value));
+    return NOMAD::Double( std::ceil(_value) );
 }
 
 /*------------------------------------------*/
@@ -574,7 +615,7 @@ const NOMAD::Double NOMAD::Double::floor ( void ) const
     if ( !_defined )
         throw Not_Defined ( "Double.cpp" , __LINE__ ,
                            "NOMAD::Double::floor(): value not defined" );
-    return NOMAD::Double(std::floor(_value));
+    return NOMAD::Double( std::floor(_value) );
 }
 
 /*------------------------------------------*/
@@ -640,7 +681,8 @@ const NOMAD::Double NOMAD::Double::rel_err ( const Double & x ) const
     double diff = fabs ( _value - x._value );
     
     // 2. test if one of the values is zero:
-    if ( _value == 0.0 || x._value == 0.0 ) {
+    if ( _value == 0.0 || x._value == 0.0 )
+    {
         
         // we return min{2,|x-y|} (instead of 1):
         if ( diff > 2.0 )
@@ -654,7 +696,8 @@ const NOMAD::Double NOMAD::Double::rel_err ( const Double & x ) const
     double err = diff / ( (a<b) ? b : a );
     
     // 4. test if we have opposite signs:
-    if ( _value * x._value < 0.0 ) {
+    if ( _value * x._value < 0.0 )
+    {
         
         // the original error gives err in ]1;2] : we check if |x-y| < 1
         // and if so we return |x-y| :
@@ -701,12 +744,13 @@ void NOMAD::Double::project_to_mesh ( const NOMAD::Double & ref   ,
 {
     if ( !_defined )
         return;
-
+    
     NOMAD::Double v0 = ( ref._defined ) ? ref : 0.0;
     
-    if ( delta._defined && delta != 0.0 ) {
+    if ( delta._defined && delta != 0.0 )
+    {
         
-        *this = v0 + ( (*this-v0) / delta).round() * delta;
+        *this = v0 + ( (*this-v0) / delta).roundd() * delta;
         
         if ( ub._defined && *this > ub )
             *this = ub;

@@ -2,74 +2,57 @@
 #                                                                                     #
 #                                  README                                             #
 #                                                                                     #
-#######################################################################################
-#                                                                                     #
-#            NOMAD - Nonsmooth Optimization by Mesh Adaptive Direct search            #
-#            V 3.7.2                                                                  #
-#                                                                                     #
-#	Copyright (C) 2001-2015                                                       #
-#                                                                                     #
-#                           Mark Abramson	 - the Boeing Company, Seattle        #
-#                           Charles Audet	 - Ecole Polytechnique, Montreal      #
-#                           Gilles Couture	 - Ecole Polytechnique, Montreal      #
-#                           John Dennis		 - Rice University, Houston           #
-#                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      #
-#                           Christophe Tribes    - Ecole Polytechnique, Montreal      #
-#                                                                                     #
 #-------------------------------------------------------------------------------------#
-#                                                                                     # 
-#	Contact information:                                                          #
+#  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      #
+#                                                                                     #
+#  NOMAD - version 3.7.3 has been created by                                          #
+#	          Charles Audet        - Ecole Polytechnique de Montreal              #
+#	          Sebastien Le Digabel - Ecole Polytechnique de Montreal              #
+#	          Christophe Tribes    - Ecole Polytechnique de Montreal              #
+#                                                                                     #
+#  The copyright of NOMAD - version 3.7.3 is owned by                                 #
+#                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              #
+#                 Christophe Tribes    - Ecole Polytechnique de Montreal              #
+#                                                                                     #
+#  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 #
+#                                                                                     #
+#  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     #
+#  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           #
+#  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   #
+#  Rice University, and were funded by AFOSR and Exxon Mobil.                         #
+#                                                                                     #
+#  Contact information:                                                               #
 #    Ecole Polytechnique de Montreal - GERAD                                          #
 #    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  #
 #    e-mail: nomad@gerad.ca                                                           #
 #    phone : 1-514-340-6053 #6928                                                     #
 #    fax   : 1-514-340-5665                                                           #
 #                                                                                     #
-# This program is free software: you can redistribute it and/or modify it under the   #
-# terms of the GNU Lesser General Public License as published by the Free Software    #
-# Foundation, either version 3 of the License, or (at your option) any later          #
-# version.                                                                            #
+#  This program is free software: you can redistribute it and/or modify it under the  #
+#  terms of the GNU Lesser General Public License as published by the Free Software   #
+#  Foundation, either version 3 of the License, or (at your option) any later         #
+#  version.                                                                           #
 #                                                                                     #
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY     #
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A     #
-# PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.    #
+#  This program is distributed in the hope that it will be useful, but WITHOUT ANY    #
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    #
+#  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   #
 #                                                                                     #
-#
-# You should have received a copy of the GNU Lesser General Public License along      #
-# with this program. If not, see <http://www.gnu.org/licenses/>.                      #
+#  You should have received a copy of the GNU Lesser General Public License along     #
+#  with this program. If not, see <http://www.gnu.org/licenses/>.                     #
 #                                                                                     #
-# You can find information on the NOMAD software at www.gerad.ca/nomad                #
-#######################################################################################
+#  You can find information on the NOMAD software at www.gerad.ca/nomad               #
+#-------------------------------------------------------------------------------------#
 
 
-     AUTHORS :
-
-* Mark A. Abramson (Mark.A.Abramson@boeing.com), The Boeing Company.
-
-* Charles Audet (www.gerad.ca/Charles.Audet), GERAD and Departement de
-mathematiques et de genie industriel, ecole Polytechnique de Montreal.
-
-* J.E. Dennis Jr. (www.caam.rice.edu/~dennis), Computational and Applied
-Mathematics Department, Rice University.
-
-* Sebastien Le Digabel (www.gerad.ca/Sebastien.Le.Digabel), GERAD and Departement
-de mathematiques et de genie industriel, ecole Polytechnique de Montreal.
-
-* Christophe Tribes, GERAD, Departement
-de mathematiques et de genie industriel, Department of mechanical engineering, ecole Polytechnique de Montreal.
-
-     DESCRIPTION :
+    DESCRIPTION :
 
 NOMAD is a C++ implementation of the Mesh Adaptive Direct Search (MADS) algorithm,
 designed for constrained optimization of black-box functions.
 
-The project started in 2001, and was funded in part by AFOSR, CRIAQ, FQRNT, LANL,
-NSERC, the Boeing Company, and ExxonMobil Upstream Research Company.
-
 
      WEB PAGE :
 
-http://www.gerad.ca/nomad/
+https://www.gerad.ca/nomad/
 
 
      FURTHER INSTRUCTIONS :
@@ -111,4 +94,4 @@ For informations about the execution of NOMAD, please read the user guide :
 
 or
 
-  http://www.gerad.ca/NOMAD/Downloads/user_guide.pdf
+  https://www.gerad.ca/NOMAD/Downloads/user_guide.pdf

@@ -1,14 +1,25 @@
-EXE                 = merge.exe
+UNAME := $(shell uname)
 
-COMPILATOR          = g++
+EXE                    = merge.exe
 
-COMPILATOR_OPTIONS  = -O2 -ansi 
-L1                  = $(NOMAD_HOME)/lib/nomad.a
-LIBS                = $(L1) -lm
-INCLUDE             = -I$(NOMAD_HOME)/src -I.
-COMPILE             = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
-OBJS                = merge.o
+COMPILATOR             = g++
+COMPILATOR_OPTIONS     = -O2 -ansi 
 
+LIB_DIR                = $(NOMAD_HOME)/lib
+LIB_NOMAD              = libnomad.so 
+
+CXXFLAGS               =           
+ifeq ($(UNAME), Linux)
+CXXFLAGS              += -Wl,-rpath,'$(LIB_DIR)'
+CXXFLAGS              += -ansi
+endif
+
+LDLIBS                 = -lm -lnomad
+
+INCLUDE                = -I$(NOMAD_HOME)/src -I.
+COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
+
+OBJS                   = merge.o
 
 ifndef NOMAD_HOME
 define ECHO_NOMAD
@@ -18,33 +29,34 @@ endef
 endif
 
 
-$(EXE): $(L1) $(OBJS)
+$(EXE): $(OBJS)
 	$(ECHO_NOMAD)
 	@echo "   building the scalar version ..."
 	@echo "   exe file : "$(EXE)
-	@$(COMPILATOR) -o  $(EXE) $(OBJS) $(LIBS) $(COMPILATOR_OPTIONS)
-	@strip  $(EXE)
+	@$(COMPILATOR) -o $(EXE) $(OBJS) $(LDLIBS) $(CXXFLAGS) -L$(LIB_DIR) 
+ifeq ($(UNAME), Darwin)
+	@install_name_tool -change $(LIB_NOMAD) $(NOMAD_HOME)/lib/$(LIB_NOMAD) $(EXE)
+endif
+
 
 
 merge.o: merge.cpp
 	$(ECHO_NOMAD)
 	@$(COMPILE) merge.cpp
 
-$(L1) $(L1_MPI): ;
-	$(ECHO_NOMAD)
 
-all: $(EXE) $(EXE_MPI)
+all: $(EXE)
 
 clean: ;
 	@echo "   cleaning obj files"
-	@rm -f $(OBJS) $(OBJS_MPI)
+	@rm -f $(OBJS)
 
 del: ;
 	@echo "   cleaning trash files"
 	@rm -f core *~
 	@echo "   cleaning obj files"
-	@rm -f $(OBJS) $(OBJS_MPI)
+	@rm -f $(OBJS)
 	@echo "   cleaning exe file"
-	@rm -f $(EXE) $(EXE_MPI)
+	@rm -f $(EXE) 
 
 

@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -78,8 +85,9 @@ void NOMAD::Barrier::display ( const Display & out ) const
     
     if ( _p.get_barrier_type() == NOMAD::EB )
         out << "extreme barrier (EB)" << std::endl;
-    
-    else {
+    else
+    {
+        
         
         out << "type                       : "
         << ( (_p.get_barrier_type()==NOMAD::FILTER) ? "filter" : "progressive"  )
@@ -87,7 +95,8 @@ void NOMAD::Barrier::display ( const Display & out ) const
         << "h_norm                     : " << _p.get_h_norm()   << std::endl
         << "h_min                      : " << _p.get_h_min()    << std::endl
         << "h_max                      : " << _h_max            << std::endl;
-        if ( _p.get_barrier_type()==NOMAD::PB || _p.get_barrier_type()==NOMAD::PEB_P ) {
+        if ( _p.get_barrier_type()==NOMAD::PB || _p.get_barrier_type()==NOMAD::PEB_P )
+        {
             out << "poll center  trigger rho   : " << _p.get_rho()      << std::endl
             << "number of trigger leaps    : " << _rho_leaps        << std::endl;
             if ( _p.get_barrier_type()==NOMAD::PEB_P )
@@ -125,9 +134,11 @@ void NOMAD::Barrier::display ( const Display & out ) const
 void NOMAD::Barrier::update_and_reset_success ( void )
 {
     if ( ( _p.get_barrier_type() == NOMAD::PB || _p.get_barrier_type() == NOMAD::PEB_P ) &&
-        _success != NOMAD::UNSUCCESSFUL ) {
+        _success != NOMAD::UNSUCCESSFUL )
+    {
         
-        if ( _success == NOMAD::PARTIAL_SUCCESS ) {
+        if ( _success == NOMAD::PARTIAL_SUCCESS )
+        {
             
             if ( _filter.empty() )
                 throw Barrier::Update_Error ( "Barrier.cpp" , __LINE__ ,
@@ -136,9 +147,11 @@ void NOMAD::Barrier::update_and_reset_success ( void )
             std::set<NOMAD::Filter_Point>::const_iterator it = _filter.end();
             --it;
             
-            while ( true ) {
+            while ( true )
+            {
                 
-                if ( it->get_point()->get_h().value() < _h_max.value() ) {
+                if ( it->get_point()->get_h().value() < _h_max.value() )
+                {
                     set_h_max ( it->get_point()->get_h() );
                     break;
                 }
@@ -171,7 +184,8 @@ void NOMAD::Barrier::insert ( const NOMAD::Eval_Point & x )
                                      "insertion of an Eval_Point into the bad Barrier object" );
     
     // basic check:
-    if ( !x.is_eval_ok() ) {
+    if ( !x.is_eval_ok() )
+    {
         _one_eval_succ = NOMAD::UNSUCCESSFUL;
         return;
     }
@@ -180,7 +194,8 @@ void NOMAD::Barrier::insert ( const NOMAD::Eval_Point & x )
     // then return _UNSUCCESSFUL_:
     size_t size_before = _prefilter.size();
     _prefilter.insert ( x.get_tag() );
-    if ( _prefilter.size() == size_before ) {
+    if ( _prefilter.size() == size_before )
+    {
         _one_eval_succ = NOMAD::UNSUCCESSFUL;
         return;
     }
@@ -193,7 +208,8 @@ void NOMAD::Barrier::insert ( const NOMAD::Eval_Point & x )
     if ( !x.is_EB_ok             () ||
         !x.get_f().is_defined   () ||
         !h.is_defined           () ||
-        h.value() > _h_max.value()    ) {
+        h.value() > _h_max.value()    )
+    {
         _one_eval_succ = NOMAD::UNSUCCESSFUL;
         return;
     }
@@ -217,7 +233,8 @@ void NOMAD::Barrier::insert ( const Barrier & b )
     NOMAD::Eval_Point * modifiable_x;
     
     std::list<const NOMAD::Eval_Point *>::const_iterator it , end = b._all_inserted.end();
-    for ( it = b._all_inserted.begin() ; it != end ; ++it ) {
+    for ( it = b._all_inserted.begin() ; it != end ; ++it )
+    {
         
         modifiable_x = &NOMAD::Cache::get_modifiable_point ( **it );
         
@@ -238,7 +255,8 @@ void NOMAD::Barrier::insert ( const Barrier & b )
 /*---------------------------------------------------------*/
 NOMAD::success_type NOMAD::Barrier::insert_feasible ( const NOMAD::Eval_Point & x )
 {
-    if ( !_best_feasible || ( x.get_f().value() < _best_feasible->get_f().value() ) ) {
+    if ( !_best_feasible || ( x.get_f().value() < _best_feasible->get_f().value() ) )
+    {
         _best_feasible = &x;
         return NOMAD::FULL_SUCCESS;
     }
@@ -250,16 +268,21 @@ NOMAD::success_type NOMAD::Barrier::insert_feasible ( const NOMAD::Eval_Point & 
 /*---------------------------------------------------------*/
 void NOMAD::Barrier::filter_insertion ( const NOMAD::Eval_Point & x , bool & insert )
 {
-    if ( _filter.empty() ) {
+    if ( _filter.empty() )
+    {
         _filter.insert (&x);
         insert = true;
     }
-    else {
+    else
+    {
+        
         
         insert = false;
         std::set<NOMAD::Filter_Point>::iterator it = _filter.begin();
-        while ( it != _filter.end() ) {
-            if ( x < *(it->get_point()) ) {
+        while ( it != _filter.end() )
+        {
+            if ( x < *(it->get_point()) )
+            {
                 _filter.erase(it++);
                 insert = true;
                 continue;
@@ -268,11 +291,14 @@ void NOMAD::Barrier::filter_insertion ( const NOMAD::Eval_Point & x , bool & ins
             ++it;
         }
         
-        if ( !insert ) {
+        if ( !insert )
+        {
             insert = true;
             std::set<NOMAD::Filter_Point>::iterator end = _filter.end();
-            for ( it = _filter.begin() ; it != end ; ++it ) {
-                if ( *(it->get_point()) < x ) {
+            for ( it = _filter.begin() ; it != end ; ++it )
+            {
+                if ( *(it->get_point()) < x )
+                {
                     insert = false;
                     break;
                 }
@@ -298,11 +324,13 @@ NOMAD::success_type NOMAD::Barrier::insert_infeasible ( const NOMAD::Eval_Point 
     
     // filter:
     // -------
-    if ( _p.get_barrier_type() == NOMAD::FILTER ) {
+    if ( _p.get_barrier_type() == NOMAD::FILTER )
+    {
         const NOMAD::Eval_Point * bi = get_best_infeasible();
         if ( !bi )
             return NOMAD::UNSUCCESSFUL;
-        if ( old_bi ) {
+        if ( old_bi )
+        {
             if ( bi->get_h().value() < old_bi->get_h().value() )
                 return NOMAD::FULL_SUCCESS;
             if ( insert )
@@ -380,23 +408,28 @@ void NOMAD::Barrier::select_poll_center ( NOMAD::success_type last_it_success )
     const NOMAD::Eval_Point * best_infeasible = get_best_infeasible();
     
     _sec_poll_center = NULL;
-    if ( !_best_feasible && !best_infeasible ) {
+    if ( !_best_feasible && !best_infeasible )
+    {
         _poll_center = NULL;
         return;
     }
-    if ( !best_infeasible ) {
+    if ( !best_infeasible )
+    {
         _poll_center = _best_feasible;
         return;
     }
-    if ( !_best_feasible ) {
+    if ( !_best_feasible )
+    {
         _poll_center = best_infeasible;
         return;
     }
     
     // filter:
-    if ( _p.get_barrier_type() == NOMAD::FILTER ) {
+    if ( _p.get_barrier_type() == NOMAD::FILTER )
+    {
         
-        if ( !_poll_center ) {
+        if ( !_poll_center )
+        {
             _poll_center = _best_feasible;
             return;
         }
@@ -409,15 +442,19 @@ void NOMAD::Barrier::select_poll_center ( NOMAD::success_type last_it_success )
     }
     
     // progressive barrier:
-    if ( _p.get_barrier_type() == NOMAD::PB || _p.get_barrier_type() == NOMAD::PEB_P ) {
+    if ( _p.get_barrier_type() == NOMAD::PB || _p.get_barrier_type() == NOMAD::PEB_P )
+    {
         
         const NOMAD::Point * last_poll_center = _poll_center;
         
-        if ( best_infeasible->get_f() < (_best_feasible->get_f() - _p.get_rho()) ) {
+        if ( best_infeasible->get_f() < (_best_feasible->get_f() - _p.get_rho()) )
+        {
             _poll_center     = best_infeasible;
             _sec_poll_center = _best_feasible;
         }
-        else {
+        else
+        {
+            
             _poll_center     = _best_feasible;
             _sec_poll_center = best_infeasible;
         }
@@ -435,9 +472,11 @@ void NOMAD::Barrier::set_h_max ( const NOMAD::Double & h_max )
     _h_max = h_max;
     
     // we remove all filter points x such that h(x) > h_max:
-    if ( !_filter.empty() ) {
+    if ( !_filter.empty() )
+    {
         
-        if ( _filter.begin()->get_point()->get_h().value() > _h_max.value() ) {
+        if ( _filter.begin()->get_point()->get_h().value() > _h_max.value() )
+        {
             _filter.clear();
             return;
         }
@@ -464,8 +503,10 @@ void NOMAD::Barrier::check_PEB_constraints ( const NOMAD::Eval_Point & x , bool 
     int                                        nb    = static_cast<int>(bbot.size());
     std::list<int>                             ks;
     
-    for ( int k = 0 ; k < nb ; ++k ) {
-        if ( bbot[k] == NOMAD::PEB_P && bbo[k] <= h_min ) {
+    for ( int k = 0 ; k < nb ; ++k )
+    {
+        if ( bbot[k] == NOMAD::PEB_P && bbo[k] <= h_min )
+        {
             if ( display )
                 _p.out() << std::endl
                 << "change status of blackbox output " << k
@@ -480,7 +521,8 @@ void NOMAD::Barrier::check_PEB_constraints ( const NOMAD::Eval_Point & x , bool 
     // at least one constraint changed status, so we have to update the filter
     // and remove all points that have their h value changed to infinity
     // (it can add new dominant points from the list _peb_lop):
-    if ( !ks.empty() ) {
+    if ( !ks.empty() )
+    {
         
         std::list<int>::const_iterator it_k , end_k = ks.end() , begin_k = ks.begin();
         
@@ -490,11 +532,13 @@ void NOMAD::Barrier::check_PEB_constraints ( const NOMAD::Eval_Point & x , bool 
         bool reset_filter = false;
         std::set<NOMAD::Filter_Point>::const_iterator end = _filter.end() , it;
         
-        for ( it = _filter.begin() ; it != end ; ++it ) {
+        for ( it = _filter.begin() ; it != end ; ++it )
+        {
             
             const NOMAD::Point & bbo_cur = it->get_point()->get_bb_outputs();
             for ( it_k = begin_k ; it_k != end_k ; ++it_k )
-                if ( bbo_cur[*it_k] > h_min ) {
+                if ( bbo_cur[*it_k] > h_min )
+                {
                     reset_filter = true;
                     break;
                 }
@@ -502,7 +546,8 @@ void NOMAD::Barrier::check_PEB_constraints ( const NOMAD::Eval_Point & x , bool 
                 break;
         }
         
-        if ( reset_filter ) {
+        if ( reset_filter )
+        {
             
             if ( display )
                 _p.out() << std::endl << "PEB change of status: filter reset" << std::endl;
@@ -515,19 +560,22 @@ void NOMAD::Barrier::check_PEB_constraints ( const NOMAD::Eval_Point & x , bool 
             std::list<const NOMAD::Eval_Point *>::const_iterator end2 = _peb_lop.end  ();
             std::list<const NOMAD::Eval_Point *>::iterator       it2  = _peb_lop.begin();
             
-            while ( it2 != end2 ) {
+            while ( it2 != end2 )
+            {
                 
                 insert = true;
                 const NOMAD::Point & bbo_cur = (*it2)->get_bb_outputs();
                 
                 for ( it_k = begin_k ; it_k != end_k ; ++it_k )
-                    if ( bbo_cur[*it_k] > h_min ) {
+                    if ( bbo_cur[*it_k] > h_min )
+                    {
                         insert = false;
                         break;
                     }
                 
                 // if insert==true: this point is potentially a new filter point:
-                if ( insert ) {
+                if ( insert )
+                {
                     filter_insertion ( **it2 , insert );
                     ++it2;
                 }
@@ -535,7 +583,9 @@ void NOMAD::Barrier::check_PEB_constraints ( const NOMAD::Eval_Point & x , bool 
                 // if insert==false: it means that the current filter point
                 // has to be removed from filter and from _peb_lop, and
                 // in addition, its h is put to INF:
-                else {
+                else
+                {
+                    
                     NOMAD::Cache::get_modifiable_point ( **it2 ).set_h ( NOMAD::Double() );
                     _peb_lop.erase(it2++);
                 }

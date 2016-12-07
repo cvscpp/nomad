@@ -2,6 +2,7 @@ DIMENSION      5              # number of variables
 
 BB_EXE         "$perl parallel_BBWrapper.pl"
 # BB_EXE bb_parallel.exe
+
 BB_MAX_BLOCK_SIZE 2 
 
 BB_OUTPUT_TYPE OBJ PB EB  

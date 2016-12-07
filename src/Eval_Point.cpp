@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -48,6 +55,7 @@
 /*   static members initialization   */
 /*-----------------------------------*/
 int NOMAD::Eval_Point::_current_tag = 0;
+
 int NOMAD::Eval_Point::_current_bbe = 0;
 int NOMAD::Eval_Point::_current_sgte_bbe = 0;
 /*---------------------------------------------------------------------*/
@@ -128,7 +136,8 @@ _bb_outputs       ( x.get_bb_outputs()                )
     for ( int i = 0 ; i < n ; ++i )
         (*this)[i] = x.get_coord(i);
     
-    switch ( x.get_eval_status() ) {
+    switch ( x.get_eval_status() )
+    {
         case 0:
             _eval_status = NOMAD::EVAL_FAIL;
             break;
@@ -249,7 +258,9 @@ void NOMAD::Eval_Point::set_direction ( const NOMAD::Direction * dir )
 
 void NOMAD::Eval_Point::set_poll_center ( const NOMAD::Eval_Point * pc )
 {
+    
     _poll_center=pc;
+    
 }
 
 /*-------------------------------------------------------*/
@@ -257,7 +268,8 @@ void NOMAD::Eval_Point::set_poll_center ( const NOMAD::Eval_Point * pc )
 /*-------------------------------------------------------*/
 void NOMAD::Eval_Point::set_signature ( NOMAD::Signature * s )
 {
-    if ( !s ) {
+    if ( !s )
+    {
         _signature = NULL;
         return;
     }
@@ -356,7 +368,8 @@ bool NOMAD::Eval_Point::treat_periodic_variables ( NOMAD::Direction *& new_dir )
 /*--------------------------------------------------*/
 bool NOMAD::Eval_Point::check ( int m , NOMAD::check_failed_type & cf ) const
 {
-    if ( size() <= 0 || !_signature || m != _bb_outputs.size() ) {
+    if ( size() <= 0 || !_signature || m != _bb_outputs.size() )
+    {
         std::string err = "Eval_Point::check() could not procede";
         if ( !_signature )
             err += " (no signature)";
@@ -404,19 +417,22 @@ bool NOMAD::Eval_Point::check ( int m , NOMAD::check_failed_type & cf ) const
         
         // check the integer/categorical/binary variables:
         iti = input_types[i];
-        if ( iti == NOMAD::BINARY && !xi.is_binary() ) {
+        if ( iti == NOMAD::BINARY && !xi.is_binary() )
+        {
             cf = NOMAD::BIN_FAIL;
             return false;
         }
         if ( ( iti == NOMAD::INTEGER || iti == NOMAD::CATEGORICAL )
-            && !xi.is_integer() ) {
+            && !xi.is_integer() )
+        {
             cf = ( iti == NOMAD::INTEGER ) ? NOMAD::INT_FAIL : NOMAD::CAT_FAIL;
             return false;
         }
         
         // check the fixed-variables:
         const NOMAD::Double & fvi = fv[i];
-        if ( fvi.is_defined() && fvi != xi ) {
+        if ( fvi.is_defined() && fvi != xi )
+        {
             cf = NOMAD::FIX_VAR_FAIL;
             return false;
         }
@@ -438,7 +454,8 @@ void NOMAD::Eval_Point::display_tag ( const NOMAD::Display & out ) const
 /*--------------------------------------------------*/
 void NOMAD::Eval_Point::display_eval( const NOMAD::Display & out , bool in_block ) const
 {
-    if ( in_block ) {
+    if ( in_block )
+    {
         
         std::ostringstream oss;
         oss << "#" << _tag;
@@ -455,7 +472,9 @@ void NOMAD::Eval_Point::display_eval( const NOMAD::Display & out , bool in_block
             out << "f    = " << _f << std::endl;
         out.close_block();
     }
-    else {
+    else
+    {
+        
         display_tag ( out );
         out << " x=( ";
         NOMAD::Point::display ( out , " " , 2  , NOMAD::Point::get_display_limit() );
@@ -498,8 +517,10 @@ bool NOMAD::Eval_Point::operator < ( const NOMAD::Eval_Point & x ) const
 bool NOMAD::Eval_Point::check_nan ( void ) const
 {
     int m = _bb_outputs.size();
-    for ( int i = 0 ; i < m ; ++i ) {
-        if ( _bb_outputs[i].is_defined() ) {
+    for ( int i = 0 ; i < m ; ++i ) 
+    {
+        if ( _bb_outputs[i].is_defined() ) 
+        {
 #ifdef WINDOWS
             if ( isnan ( _bb_outputs[i].value() ) )
                 return true;

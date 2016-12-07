@@ -2,22 +2,24 @@ Warning: {
 	Model use is disabled for problem with categorical variables.
 } 
 Warning: {
-	Anisotropic mesh are not supported with categorical and binary variables.
+	Default anisotropic mesh is disabled with categorical and binary variables.
 } 
 
-NOMAD - version 3.7.1 - www.gerad.ca/nomad
-
-Copyright (C) 2001-2015 {
-	Mark A. Abramson     - The Boeing Company
+NOMAD - version 3.7.3 has been created by {
 	Charles Audet        - Ecole Polytechnique de Montreal
-	Gilles Couture       - Ecole Polytechnique de Montreal
-	John E. Dennis, Jr.  - Rice University
 	Sebastien Le Digabel - Ecole Polytechnique de Montreal
 	Christophe Tribes    - Ecole Polytechnique de Montreal
 } 
 
-Funded in part by AFOSR and Exxon Mobil.
+The copyright of NOMAD - version 3.7.3 is owned by {
+	Sebastien Le Digabel - Ecole Polytechnique de Montreal
+	Christophe Tribes    - Ecole Polytechnique de Montreal
+} 
 
+NOMAD version 3 is a new version of Nomad v1 and v2, it has been funded by AFOSR and Exxon Mobil.
+Nomad v1 and v2 were created and developed by Mark A. Abramson from The Boeing Company, Charles Audet and Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from Rice University, and were funded by AFOSR and Exxon Mobil.
+
+Download  : www.gerad.ca/nomad
 License   : '$NOMAD_HOME/src/lgpl.txt'
 User guide: '$NOMAD_HOME/doc/user_guide.pdf'
 Examples  : '$NOMAD_HOME/examples'

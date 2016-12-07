@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -85,16 +92,18 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
     // save and modify parameters:
     std::string old_display_degree;
     _p.out().get_display_degree ( old_display_degree );
-    const std::list<std::string>         old_ds = _p.get_display_stats();
-    NOMAD::Double                     old_VNS_trigger = _p.get_VNS_trigger();
-    const std::string             old_stats_file_name = _p.get_stats_file_name();
-    const std::string                    old_sol_file = _p.get_solution_file();
-    const std::list<std::string>       old_stats_file = _p.get_stats_file();
-    const NOMAD::Point                   old_f_target = _p.get_f_target();
-    NOMAD::Double                             old_lct = _p.get_L_curve_target();
-    bool                                      old_sif = _p.get_stop_if_feasible();
+    const std::list<std::string>              old_ds = _p.get_display_stats();
+    const std::string           old_stats_file_name = _p.get_stats_file_name();
+    const std::string                  old_sol_file = _p.get_solution_file();
+    const std::list<std::string>      old_stats_file = _p.get_stats_file();
+    const NOMAD::Point                 old_f_target = _p.get_f_target();
+    NOMAD::Double                           old_lct = _p.get_L_curve_target();
+    bool                                  old_sif = _p.get_stop_if_feasible();
     const std::vector<NOMAD::bb_output_type> old_bbot = _p.get_bb_output_type();
     std::vector<NOMAD::bb_output_type>        p1_bbot = old_bbot;
+    
+    NOMAD::multi_formulation_type old_multi_formulation = _p.get_multi_formulation() ;
+    int                    old_multi_nb_mads_runs = _p.get_multi_nb_mads_runs();
     
     
     if ( display_degree == NOMAD::NORMAL_DISPLAY)  // Normal display -> minimal display for Phase one
@@ -117,16 +126,24 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
             p1_bbot[i] = NOMAD::UNDEFINED_BBO;
     }
     
-    if ( cnt == 0 ) {
+    if ( cnt == 0 )
+    {
         stop        = true;
         stop_reason = NOMAD::P1_FAIL;
         return;
     }
     
+
+    if ( cnt > 1 )
+    {
+        // _p.set_LH_SEARCH(100, 0);
+        _p.set_MULTI_FORMULATION( NOMAD::DIST_LINF );
+        _p.set_MULTI_NB_MADS_RUNS( 1 );
+    }
+    
     _p.set_F_TARGET         ( NOMAD::Point ( cnt , 0.0 ) );
     _p.set_L_CURVE_TARGET   ( NOMAD::Double()            );
     _p.set_STOP_IF_FEASIBLE ( false                      );
-    _p.set_VNS_SEARCH       ( false                      );
     _p.set_BB_OUTPUT_TYPE   ( p1_bbot                    );
     _p.set_SOLUTION_FILE    ( ""                         );
     _p.reset_stats_file();
@@ -160,7 +177,6 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
     // run MADS with modified parameters:
     // ----------------------------------
     
-    // C. Tribes  march 2014 ---- these flags are mads static and must be put back to their original value after running mads (see below)
     // get flags:
     bool flag_check_bimads , flag_reset_mesh , flag_reset_barriers , flag_p1_active;
     NOMAD::Mads::get_flags ( flag_check_bimads   ,
@@ -174,7 +190,7 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
     NOMAD::Mads::set_flag_reset_mesh     ( false );
     NOMAD::Mads::set_flag_p1_active      ( true  );
     NOMAD::Mads::set_flag_reset_barriers ( true  );
-	   
+
     // run:
     stop_reason = mads.run();
     
@@ -190,7 +206,9 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
         }
         
         // continue:
-        else {
+        else
+        {
+            
             stop        = false;
             stop_reason = NOMAD::NO_STOP;
         }
@@ -199,15 +217,11 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
         stop = true;
     
     // reset flags to there previous state :
-    // C. Tribes  march 2014 ---- these flags are mads static and must be put back to their original value after running mads
     NOMAD::Mads::set_flag_check_bimads ( flag_check_bimads  );
     NOMAD::Mads::set_flag_reset_mesh   ( flag_reset_mesh  );
     NOMAD::Mads::set_flag_p1_active    ( flag_p1_active );
     NOMAD::Mads::set_flag_reset_barriers    ( flag_reset_barriers );
     
-    //	NOMAD::Mads::set_flag_check_bimads ( true  );
-    //	NOMAD::Mads::set_flag_reset_mesh   ( true  );
-    //	NOMAD::Mads::set_flag_p1_active    ( false );
     
     // number of search points:
     nb_search_pts = stats.get_eval() - old_eval;
@@ -220,7 +234,6 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
     mads.set_pareto_front ( old_pareto_front );
     
     // restore parameters:
-    _p.set_VNS_SEARCH     ( old_VNS_trigger    );
     _p.set_F_TARGET       ( old_f_target       );
     _p.set_L_CURVE_TARGET ( old_lct            );
     _p.set_BB_OUTPUT_TYPE ( old_bbot           );
@@ -230,10 +243,12 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
     _p.set_STATS_FILE     ( old_stats_file_name , old_stats_file );
     _p.set_DISPLAY_STATS (old_ds);
     
+    _p.set_MULTI_NB_MADS_RUNS( old_multi_nb_mads_runs );
+    _p.set_MULTI_FORMULATION( old_multi_formulation );
+    
     _p.check ( false ,    // remove_history_file  = false
               true  ,    // remove_solution_file = true
               false    ); // remove_stats_file    = true
-    
     
     // counters:
     stats.add_p1_iterations ( stats.get_iterations() - old_it  );
@@ -316,7 +331,7 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
         
         // stats_file:
         const std::string & stats_file_name = _p.get_stats_file_name();
-        if ( !stats_file_name.empty() && display_degree > NOMAD::NO_DISPLAY) 
+        if ( !stats_file_name.empty() && display_degree > NOMAD::NO_DISPLAY)
             ev_control.stats_file ( stats_file_name , bf , true , NULL );
         
         // display_stats

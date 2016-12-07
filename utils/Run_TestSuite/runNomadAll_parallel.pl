@@ -34,7 +34,7 @@ if ( grep(/MINGW/,<aComRes>) ){
 	$MPIcommand="mpirun -n";    # version OSX and linux
 }
 
-my $keySearch=" Error | error | error: | Exception | NOMAD::Exception | Failed | Arrêt | Stop";
+my $keySearch=" Erreur | Error | error | error: | Exception | NOMAD::Exception | Failed | Arrêt | Stop";
 
 my $nombre_de_jobs_en_parallele:shared;
 if ( ! exists $ARGV[0]) {
@@ -78,8 +78,8 @@ my @list = (
 # 	["cd $ENV{NOMAD_HOME}/examples/interfaces/CUTEr ; sleep 10 ; if [ ! -e bb  ] ; then ./compile 2>&1 ; fi ; $MPIcommand 3 $ENV{NOMAD_HOME}/bin/$nomadMPI_EXE parameters.txt 2>&1 "],
 # 	["cd $ENV{NOMAD_HOME}/examples/interfaces/DLL/single_obj ; if [ -e nomad_for_dll  ] ; then rm -f nomad_for_dll  ; fi ; echo ; make 2>&1; ./nomad_for_dll  parameters.txt 2>&1"],
 # 	["cd $ENV{NOMAD_HOME}/examples/interfaces/DLL/bi_obj ; if [ -e nomad_for_dll  ] ; then rm -f nomad_for_dll  ; fi ; echo ; make clean 2>&1 ; make 2>&1; ./nomad_for_dll  parameters.txt 2>&1"],
-#   ["cd $ENV{NOMAD_HOME}/examples/interfaces/FORTRAN/example1 ; if [ -e test  ] ; then rm -f test  ; fi ; make clean 2>&1 ; make 2>&1; ./test  2>&1"],
-# 	["cd $ENV{NOMAD_HOME}/examples/interfaces/FORTRAN/example2 ; if [ -e test  ] ; then rm -f test  ; fi ; make clean 2>&1 ; make 2>&1; ./test  2>&1"],
+#   ["cd $ENV{NOMAD_HOME}/examples/interfaces/FORTRAN/example1 ; if [ -e test.exe  ] ; then rm -f test.exe  ; fi ; make clean 2>&1 ; make 2>&1; ./test.exe  2>&1"],
+# 	["cd $ENV{NOMAD_HOME}/examples/interfaces/FORTRAN/example2 ; if [ -e test.exe  ] ; then rm -f test.exe  ; fi ; make clean 2>&1 ; make 2>&1; ./test.exe  2>&1"],
 	["cd $ENV{NOMAD_HOME}/tools/COOP-MADS ; if [ -e coopmads.exe  ] ; then rm -f *.exe  *.o ; fi ; make 2>&1 ; cd problems/G2_10 ; g++ -o bb.exe  bb.cpp 2>&1; $MPIcommand 3 ../../coopmads.exe  param.txt 2>&1"],
 	["cd $ENV{NOMAD_HOME}/tools/COOP-MADS ; sleep 10 ; if [ ! -e coopmads.exe  ] ; then  make 2>&1 ; fi ; cd problems/RHEOLOGY ; g++ -o bb.exe  bb.cpp 2>&1; $MPIcommand 3 ../../coopmads.exe  param.txt 2>&1"],
 	["cd $ENV{NOMAD_HOME}/tools/PSD-MADS ; if [ -e psdmads.exe  ] ; then rm -f *.exe  *.o ; fi ; make 2>&1 ; cd problems/G2_20 ; g++ -o bb.exe  bb.cpp 2>&1; $MPIcommand 6 ../../psdmads.exe  param.txt 50 5 2>&1"]
@@ -127,7 +127,7 @@ sub RunProblem($$$$$){
  	    print WRITE_LOG "Path to problem: $Path[1] \n Command: $Problem[$nmax] ; Managed as process $index \n";
  	    open(LOG,"$command |") or die "Can't run program: $!\n";
 		if ($? != 0) {
-	        print "Echec d'exécution de la commande $! du process $index \n";
+	        print "Failed execution: command $! du process $index \n";
 			$$failed_ref++;
 			$fail=0;
     	}
@@ -135,7 +135,7 @@ sub RunProblem($$$$$){
  		   	@lines = <LOG>;
  		   	foreach $line (@lines){
 				if (my @foo = grep(/$keySearch/, $line) ) {
-					print "????????? Probleme a l'execution de la commande du process $index :\n     ----->   @foo\n";
+					print "????????? Problem executing command of process $index:\n     ----->   @foo\n";
  	      			print WRITE_LOG "     !!!!!!!!!!!!!!!   @foo \n ";
  	      			$$failed_ref++;
 					$fail=0;
@@ -183,13 +183,13 @@ sub CompileNOMAD($$$){
  	    print WRITE_LOG "Path: $Path[1] \n Command: $Problem[1] ; Managed as process $index \n";
  	    open(LOG,"$command |") or die "Can't run program: $!\n";
 		if ($? != 0) {
-	        print "Echec d'exécution de la compilation de NOMAD par la commande $! process $index \n";
+	        print "Failed compilation of NOMAD: command $! process $index \n";
 			$$failed=0;
     	}
     	else {
 			while (<LOG>){
 				if (my @foo = grep(/error/, $_) ) {
-					print "??????? Probleme a la compilation de NOMAD dans le process $index:\n     ----->     @foo\n";
+					print "??????? Problem encountered when compiling NOMAD in process $index:\n     ----->     @foo\n";
  	      			print WRITE_LOG "     ----->   @foo \n ";
 					$$failed=0;
  	      			last;   			
@@ -213,44 +213,42 @@ sub CompileNOMAD($$$){
 #####################################
 # nettoie les fichiers de log
 print "########################################################\n";
-print "On nettoie les anciens fichiers de log \n";
+print "Cleaning old log files\n";
 system ("rm -f log*.txt");
 
 
 # démarre la compilation de nomad 
 my $failedCompileNOMAD=1;
 my $thrNOMAD = threads->create("CompileNOMAD",($NOMADcompilations[0],1,\$failedCompileNOMAD));    ### Version parallele
-#CompileNOMAD($NOMADcompilations[0],1,\$failedCompileNOMAD);     ### Version scalaire 
 print "########################################################\n";
-print "La compilation de NOMAD (non mpi) vient de commencer \n";
+print "NOMAD compilation (not mpi) started \n";
 
 
 # démarre la compilation de nomad_mpi 
 my $failedCompileNOMAD_MPI=1;
 my $thrNOMAD_MPI = threads->create("CompileNOMAD",($NOMADcompilations[1],2,\$failedCompileNOMAD_MPI));  ### Version parallele
-#CompileNOMAD($NOMADcompilations[1],2,\$failedCompileNOMAD_MPI);  ### Version scalaire 
-print "La compilation de NOMAD (mpi) vient de commencer \n";
+print "NOMAD compilation (mpi) started\n";
 
 $thrNOMAD->join();
 $thrNOMAD_MPI->join();
 
 if ($failedCompileNOMAD==0){
-	print "La compilation de NOMAD (non mpi) a echoue. On s'arrete la! \n";
+	print "NOMAD compilation (not mpi) failed. Stopping here! \n";
 }
 
 if ($failedCompileNOMAD_MPI==0){
-	print "La compilation de NOMAD (mpi) a echoue. On s'arrete la! \n";
+	print "NOMAD compilation (mpi) failed. Stoppinf here! \n";
 }
 
 if ($failedCompileNOMAD==0 or $failedCompileNOMAD_MPI==0){
 	exit 0;
 }
 
-print "Les compilations de nomad ont réussi \n";
+print "NOMAD compilation(s) success\n";
 print "########################################################\n\n";
 
 print "########################################################\n";
-print "Démarrage des executions en parallele pour les problemes \n";
+print "Starting parallel executions of problems \n";
 print "########################################################\n";
 
 
@@ -265,7 +263,7 @@ while ($started < scalar @list ){
 	$semaphoreProblems->down();
  
 	# si le sémaphore est a 0, le processus principal va se bloquer en attendant une nouvelle place
-	print "Creation du job $started\n";
+	print "Creating job $started\n";
 	my $thr = threads->create("RunProblem", (
 		$aRefToAListOfCommands,
 		$started,
@@ -281,24 +279,36 @@ while ($started < scalar @list ){
 	# $thr->join();
 }
  
+print "########################################################\n";
+ 
 # attend les derniers jobs
+my $cpt_Prev = $cpt;
+print "\n $cpt jobs completed for $started jobs started, patience!\n";
+# Disable buffering 
+$| = 1;
 while ($cpt < $started){
-	print "Seul $cpt jobs finis sur $started, on patiente!\n";
+    print ".";
+	if ( $cpt > $cpt_Prev) {
+		print "\n $cpt jobs completed for $started jobs started, patience!\n";
+		}
+	$cpt_Prev = $cpt;	
 	sleep(3);
 }
-print "$cpt jobs lances, $failed échoués, sur les ".scalar @list." prévus\n";
+print "\n $cpt jobs started, $failed jobs failed, ".scalar @list." jobs to be done\n";
+
+print "########################################################\n";
 
 if ($failed !=0) {
 	print "----->  Check the readme file for the failed problem(s)!!! \n"; 
 }
 
-print "On combine tous les logs en un seul\n";
+print "All logs are combined in a single log file\n";
 my $i=0;
-open (LOGALL, '>', "logAll.txt") or die("impossible d'ecrire dans le fichier logAll.txt, $!");
+open (LOGALL, '>', "logAll.txt") or die("Not able to write in logAll.txt, $!");
 while ($i < scalar @list ){
 	# incrémente le compteur
 	$i++;
-	open (LOGI, '<', "log$i.txt") or die("Impossible de lire log$i.txt, $!\n");	
+	open (LOGI, '<', "log$i.txt") or die("Cannot read file log$i.txt, $!\n");	
 	print LOGALL "*********************************************************\n";
   	while (my $Ligne = <LOGI> ) {
     	print LOGALL $Ligne;

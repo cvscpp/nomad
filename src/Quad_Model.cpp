@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -45,12 +52,11 @@
 /*-----------------------------------------------------------*/
 /*                         constructor                       */
 /*-----------------------------------------------------------*/
-NOMAD::Quad_Model::Quad_Model
-( const NOMAD::Display                     & out       ,
- const std::vector<NOMAD::bb_output_type> & bbot      ,
- const NOMAD::Cache                       & cache     ,
- const NOMAD::Signature                   & signature   )
-: _out                  ( out                                 ) ,
+NOMAD::Quad_Model::Quad_Model ( const NOMAD::Display                     & out       ,
+                               const std::vector<NOMAD::bb_output_type> & bbot      ,
+                               const NOMAD::Cache                       & cache     ,
+                               const NOMAD::Signature                   & signature   )
+: _out                ( out                                 ) ,
 _bbot                 ( bbot                                ) ,
 _interpolation_type   ( NOMAD::UNDEFINED_INTERPOLATION_TYPE ) ,
 _n                    ( signature.get_n()                   ) ,
@@ -165,7 +171,8 @@ void NOMAD::Quad_Model::init_alpha ( void )
 /*  check evaluation point outputs before the integration  */
 /*  into an interpolation set (private)                    */
 /*---------------------------------------------------------*/
-bool NOMAD::Quad_Model::check_outputs ( const NOMAD::Point & bbo , int m ) const {
+bool NOMAD::Quad_Model::check_outputs ( const NOMAD::Point & bbo , int m ) const
+{
     
     if ( bbo.size() != m )
         return false;
@@ -259,7 +266,8 @@ void NOMAD::Quad_Model::reduce_Y ( const NOMAD::Point & center     ,
     _Y.clear();
     
     std::multiset<NOMAD::Model_Sorted_Point>::const_iterator it , end = Ys.end();
-    for ( it = Ys.begin() ; it != end ; ++it ) {
+    for ( it = Ys.begin() ; it != end ; ++it )
+    {
         if ( get_nY() < max_Y_size )
             _Y.push_back ( static_cast<NOMAD::Eval_Point *> ( it->get_point() ) );
         else
@@ -310,7 +318,8 @@ bool NOMAD::Quad_Model::is_within_trust_radius ( const NOMAD::Point & x ) const
 /*--------------------------------------------------------------*/
 void NOMAD::Quad_Model::define_scaling ( const NOMAD::Double & r )
 {
-    if ( _error_flag || _Y.empty() ) {
+    if ( _error_flag || _Y.empty() )
+    {
         _error_flag = true;
         return;
     }
@@ -371,9 +380,11 @@ void NOMAD::Quad_Model::define_scaling ( const NOMAD::Double & r )
 #endif
     
     // compute the scaling (and detect fixed variables):
-    for ( k = 0 ; k < nY ; ++k ) {
+    for ( k = 0 ; k < nY ; ++k )
+    {
         
-        for ( i = 0 ; i < _n ; ++i ) {
+        for ( i = 0 ; i < _n ; ++i )
+        {
             tmp = ( (*_Y[k])[i] - _ref[i] ).abs();
             if ( !_scaling[i].is_defined() || _scaling[i] < tmp )
                 _scaling[i] = tmp;
@@ -429,9 +440,12 @@ void NOMAD::Quad_Model::define_scaling ( const NOMAD::Double & r )
 /*       LeDigabel, Tribes, 2014                                     */
 /*  . looks also for fixed variables                                 */
 /*-------------------------------------------------------------------*/
-void NOMAD::Quad_Model::define_scaling_by_directions ( const std::list<NOMAD::Direction> & dirs, const NOMAD::Point & delta_m, const NOMAD::Double & epsilon  )
+void NOMAD::Quad_Model::define_scaling_by_directions ( const std::list<NOMAD::Direction> & dirs,
+                                                      const NOMAD::Point & delta_m,
+                                                      const NOMAD::Double & epsilon  )
 {
-    if ( _error_flag || _Y.empty() ) {
+    if ( _error_flag || _Y.empty() )
+    {
         _error_flag = true;
         return;
     }
@@ -671,7 +685,7 @@ bool NOMAD::Quad_Model::unscale ( NOMAD::Point & x ) const
 }
 
 /*-----------------------------------------------------------*/
-/*                       unscale the slope at a point                     */
+/*                       unscale the slope at a point        */
 /*-----------------------------------------------------------*/
 bool NOMAD::Quad_Model::unscale_grad ( NOMAD::Point & x ) const
 {
@@ -694,7 +708,8 @@ bool NOMAD::Quad_Model::unscale_grad ( NOMAD::Point & x ) const
 /*  compute the element (i,j) of the interpolation matrix M(phi,Y)  */
 /*  (private)                                                       */
 /*------------------------------------------------------------------*/
-double NOMAD::Quad_Model::compute_M ( int i , int j ) const {
+double NOMAD::Quad_Model::compute_M ( int i , int j ) const
+{
     
     if ( _error_flag )
         return 0.0;
@@ -716,7 +731,8 @@ double NOMAD::Quad_Model::compute_M ( int i , int j ) const {
     r    = jm2n;
     i1   = -1;
     
-    while ( r > 0 ) {
+    while ( r > 0 )
+    {
         r -= dec;
         ++i1;
         --dec;
@@ -742,22 +758,27 @@ void NOMAD::Quad_Model::construct ( bool   use_WP     ,
     
     
     // MFN interpolation:
-    if ( p1 < _n_alpha ) {
+    if ( p1 < _n_alpha )
+    {
         _interpolation_type = NOMAD::MFN;
         _error_flag = !construct_MFN_model ( eps , max_mpn , max_Y_size );
     }
-    else {
+    else
+    {
+        
         
         _error_flag = true;
         
         // well-poised regression:
-        if ( use_WP && p1 > _n_alpha ) {
+        if ( use_WP && p1 > _n_alpha )
+        {
             _interpolation_type = NOMAD::WP_REGRESSION;
             _error_flag = !construct_WP_model ( max_Y_size );
         }
         
         // regression:
-        if ( _error_flag ) {
+        if ( _error_flag )
+        {
             _interpolation_type = NOMAD::REGRESSION;
             _error_flag = !construct_regression_model ( eps , max_mpn , max_Y_size );
         }
@@ -771,21 +792,23 @@ void NOMAD::Quad_Model::construct ( bool   use_WP     ,
 /*    . used in construct_WP_model()                             */
 /*    . private                                                  */
 /*---------------------------------------------------------------*/
-int NOMAD::Quad_Model::find_max_lix
-( const NOMAD::Point                     & li      ,
- const std::vector<NOMAD::Eval_Point *> & Y       ,
- int                                      i1      ,
- int                                      i2      ,
- NOMAD::Double                          & max_lix   ) const
+int NOMAD::Quad_Model::find_max_lix ( const NOMAD::Point                     & li      ,
+                                     const std::vector<NOMAD::Eval_Point *> & Y       ,
+                                     int                                      i1      ,
+                                     int                                      i2      ,
+                                     NOMAD::Double                          & max_lix   ) const
 {
     max_lix = -1.0;
     int  ji = -1;
     NOMAD::Double tmp;
-    for ( int j = i1 ; j <= i2 ; ++j ) {
+    for ( int j = i1 ; j <= i2 ; ++j )
+    {
         tmp = eval ( *Y[j] , li );
-        if ( tmp.is_defined() ) {
+        if ( tmp.is_defined() )
+        {
             tmp = tmp.abs();
-            if ( tmp > max_lix ) {
+            if ( tmp > max_lix )
+            {
                 max_lix = tmp;
                 ji      = j;
             }
@@ -814,7 +837,8 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
     int i , j , k , p1 = get_nY();
     
     // the number of points (p+1) must be in [1+(n+1)(n+2)/2;MS_MAX_Y_SIZE]:
-    if ( p1 <= _n_alpha || p1 > max_Y_size ) {
+    if ( p1 <= _n_alpha || p1 > max_Y_size )
+    {
 #ifdef DEBUG
         _out << std::endl
         << "NOMAD::Quad_Model::construct_WP_model(): "
@@ -826,7 +850,8 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
     
     // Lagrange polynomials:
     std::vector<NOMAD::Point *> l;
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         l.push_back ( new NOMAD::Point ( _n_alpha ) );
         for ( j = 0 ; j < _n_alpha ; ++j )
             (*l[i])[j] = (i==j) ? 1.0 : 0.0;
@@ -845,16 +870,19 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
     
     // use algo 6.2 p.95 of the DFO book in order to construct Lagrange polynomials:
     // -----------------------------------------------------------------------------
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         
         // 1. point selection (select a point in Y2: Y2[iy2]):
         // -------------------
-        if ( i > 0 ) {
+        if ( i > 0 )
+        {
             
             ny2m1 = static_cast<int>(Y2.size())-1;
             iy2   = find_max_lix ( *l[i] , Y2 , 0 , ny2m1 , max_lix );
             
-            if ( iy2 < 0 ) {
+            if ( iy2 < 0 )
+            {
 #ifdef DEBUG
                 _out << std::endl
                 << "NOMAD::Quad_Model::construct_WP_model(): "
@@ -876,7 +904,8 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
         // -----------------
         liyi = eval ( *Y1[i] , *l[i] );
         
-        if ( liyi.abs().value() < 1e-15 ) {
+        if ( liyi.abs().value() < 1e-15 )
+        {
 #ifdef DEBUG
             _out << std::endl
             << "NOMAD::Quad_Model::construct_WP_model(): set Y is not poised"
@@ -887,7 +916,8 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
             return false;
         }
         
-        for ( k = 0 ; k < _n_alpha ; ++k ) {
+        for ( k = 0 ; k < _n_alpha ; ++k )
+        {
             (*l[i])[k] /= liyi;
             if ( (*l[i])[k].abs().value() < 1e-15 )
                 (*l[i])[k] = 0.0;
@@ -896,9 +926,11 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
         // 3. orthogonalization:
         // ---------------------
         for ( j = 0 ; j < _n_alpha ; ++j )
-            if ( j != i ) {
+            if ( j != i )
+            {
                 ljyi = eval ( *Y1[i] , *l[j] );
-                for ( k = 0 ; k < _n_alpha ; ++k ) {
+                for ( k = 0 ; k < _n_alpha ; ++k )
+                {
                     (*l[j])[k] = (*l[j])[k] - ljyi * (*l[i])[k];
                     if ( (*l[j])[k].abs().value() < 1e-15 )
                         (*l[j])[k] = 0.0;
@@ -914,8 +946,10 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
     // --------------
     int m = static_cast<int> ( _bbot.size() );
     for ( i = 0 ; i < m ; ++i )
-        if ( _alpha[i] ) {
-            for ( j = 0 ; j < _n_alpha ; ++j ) {
+        if ( _alpha[i] )
+        {
+            for ( j = 0 ; j < _n_alpha ; ++j )
+            {
                 (*_alpha[i])[j] = 0.0;
                 for ( k = 0 ; k < _n_alpha ; ++k )
                     (*_alpha[i])[j] += Y1[k]->get_bb_outputs()[i] * (*l[k])[j];
@@ -935,9 +969,11 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
     NOMAD::Double ljyk , lkyk , lix , new_rel_err ,
     cur_rel_err = compute_max_rel_err();
     
-    if ( cur_rel_err.is_defined() && cur_rel_err.value() > 1e-15 ) {
+    if ( cur_rel_err.is_defined() && cur_rel_err.value() > 1e-15 )
+    {
         
-        for ( int niter = 0 ; niter < 10 ; ++niter ) {
+        for ( int niter = 0 ; niter < 10 ; ++niter )
+        {
             
             ny2m1 = static_cast<int>(Y2.size())-1;
             
@@ -948,10 +984,12 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
             iy2     = -1;
             ik      = -1;
             
-            for ( i = 0 ; i < _n_alpha ; ++i ) {
+            for ( i = 0 ; i < _n_alpha ; ++i )
+            {
                 
                 j = find_max_lix ( *l[i] , Y2 , 0 , ny2m1 , lix );
-                if ( j >= 0 && lix > max_lix ) {
+                if ( j >= 0 && lix > max_lix )
+                {
                     max_lix = lix;
                     iy2     = j;
                     ik      = i;
@@ -978,8 +1016,10 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
             for ( i = 0 ; i < _n_alpha ; ++i )
                 (*l[ik])[i] /= lkyk;
             
-            for ( j = 0 ; j < _n_alpha ; ++j ) {
-                if ( j != ik ) {
+            for ( j = 0 ; j < _n_alpha ; ++j )
+            {
+                if ( j != ik )
+                {
                     ljyk = eval ( *Y1[ik] , *l[j] );
                     for ( i = 0 ; i < _n_alpha ; ++i )
                         (*l[j])[i] = (*l[j])[i] - ljyk * (*l[ik])[i];
@@ -988,9 +1028,11 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
             
             // save old alpha and compute new one:
             for ( i = 0 ; i < m ; ++i )
-                if ( _alpha[i] ) {
+                if ( _alpha[i] )
+                {
                     *(old_alpha[i]) = *(_alpha[i]);
-                    for ( j = 0 ; j < _n_alpha ; ++j ) {
+                    for ( j = 0 ; j < _n_alpha ; ++j )
+                    {
                         (*_alpha[i])[j] = 0.0;
                         for ( k = 0 ; k < _n_alpha ; ++k )
                             (*_alpha[i])[j] += Y1[k]->get_bb_outputs()[i] * (*l[k])[j];
@@ -1001,7 +1043,8 @@ bool NOMAD::Quad_Model::construct_WP_model ( int max_Y_size )
             new_rel_err = compute_max_rel_err();
             
             // if no better error, restore old alpha and exit loop:
-            if ( !new_rel_err.is_defined() || new_rel_err >= cur_rel_err ) {
+            if ( !new_rel_err.is_defined() || new_rel_err >= cur_rel_err )
+            {
                 tmp_alpha = _alpha;
                 _alpha    = old_alpha;
                 old_alpha = tmp_alpha;
@@ -1046,7 +1089,8 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
     int p1 = get_nY();
     
     // the number of points (p+1) must be in [(n+1)(n+2)/2;MS_MAX_Y_SIZE]:
-    if ( p1 < _n_alpha || p1 > max_Y_size ) {
+    if ( p1 < _n_alpha || p1 > max_Y_size )
+    {
 #ifdef DEBUG
         _out << std::endl
         << "NOMAD::Quad_Model::construct_regression_model(): "
@@ -1059,7 +1103,8 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
     
     // for this procedure, the number of points is limited to 500
     // (because of the SVD decomposition):
-    if ( p1 > 500 ) {
+    if ( p1 > 500 )
+    {
         reduce_Y ( NOMAD::Point ( _n , 0.0 ) , 500 );
         p1 = 500;
     }
@@ -1069,15 +1114,18 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
     int       i , j , k;
     double ** F = new double *[_n_alpha];
     double ** M = new double *[p1];
-    for ( i = 0 ; i < p1 ; ++i ) {
+    for ( i = 0 ; i < p1 ; ++i )
+    {
         M[i] = new double[_n_alpha];
         for ( j = 0 ; j < _n_alpha ; ++j )
             M[i][j] = compute_M ( i , j );
     }
     
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         F[i] = new double[_n_alpha];
-        for ( j = 0 ; j <= i ; ++j ) {
+        for ( j = 0 ; j <= i ; ++j )
+        {
             F[i][j] = 0.0;
             for ( k = 0 ; k < p1 ; ++k )
                 F[i][j] += M[k][i] * M[k][j];
@@ -1088,7 +1136,8 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
     
 #ifdef DEBUG
     _out << std::endl << "F=";
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         _out << "\t";
         for ( j = 0 ; j < _n_alpha ; ++j )
             _out << std::setw(12) << F[i][j] << " ";
@@ -1108,14 +1157,16 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
         V[i] = new double[_n_alpha];
     
     std::string error_msg;
-    if ( NOMAD::SVD_decomposition ( error_msg , F , W , V , _n_alpha , _n_alpha , max_mpn ) ) {
+    if ( NOMAD::SVD_decomposition ( error_msg , F , W , V , _n_alpha , _n_alpha , max_mpn ) )
+    {
         
         // compute condition number:
         compute_cond ( W , _n_alpha , eps );
         
 #ifdef DEBUG
         _out << std::endl << "F=";
-        for ( i = 0 ; i < _n_alpha ; ++i ) {
+        for ( i = 0 ; i < _n_alpha ; ++i )
+        {
             _out << "\t";
             for ( j = 0 ; j < _n_alpha ; ++j )
                 _out << std::setw(12) << F[i][j] << " ";
@@ -1128,7 +1179,8 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
         _out << std::endl << std::endl << "cond=" << _cond << std::endl;
         
         _out << std::endl << "V=";
-        for ( i = 0 ; i < _n_alpha ; ++i ) {
+        for ( i = 0 ; i < _n_alpha ; ++i )
+        {
             _out << "\t";
             for ( j = 0 ; j < _n_alpha ; ++j )
                 _out << std::setw(12) << V[i][j] << " ";
@@ -1137,7 +1189,9 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
 #endif
         
     }
-    else {
+    else
+    {
+        
 #ifdef DEBUG
         _out << std::endl << "NOMAD::Quad_Model::construct_regression_model(): "
         << "SVD decomposition (" << error_msg << ")"
@@ -1149,7 +1203,8 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
     
     // resolution of system F.alpha = M'.f(Y):
     // ---------------------------------------
-    if ( !error ) {
+    if ( !error )
+    {
         int m = static_cast<int> ( _bbot.size() );
         for ( i = 0 ; i < m ; ++i )
             if ( _alpha[i] )
@@ -1157,7 +1212,8 @@ bool NOMAD::Quad_Model::construct_regression_model ( double eps        ,
     }
     
     // free memory:
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         delete [] F[i];
         delete [] V[i];
     }
@@ -1182,7 +1238,8 @@ void NOMAD::Quad_Model::compute_cond ( const double * W , int n , double eps )
 {
     double min = NOMAD::INF;
     double max = -min;
-    for ( int i = 0 ; i < n ; ++i ) {
+    for ( int i = 0 ; i < n ; ++i )
+    {
         if ( W[i] < min )
             min = W[i];
         if ( W[i] > max )
@@ -1203,7 +1260,7 @@ void NOMAD::Quad_Model::solve_regression_system ( double      ** M         ,
                                                  double      ** V         ,
                                                  int            bbo_index ,
                                                  NOMAD::Point & alpha     ,
-                                                 double         eps	      ) const
+                                                 double         eps       ) const
 {
     // resize the alpha vector:
     if ( alpha.size() != _n_alpha )
@@ -1213,7 +1270,8 @@ void NOMAD::Quad_Model::solve_regression_system ( double      ** M         ,
     int      i , k , p1 = get_nY();
     
     // solve the system:
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         alpha_tmp[i] = 0.0;
         for ( k = 0 ; k < p1 ; ++k )
             alpha_tmp[i] += M[k][i] * ( _Y[k]->get_bb_outputs()[bbo_index].value() );
@@ -1224,7 +1282,8 @@ void NOMAD::Quad_Model::solve_regression_system ( double      ** M         ,
     // some W values will be zero (or near zero);
     // each value that is smaller than eps is ignored
     
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         alpha_tmp2[i] = 0.0;
         for ( k = 0 ; k < _n_alpha ; ++k )
             if ( W[i] > eps )
@@ -1233,7 +1292,8 @@ void NOMAD::Quad_Model::solve_regression_system ( double      ** M         ,
     
     delete [] alpha_tmp;
     
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         alpha[i] = 0.0;
         for ( k = 0 ; k < _n_alpha ; ++k )
             alpha[i] += V[i][k] * alpha_tmp2[k];
@@ -1261,7 +1321,8 @@ bool NOMAD::Quad_Model::construct_MFN_model ( double eps        ,
     int p1 = get_nY();
     
     // the number of points (p+1) must be in [n+1;(n+1)(n+2)/2-1]:
-    if ( p1 <= _nfree || p1 >= _n_alpha ) {
+    if ( p1 <= _nfree || p1 >= _n_alpha )
+    {
 #ifdef DEBUG
         _out << std::endl
         << "NOMAD::Quad_Model::construct_MFN_model(): "
@@ -1273,7 +1334,8 @@ bool NOMAD::Quad_Model::construct_MFN_model ( double eps        ,
     
     // for this procedure, the number of points is limited to 250
     // (because of the SVD decomposition):
-    if ( p1 > 250 ) {
+    if ( p1 > 250 )
+    {
         reduce_Y ( NOMAD::Point ( _n , 0.0 ) , 250 );
         p1 = 250;
     }
@@ -1360,7 +1422,8 @@ bool NOMAD::Quad_Model::construct_MFN_model ( double eps        ,
     
     std::string error_msg;
     
-    if ( NOMAD::SVD_decomposition ( error_msg , F , W , V , nF , nF , max_mpn ) ) {
+    if ( NOMAD::SVD_decomposition ( error_msg , F , W , V , nF , nF , max_mpn ) )
+    {
         
         // compute condition number:
         compute_cond ( W , nF , eps );
@@ -1433,12 +1496,12 @@ bool NOMAD::Quad_Model::construct_MFN_model ( double eps        ,
 /*  resolution of system F.[mu alpha_L]'=[f(Y) 0]'  */
 /*  for MFN interpolation (private)                 */
 /*--------------------------------------------------*/
-void NOMAD::Quad_Model::solve_MFN_system ( double      ** F         ,
+void NOMAD::Quad_Model::solve_MFN_system ( double      ** F        ,
                                           double       * W         ,
                                           double      ** V         ,
                                           int            bbo_index ,
                                           NOMAD::Point & alpha     ,
-                                          double         eps	      ) const
+                                          double         eps        ) const
 {
     // resize the alpha vector:
     if ( alpha.size() != _n_alpha )
@@ -1536,7 +1599,8 @@ void NOMAD::Quad_Model::solve_MFN_system ( double      ** F         ,
 /*-----------------------------------------------------------*/
 bool NOMAD::Quad_Model::check_Y ( void ) const
 {
-    if ( _Y.empty() ) {
+    if ( _Y.empty() )
+    {
 #ifdef DEBUG
         _out << std::endl << "NOMAD::Quad_Model::check_Y(): set Y is empty"
         << std::endl << std::endl;
@@ -1547,9 +1611,11 @@ bool NOMAD::Quad_Model::check_Y ( void ) const
     int nY = get_nY();
     int m  = static_cast<int> ( _bbot.size() );
     
-    for ( int k = 0 ; k < nY ; ++k ) {
+    for ( int k = 0 ; k < nY ; ++k )
+    {
         
-        if ( _Y[k] == NULL ) {
+        if ( _Y[k] == NULL )
+        {
 #ifdef DEBUG
             _out << std::endl
             << "NOMAD::Quad_Model::check_Y(): NULL pointer in the set Y"
@@ -1558,7 +1624,8 @@ bool NOMAD::Quad_Model::check_Y ( void ) const
             return false;
         }
         
-        if ( _Y[k]->get_eval_status() != NOMAD::EVAL_OK ) {
+        if ( _Y[k]->get_eval_status() != NOMAD::EVAL_OK )
+        {
 #ifdef DEBUG
             _out << std::endl
             << "NOMAD::Quad_Model::check_Y(): a point in Y failed to evaluate"
@@ -1569,7 +1636,8 @@ bool NOMAD::Quad_Model::check_Y ( void ) const
         
         const NOMAD::Point & bbo = _Y[k]->get_bb_outputs();
         
-        if ( !bbo.is_complete() ) {
+        if ( !bbo.is_complete() )
+        {
 #ifdef DEBUG
             _out << std::endl
             << "NOMAD::Quad_Model::check_Y(): some bb outputs in Y are not defined"
@@ -1578,7 +1646,8 @@ bool NOMAD::Quad_Model::check_Y ( void ) const
             return false;
         }
         
-        if ( bbo.size() != m ) {
+        if ( bbo.size() != m )
+        {
 #ifdef DEBUG
             _out << std::endl
             << "NOMAD::Quad_Model::check_Y(): "
@@ -1588,7 +1657,8 @@ bool NOMAD::Quad_Model::check_Y ( void ) const
             return false;
         }
         
-        if ( _Y[k]->size() != _n ) {
+        if ( _Y[k]->size() != _n )
+        {
 #ifdef DEBUG
             _out << std::endl
             << "NOMAD::Quad_Model::check_Y(): "
@@ -1680,17 +1750,22 @@ void NOMAD::Quad_Model::eval_hf ( const NOMAD::Point  & x      ,
     int           m  = static_cast<int>(_bbot.size());
     NOMAD::Double bboi;
     
-    for ( int i = 0 ; i < m ; ++i ) {
+    for ( int i = 0 ; i < m ; ++i )
+    {
         
-        if ( _alpha[i] ) {
+        if ( _alpha[i] )
+        {
             
             bboi = eval ( x , *_alpha[i] );
             
-            if ( bboi.is_defined() ) {
+            if ( bboi.is_defined() )
+            {
                 
-                if ( _bbot[i] == NOMAD::EB || _bbot[i] == NOMAD::PEB_E ) {
+                if ( _bbot[i] == NOMAD::EB || _bbot[i] == NOMAD::PEB_E )
+                {
                     
-                    if ( bboi > h_min ) {
+                    if ( bboi > h_min )
+                    {
                         h.clear();
                         return;
                     }
@@ -1698,9 +1773,12 @@ void NOMAD::Quad_Model::eval_hf ( const NOMAD::Point  & x      ,
                 
                 else if ( ( _bbot[i] == NOMAD::FILTER ||
                            _bbot[i] == NOMAD::PB     ||
-                           _bbot[i] == NOMAD::PEB_P     ) ) {
-                    if ( bboi > h_min ) {
-                        switch ( h_norm ) {
+                           _bbot[i] == NOMAD::PEB_P     ) )
+                {
+                    if ( bboi > h_min )
+                    {
+                        switch ( h_norm )
+                        {
                             case NOMAD::L1:
                                 h += bboi;
                                 break;
@@ -1737,15 +1815,22 @@ NOMAD::Double NOMAD::Quad_Model::compute_max_rel_err ( void ) const
     NOMAD::Double truth_value , model_value , rel_err , max_rel_err;
     int           k , nY = get_nY() , m = static_cast<int> ( _bbot.size() );
     
-    for ( int bbo_index = 0 ; bbo_index < m ; ++bbo_index ) {
-        if ( _alpha[bbo_index] ) {
-            for ( k = 0 ; k < nY ; ++k ) {
-                if ( _Y[k] && _Y[k]->get_eval_status() == NOMAD::EVAL_OK ) {
+    for ( int bbo_index = 0 ; bbo_index < m ; ++bbo_index )
+    {
+        if ( _alpha[bbo_index] )
+        {
+            for ( k = 0 ; k < nY ; ++k )
+            {
+                if ( _Y[k] && _Y[k]->get_eval_status() == NOMAD::EVAL_OK )
+                {
                     truth_value = _Y[k]->get_bb_outputs()[bbo_index];
-                    if ( truth_value.is_defined() ) {
+                    if ( truth_value.is_defined() )
+                    {
                         model_value = eval ( *_Y[k] , *_alpha[bbo_index] );
-                        if ( model_value.is_defined() ) {
-                            if ( truth_value.abs() != 0.0 ) {
+                        if ( model_value.is_defined() )
+                        {
+                            if ( truth_value.abs() != 0.0 )
+                            {
                                 rel_err = (truth_value-model_value).abs() / truth_value.abs();
                                 if ( !max_rel_err.is_defined() || rel_err > max_rel_err )
                                     max_rel_err = rel_err;
@@ -1790,7 +1875,7 @@ void NOMAD::Quad_Model::compute_model_error ( int             bbo_index   ,
         {
             truth_value = _Y[k]->get_bb_outputs()[bbo_index];
             
-            if ( truth_value.is_defined() ) 
+            if ( truth_value.is_defined() )
             {
                 model_value = eval ( *_Y[k] , *_alpha[bbo_index] );
                 if ( model_value.is_defined() )
@@ -1798,11 +1883,11 @@ void NOMAD::Quad_Model::compute_model_error ( int             bbo_index   ,
                     rel_err.clear();
                     if ( truth_value.abs() != 0.0 )
                         rel_err = (truth_value-model_value).abs() / truth_value.abs();
-                    else 
+                    else
                     {
                         if (truth_value.abs()==model_value.abs())
                             rel_err=0.0;
-                        else 
+                        else
                             rel_err=NOMAD::INF;
                     }
                     if ( !max_rel_err.is_defined() || rel_err > max_rel_err )
@@ -1859,7 +1944,8 @@ void NOMAD::Quad_Model::compute_model_error ( int             bbo_index   ,
 /*-----------------------------------------------------------*/
 void NOMAD::Quad_Model::display_model_coeffs ( const NOMAD::Display & out ) const
 {
-    if ( _error_flag ) {
+    if ( _error_flag )
+    {
         out << "model coefficients: could not be constructed" << std::endl;
         return;
     }
@@ -1867,11 +1953,13 @@ void NOMAD::Quad_Model::display_model_coeffs ( const NOMAD::Display & out ) cons
     int m = static_cast<int> ( _bbot.size() );
     
     out << NOMAD::open_block ( "model coefficients" );
-    for ( int i = 0 ; i < m ; ++i ) {
+    for ( int i = 0 ; i < m ; ++i )
+    {
         out << "output #";
         out.display_int_w ( i , m );
         out << ": ";
-        if ( _alpha[i] ) {
+        if ( _alpha[i] )
+        {
             out<< "[ ";
             _alpha[i]->display ( out , " " , 6 );
             out << " ]";
@@ -1891,11 +1979,13 @@ void NOMAD::Quad_Model::display_Y ( const NOMAD::Display & out   ,
 {
     out << NOMAD::open_block ( title );
     int nY = get_nY();
-    for ( int k = 0 ; k < nY ; ++k ) {
+    for ( int k = 0 ; k < nY ; ++k )
+    {
         out << "#";
         out.display_int_w ( k , nY );
         out << ": ";
-        if ( _Y[k] ) {
+        if ( _Y[k] )
+        {
             out << "( ";
             _Y[k]->NOMAD::Point::display    ( out , " " , 12 );
             out << " ) bbo=[ ";
@@ -1914,7 +2004,8 @@ void NOMAD::Quad_Model::display_Y ( const NOMAD::Display & out   ,
 /*-------------------------------------------------------*/
 void NOMAD::Quad_Model::display_Y_error ( const NOMAD::Display & out ) const
 {
-    if ( _error_flag ) {
+    if ( _error_flag )
+    {
         out << "model error on the interpolation set: cannot be computed"
         << std::endl;
         return;
@@ -1925,8 +2016,10 @@ void NOMAD::Quad_Model::display_Y_error ( const NOMAD::Display & out ) const
     int m = static_cast<int> ( _bbot.size() );
     
     for ( i = 0 ; i < m ; ++i )
-        if ( _alpha[i] ) {
-            if ( index >= 0 ) {
+        if ( _alpha[i] )
+        {
+            if ( index >= 0 )
+            {
                 index = -1;
                 break;
             }
@@ -1937,7 +2030,8 @@ void NOMAD::Quad_Model::display_Y_error ( const NOMAD::Display & out ) const
     NOMAD::Double error , min_rel_err , max_rel_err , avg_rel_err;
     
     // only one output:
-    if ( index >= 0 ) {
+    if ( index >= 0 )
+    {
         compute_model_error ( index , error , min_rel_err , max_rel_err , avg_rel_err );
         out << "model errors on the interpolation set: error="
         << error << " min_rel_err=" << min_rel_err
@@ -1946,7 +2040,9 @@ void NOMAD::Quad_Model::display_Y_error ( const NOMAD::Display & out ) const
     }
     
     // several outputs:
-    else {
+    else
+    {
+        
         
         out.open_block ( "model error on the interpolation set" );
         
@@ -1959,7 +2055,8 @@ void NOMAD::Quad_Model::display_Y_error ( const NOMAD::Display & out ) const
         int cnt = 0;
         
         for ( i = 0 ; i < m ; ++i )
-            if ( _alpha[i] ) {
+            if ( _alpha[i] )
+            {
                 
                 ++cnt;
                 
@@ -1994,15 +2091,15 @@ void NOMAD::Quad_Model::display_Y_error ( const NOMAD::Display & out ) const
 /*-----------------------------------------------*/
 /*     display Lagrange polynomials (private)    */
 /*-----------------------------------------------*/
-void NOMAD::Quad_Model::display_lagrange_polynomials
-( const std::vector<NOMAD::Point      *> & l ,
- const std::vector<NOMAD::Eval_Point *> & Y   ) const
+void NOMAD::Quad_Model::display_lagrange_polynomials ( const std::vector<NOMAD::Point      *> & l ,
+                                                      const std::vector<NOMAD::Eval_Point *> & Y   ) const
 {
     int i , j , nY = static_cast<int> ( Y.size() );
     
     // display Lagrange polynomials:
     _out << std::endl << NOMAD::open_block ( "Lagrange polynomials" );
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         _out << "l[";
         _out.display_int_w ( i , _n_alpha );
         _out << "] = [ ";
@@ -2013,11 +2110,13 @@ void NOMAD::Quad_Model::display_lagrange_polynomials
     
     // display current set Y:
     _out << std::endl << NOMAD::open_block ( "current set Y" );
-    for ( i = 0 ; i < nY ; ++i ) {
+    for ( i = 0 ; i < nY ; ++i )
+    {
         _out << "Y[";
         _out.display_int_w ( i , nY );
         _out << "] = ";
-        if ( Y[i] ) {
+        if ( Y[i] )
+        {
             _out << "( ";
             Y[i]->NOMAD::Point::display ( _out , " " , 6 , -1 );
             _out << " )";
@@ -2032,13 +2131,16 @@ void NOMAD::Quad_Model::display_lagrange_polynomials
     // display l(Y): should be the identity matrix:
     NOMAD::Double tmp , err = 0.0;
     _out << std::endl << NOMAD::open_block ( "l(Y)" );
-    for ( i = 0 ; i < _n_alpha ; ++i ) {
+    for ( i = 0 ; i < _n_alpha ; ++i )
+    {
         _out << "l[";
         _out.display_int_w ( i , _n_alpha );
         _out << "]: ";
-        for ( j = 0 ; j < _n_alpha ; ++j ) {
+        for ( j = 0 ; j < _n_alpha ; ++j )
+        {
             tmp.clear();
-            if ( j < nY && Y[j] ) {
+            if ( j < nY && Y[j] )
+            {
                 tmp  = eval ( *Y[j] , *l[i] );
                 err += (i==j) ? (tmp-1.0).abs() : tmp.abs();
             }

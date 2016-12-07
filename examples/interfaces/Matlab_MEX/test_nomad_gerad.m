@@ -12,12 +12,12 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 [x,fval] = nomad(fun,x0,lb,ub,opts);
 
 
-%%Uncomment the following problems for further testing
-% 
-% 
+%Uncomment the following problems for further testing
+
+
 % %% PROBLEM 2
-% %clc
 % % Blackbox Function
+% %clc
 % bb = @(x) [29.4*x(1) + 18*x(2);
 %            -(x(1) - 0.2458*x(1)^2/x(2)) + 6];
 % % Bounds      
@@ -66,11 +66,9 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 % [xr,fval,ef,iter] = nomad(fun,x0,lb,ub,opts)
 % 
 % 
-% %% REMAINDER OF PROBLEMS OK
-% 
 % %% Rosenbrock [x = 1,1, fval = 0]
-% %clc
 % % Blackbox Function
+% %clc
 % bb = @(x) (1-x(1))^2 + 100 *(x(2)-x(1)^2)^2;
 % % Starting Guess
 % x0 = [0 0]';
@@ -78,8 +76,8 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 % [x,fval,ef,iter] = nomad(bb,x0)
 % 
 % %% St_e01 [x = 6,0.6667, fval = -6.6667]
-% %clc
 % % Blackbox Function
+% %clc
 % bb = @(x) [-x(1) - x(2);
 %            x(1)*x(2) - 4];
 % % Bounds
@@ -127,7 +125,7 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 % [x,fval,ef,iter] = nomad(bb,x0,lb,ub,opts)
 % 
 % %% MINLP 1 [fval = -5]
-% clc
+% %clc
 % fun = @(x) [ (x(1) - 5)^2 + x(2)^2 - 25;
 %               x(1)^2 - x(2) + 0.5 ];
 % x0 = [0;0];
@@ -150,3 +148,4 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 % opts = nomadset('display_degree',2,'multi_overall_bb_eval',100,'bb_output_type','obj obj eb');
 % 
 % [xr,fval,ef,iter] = nomad(bb,x0,lb,ub,opts)
+% 

@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -64,16 +71,16 @@ namespace NOMAD {
         
     private:
         
-        static int         _current_tag; ///< Current tag for all NOMAD::Eval_Point objects.
-        int                _tag;         ///< Unique tag.
+        static int         _current_tag;        ///< Current tag for all NOMAD::Eval_Point objects.
+        int                _tag;                ///< Unique tag.
         
-        static int			_current_bbe;		///< Current bbe for all NOMAD::Eval_Point objects
-        static int			_current_sgte_bbe;  ///< Current sgte_bbe for all NOMAD::Eval_Point objects  .
-        int					_bbe;				/// Recorded bbe for current NOMAD::Eval_Point object
-        int					_sgte_bbe;		    /// Recorded sgte_bbe for current NOMAD::Eval_Point object
-        int					_real_time;			/// Recorded time for current NOMAD::Eval_Point object
+        static int         _current_bbe;        ///< Current bbe for all NOMAD::Eval_Point objects
+        static int         _current_sgte_bbe;   ///< Current sgte_bbe for all NOMAD::Eval_Point objects  .
+        int                _bbe;                /// Recorded bbe for current NOMAD::Eval_Point object
+        int                _sgte_bbe;           /// Recorded sgte_bbe for current NOMAD::Eval_Point object
+        int                _real_time;           /// Recorded time for current NOMAD::Eval_Point object
         
-        NOMAD::Signature * _signature;   ///< Signature of the point.
+        NOMAD::Signature * _signature;          ///< Signature of the point.
         
         /**
          \c f is explicitely computed by a NOMAD::Evaluator object
@@ -300,7 +307,6 @@ namespace NOMAD {
          may be \c NULL if no poll center has been used.
          */
         const NOMAD::Eval_Point * get_poll_center ( void ) const { return _poll_center ; }
-        
         
         /// Check if the point has been generated during the current run.
         /**
@@ -552,7 +558,7 @@ namespace NOMAD {
         
         /// Reset the tags and bbes
         /**
-         */		
+         */        
         static void reset_tags_and_bbes ( void ) {_current_tag = 0;_current_bbe = 0;_current_sgte_bbe = 0;}
         
 #ifdef MODEL_STATS

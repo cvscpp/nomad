@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -36,7 +43,7 @@
 /**
  \file   XMesh.cpp
  \brief  Class for the MADS xmesh (implementation)
- \author Christophe Tribes	
+ \author Christophe Tribes
  \date   2014-07
  \see    XMesh.hpp
  */
@@ -48,79 +55,63 @@
 /*                    init the XMesh                       */
 /*-----------------------------------------------------------*/
 void NOMAD::XMesh::init ( )
-{	
-	bool chkMesh  = _delta_min.is_defined();
-	bool chkPoll  = _Delta_min_is_defined;
-	_n = _delta_0.size();
-	
-
-    if ( !_Delta_0.is_complete() )
-        throw NOMAD::Exception (  "XMesh.cpp" , __LINE__ ,
-                                "NOMAD::XMesh::init(): Delta_0 has undefined values" );
-    if ( _delta_0.size() != _Delta_0.size() )
-        throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
-                                "NOMAD::XMesh::init(): delta_0 and Delta_0 have different sizes" );
+{
     
-	if ( !_delta_0.is_complete() )
-		throw NOMAD::Exception (  "XMesh.cpp" , __LINE__ ,
-								"NOMAD::XMesh::init(): delta_0 has undefined values" );
-	
-	if ( chkMesh && _delta_min.size() != _n )
-		throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
-								"NOMAD::XMesh::init(): delta_0 and delta_min have different sizes" );
-	
-	if ( chkPoll && _Delta_min.size() != _n )
-		throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
-								"NOMAD::XMesh::init(): delta_0 and Delta_min have different sizes" );
-	
     if ( _limit_mesh_index >0 )
-		throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
-								"NOMAD::XMesh::XMesh(): limit mesh index must be <=0 " );
+        throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
+                                "NOMAD::XMesh::XMesh(): limit mesh index must be <=0 " );
     
-	
-	_r.resize( _n );
-	_r_max.resize( _n );
-	_r_min.resize( _n );
-	
-	for ( int k = 0 ; k < _n ; ++k )
-	{
-		_r[k]=0;
-		_r_max[k]=0;
-		_r_min[k]=0;
-	}
+    // The delta_0 depends on Delta_0 and the problem dimension
+    _delta_0=_Delta_0;
+    _delta_0*=pow(_n_free_variables,-0.5);
+    
 
-	
+    _r.resize( _n );
+    _r_max.resize( _n );
+    _r_min.resize( _n );
+    
+    for ( int k = 0 ; k < _n ; ++k )
+    {
+        _r[k]=0;
+        _r_max[k]=0;
+        _r_min[k]=0;
+
+    }
+    
+    
 }
 
 
 /*-----------------------------------------------------------*/
 /* Update the provided mesh indices (the Mesh is unchanged). */
 /*-----------------------------------------------------------*/
-void NOMAD::XMesh::update ( NOMAD::success_type success , NOMAD::Point & mesh_indices, const NOMAD::Direction *dir ) const
+void NOMAD::XMesh::update ( NOMAD::success_type success ,
+                           NOMAD::Point & mesh_indices,
+                           const NOMAD::Direction *dir ) const
 {
-	
-	if ( mesh_indices.is_defined() )
-	{
-		
-		if ( dir && dir->size() != mesh_indices.size() )
-			throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
-									"NOMAD::XMesh::update(): mesh_indices and dir have different sizes" );
-		
-		for (int i=0; i < mesh_indices.size() ; i++)
-		{	
-			if ( success == NOMAD::FULL_SUCCESS )
-			{
-				
-				if ( (*dir)[i] !=0.0)
-					mesh_indices[i] += _coarsening_step;
-				
-				if ( mesh_indices[i] > -NOMAD::XL_LIMITS )
-					mesh_indices[i] = -NOMAD::XL_LIMITS;
-			}	
-			else if ( success == NOMAD::UNSUCCESSFUL )
-				mesh_indices[i] += _refining_step;
-		}
-	}
+    
+    if ( mesh_indices.is_defined() )
+    {
+        
+        if ( dir && dir->size() != mesh_indices.size() )
+            throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
+                                    "NOMAD::XMesh::update(): mesh_indices and dir have different sizes" );
+        
+        for (int i=0; i < mesh_indices.size() ; i++)
+        {
+            if ( success == NOMAD::FULL_SUCCESS )
+            {
+                
+                if ( (*dir)[i] !=0.0)
+                    mesh_indices[i] += _coarsening_step;
+                
+                if ( mesh_indices[i] > -NOMAD::XL_LIMITS )
+                    mesh_indices[i] = -NOMAD::XL_LIMITS;
+            }
+            else if ( success == NOMAD::UNSUCCESSFUL )
+                mesh_indices[i] += _refining_step;
+        }
+    }
 }
 
 
@@ -128,24 +119,26 @@ void NOMAD::XMesh::update ( NOMAD::success_type success , NOMAD::Point & mesh_in
 /*-----------------------------------------------------------*/
 /*                    update the XMesh                       */
 /*-----------------------------------------------------------*/
-void NOMAD::XMesh::update ( NOMAD::success_type success , const NOMAD::Direction * dir)
+void NOMAD::XMesh::update ( NOMAD::success_type success , const NOMAD::Direction * dir) // , const NOMAD::OrthogonalMesh *mesh )
 {
-	// defaults:
-	//  full success: r^k_j = r^k_j + 1 if (dir_k != 0 and anistropic_mesh) and r^k_j remains the same if dir_k=0
-	//  failure     : r^k_j = r^k_j - 1
-
-		
-	if ( dir && dir->size() != _n )
-		throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
-							"NOMAD::XMesh::update(): delta_0 and dir have different sizes" );	
-		
-		
-	if ( success == NOMAD::FULL_SUCCESS )
-	{
-		// Evaluate ||d||_inf
-		NOMAD::Double norm_inf=0;
+    // defaults:
+    //  full success: r^k_j = r^k_j + 1 if (dir_k != 0 and anistropic_mesh) and r^k_j remains the same if dir_k=0
+    //  failure     : r^k_j = r^k_j - 1
+    
+    // Granularity is only used to block Delta from decreasing but mesh indices are updated
+    
+    
+    if ( dir && dir->size() != _n )
+        throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
+                                "NOMAD::XMesh::update(): delta_0 and dir have different sizes" );
+    
+    
+    if ( success == NOMAD::FULL_SUCCESS )
+    {
+        // Evaluate ||d||_inf
+        NOMAD::Double norm_inf=0;
         NOMAD::Point delta=NOMAD::OrthogonalMesh::get_delta();
-
+        
         if ( _anisotropic_mesh )
         {
             for (int i=0; i < _n; i++)
@@ -162,42 +155,42 @@ void NOMAD::XMesh::update ( NOMAD::success_type success , const NOMAD::Direction
         for (int j=0; j < _n; j++)
             if ( _r[j] > max_index )
                 max_index=_r[j];
-
-
-		// Update mesh indices for coordinates with |dir_j|>1/n_free_variables ||dir||_inf or mesh index >=-2
-		for (int i=0; i < _n; i++)
-		{
+        
+        
+        // Update mesh indices for coordinates with |dir_j|>1/n_free_variables ||dir||_inf or mesh index >=-2
+        for (int i=0; i < _n; i++)
+        {
             if ( ! dir || (*dir)[i].abs()/delta[i] > norm_inf/_n_free_variables || _r[i] >=-2 )
-			{
-				_r[i] += _coarsening_step;
-
-				if (_r[i]  > -NOMAD::XL_LIMITS )
-					_r[i] = -NOMAD::XL_LIMITS;
-
-				if ( _r[i] > _r_max[i] )
-					_r_max[i] = _r[i];
-
-			}
-		}
-
-		
-  		// Udate mesh indices for coordinates with |dir_l| < 1/n_free_variables ||dir||_inf and mesh index < 2*max_mesh_index
-		for (int l=0; l < _n; l++)
-		{
-			if ( dir &&  _r[l] < -2 && (*dir)[l].abs()/delta[l] <= norm_inf/_n_free_variables && _r[l] < 2*max_index )
-				_r[l]+= _coarsening_step;
-		}		
-		
-	}
-	else if ( success == NOMAD::UNSUCCESSFUL )
-		for (int i=0; i< _n; i++)
-		{
-			_r[i] += _refining_step;
-	
-			if ( _r[i] < _r_min[i] )
-				_r_min[i] = _r[i];
-								
-		}
+            {
+                _r[i] += _coarsening_step;
+                
+                if (_r[i]  > -NOMAD::XL_LIMITS )
+                    _r[i] = -NOMAD::XL_LIMITS;
+                
+                if ( _r[i] > _r_max[i] )
+                    _r_max[i] = _r[i];
+                
+            }
+        }
+        
+        
+        // Udate mesh indices for coordinates with |dir_l| < 1/n_free_variables ||dir||_inf and mesh index < 2*max_mesh_index
+        for (int l=0; l < _n; l++)
+        {
+            if ( dir &&  _r[l] < -2 && (*dir)[l].abs()/delta[l] <= norm_inf/_n_free_variables && _r[l] < 2*max_index )
+                _r[l]+= _coarsening_step;
+        }
+        
+    }
+    else if ( success == NOMAD::UNSUCCESSFUL )
+        for (int i=0; i< _n; i++)
+        {
+            _r[i] += _refining_step;
+            
+            if ( _r[i] < _r_min[i] )
+                _r_min[i] = _r[i];
+            
+        }
 }
 
 
@@ -206,21 +199,21 @@ void NOMAD::XMesh::update ( NOMAD::success_type success , const NOMAD::Direction
 /*-----------------------------------------------------------*/
 void NOMAD::XMesh::display ( const NOMAD::Display & out ) const
 {
-	out << "n                       : " << _n               << std::endl
-        << "tau						: " << _update_basis	<< std::endl
-        << "poll coarsening exponent: " << _coarsening_step << std::endl
-        << "poll refining exponent  : " << _refining_step   << std::endl;
+    out << "n                   : " << _n               << std::endl
+    << "tau                     : " << _update_basis << std::endl
+    << "poll coarsening exponent: " << _coarsening_step << std::endl
+    << "poll refining exponent  : " << _refining_step   << std::endl;
     out << "minimal mesh size       : ";
-	if ( _delta_min.is_defined() )
-		out << "(" << _delta_min     << " )" << std::endl;
-	else
-		out << "none";
-	out << std::endl
-	<< "minimal poll size       : ";
-	if ( _Delta_min_is_defined )
-		out << "( " << _Delta_min     << " )" << std::endl;
-	else
-		out << "none";
+    if ( _delta_min.is_defined() )
+        out << "(" << _delta_min     << " )" << std::endl;
+    else
+        out << "none";
+    out << std::endl
+    << "minimal poll size       : ";
+    if ( _Delta_min_is_defined )
+        out << "( " << _Delta_min     << " )" << std::endl;
+    else
+        out << "none";
     
     out << std::endl << "initial poll size       : ";
     if (_Delta_0.is_defined())
@@ -235,7 +228,7 @@ void NOMAD::XMesh::display ( const NOMAD::Display & out ) const
     else
         out <<"( none )" << std::endl;
     
-	out << std::endl;
+    out << std::endl;
 }
 
 
@@ -244,58 +237,57 @@ void NOMAD::XMesh::display ( const NOMAD::Display & out ) const
 /*  and on the minimal mesh size                            */
 /*----------------------------------------------------------*/
 void NOMAD::XMesh::check_min_mesh_sizes ( bool             & stop           ,
-										 NOMAD::stop_type & stop_reason      ) const
+                                         NOMAD::stop_type & stop_reason      ) const
 {
-	if ( stop )
-		return;
-	
-	// Coarse mesh stopping criterion
-	stop=false;
+    if ( stop )
+        return;
     
-	for (int i=0;i<_n;i++)
+    // Coarse mesh stopping criterion
+    stop=false;
+    
+    for (int i=0;i<_n;i++)
         if ( _r[i] > -NOMAD::XL_LIMITS )
-		{
-			stop        = true;
-			break;
-		}
+        {
+            stop        = true;
+            break;
+        }
     
-	if (stop)
-	{
-		stop_reason = NOMAD::XL_LIMITS_REACHED;
-		return;
-	}
-	
-	stop=true;
-
+    if (stop)
+    {
+        stop_reason = NOMAD::XL_LIMITS_REACHED;
+        return;
+    }
+    
+    stop=true;
     // Fine mesh stopping criterion
     // All mesh indices must < _limit_mesh_index to trigger this stopping criterion
-	for (int i=0;i<_n;i++)
-	{
-		if ( _r[i] >= _limit_mesh_index )
-		{
-			stop        = false;
-			break;
-		}
-	}
-	if (stop)
-	{	
-		stop_reason = NOMAD::XL_LIMITS_REACHED;
-		return;
-	}
-	
-	// 2. Delta^k (poll size) tests:
-	if ( check_min_poll_size_criterion ( ) ) 
-	{
-		stop        = true;
-		stop_reason = NOMAD::DELTA_P_MIN_REACHED;
-	}
-	
-	// 3. delta^k (mesh size) tests:
-	if ( check_min_mesh_size_criterion ( ) ) 
-	{
-		stop        = true;
-		stop_reason = NOMAD::DELTA_M_MIN_REACHED;
-	}
+    for (int i=0;i<_n;i++)
+    {
+        if ( _r[i] >= _limit_mesh_index )
+        {
+            stop        = false;
+            break;
+        }
+    }
+    if (stop)
+    {
+        stop_reason = NOMAD::XL_LIMITS_REACHED;
+        return;
+    }
+    
+    // 2. Delta^k (poll size) tests:
+    if ( check_min_poll_size_criterion ( ) )
+    {
+        stop        = true;
+        stop_reason = NOMAD::DELTA_P_MIN_REACHED;
+    }
+    
+    // 3. delta^k (mesh size) tests:
+    if ( check_min_mesh_size_criterion ( ) )
+    {
+        stop        = true;
+        stop_reason = NOMAD::DELTA_M_MIN_REACHED;
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -303,11 +295,11 @@ void NOMAD::XMesh::check_min_mesh_sizes ( bool             & stop           ,
 /*-----------------------------------------------------------*/
 bool NOMAD::XMesh::check_min_poll_size_criterion ( ) const
 {
-	if ( !_Delta_min_is_defined )
-		return false;
-		
-	NOMAD::Point Delta;
-	return get_Delta ( Delta );
+    if ( !_Delta_min_is_defined )
+        return false;
+    
+    NOMAD::Point Delta;
+    return get_Delta ( Delta );
 }
 
 /*-----------------------------------------------------------*/
@@ -315,118 +307,103 @@ bool NOMAD::XMesh::check_min_poll_size_criterion ( ) const
 /*-----------------------------------------------------------*/
 bool NOMAD::XMesh::check_min_mesh_size_criterion ( ) const
 {
-	if ( !_delta_min.is_defined() )
-		return false;
-	
-	NOMAD::Point delta;
-	return get_delta ( delta );
+    if ( !_delta_min.is_defined() )
+        return false;
+    
+    NOMAD::Point delta;
+    return get_delta ( delta );
 }
 
 
 /*--------------------------------------------------------------*/
-/*  get delta (mesh size parameter)								*/
-/*       delta^k = delta^0 \tau ^min{0,2*r^k}					*/
+/*  get delta (mesh size parameter)                             */
+/*       delta^k = delta^0 \tau ^min{0,2*r^k}                   */
 /*--------------------------------------------------------------*/
 /*  the function also returns true if ALL delta[i] < delta_min  */
-/*----------------------------------------------------------------*/
+/*--------------------------------------------------------------*/
 bool NOMAD::XMesh::get_delta ( NOMAD::Point & delta ) const
 {
-
-	delta.resize(_n);
+    
+    delta.resize(_n);
     
     bool delta_min_is_defined=_delta_min.is_defined();
-	
+    
     bool stop    = true;
-	
-	// delta^k = power_of_beta * delta^0:
-	for ( int i = 0 ; i < _n ; ++i )
-	{
-		NOMAD::Double power_of_beta
-			= pow ( _update_basis.value() , ( (_r[i] >= 0) ? 0 : 2*_r[i].value() )  );
-		
-		delta[i] = _delta_0[i] * power_of_beta;
-		
-        if ( delta_min_is_defined && _delta_min[i].is_defined() && delta[i] >= _delta_min[i] )
+    
+    // delta^k = power_of_beta * delta^0:
+    for ( int i = 0 ; i < _n ; ++i )
+    {
+        delta[i] = get_delta( i );
+        
+        if ( stop && delta_min_is_defined && _delta_min[i].is_defined() && delta[i] >= _delta_min[i] )
             stop = false;
-	}
-	
-	return stop;
+    }
+    
+    return stop;
 }
 
 
 /*--------------------------------------------------------------*/
-/*  get delta (mesh size parameter)								*/
-/*       delta^k = delta^0 \tau ^min{0,2*r^k}					*/
+/*  get delta (mesh size parameter)                             */
+/*       delta^k = delta^0 \beta ^min{0,2*r^k}                  */
 /*--------------------------------------------------------------*/
 NOMAD::Double NOMAD::XMesh::get_delta ( int i ) const
 {
     
     // delta^k = power_of_beta * delta^0:
     NOMAD::Double power_of_beta = pow ( _update_basis.value() , ( (_r[i] >= 0) ? 0 : 2*_r[i].value() )  );
-        
+    
     return _delta_0[i] * power_of_beta;
     
 }
 
 
 
-/*--------------------------------------------------------------*/
-/*  get Delta (poll size parameter)								*/
-/*       Delta^k = Delta^0 \tau ^{r^k}							*/
-/*--------------------------------------------------------------*/
-/*  the function also returns true if all values are < Delta_min  */
-/*----------------------------------------------------------------*/
+/*---------------------------------------------------------------*/
+/*  get Delta (poll size parameter)                              */
+/*       Delta^k = Delta^0 \beta ^{r^k}                          */
+/*---------------------------------------------------------------*/
+/*  the function also returns true if all values are < Delta_min */
+/*---------------------------------------------------------------*/
 bool NOMAD::XMesh::get_Delta ( NOMAD::Point & Delta ) const
 {
-		
-	bool stop    = true;
-
+    
+    bool stop    = true;
     Delta.resize(_n);
-	
-	// delta^k = power_of_tau * delta^0:
-	for ( int i = 0 ; i < _n ; ++i )
-	{
-		Delta[i] = _Delta_0[i] * pow( _update_basis.value() , _r[i].value() );
-		
-		if (  !_Delta_min_is_complete  || Delta[i] >= _Delta_min[i] )
-			stop = false;
+    
+    // delta^k = power_of_tau * delta^0:
+    for ( int i = 0 ; i < _n ; ++i )
+    {
+        Delta[i] = get_Delta( i );
         
-        if ( _Delta_min_is_defined && _Delta_min[i].is_defined() && Delta[i] < _Delta_min[i] )
-            Delta[i]=_Delta_min[i];
-		
-	}
-	
-	return stop;
+        if (  stop && ! _fixed_variables[i].is_defined() && ( !_Delta_min_is_complete  || Delta[i] >= _Delta_min[i] ) )
+            stop = false;
+    }
+    
+    return stop;
 }
 
 /*--------------------------------------------------------------*/
 /*  get Delta_i  (poll size parameter)                          */
-/*       Delta^k = Delta^0 \tau ^{r^k}							*/
-/*--------------------------------------------------------------*/
-/*  the function returns Delta >= Delta_min                     */
+/*       Delta^k = Delta^0 \beta ^{r^k}                         */
 /*--------------------------------------------------------------*/
 NOMAD::Double NOMAD::XMesh::get_Delta ( int i ) const
 {
-    
     NOMAD::Double Delta = _Delta_0[i] * pow( _update_basis.value() , _r[i].value() );
     
-   if ( _Delta_min_is_defined && _Delta_min[i].is_defined() && Delta < _Delta_min[i] )
-        Delta=_Delta_min[i];
-    
-    
     return Delta;
+
 }
 
 
 bool NOMAD::XMesh::is_finest ( ) const
 {
-
-	for ( int i = 0 ; i < _n ; ++i )
-	{
-		if ( _r[i] > _r_min[i] )
-			return false;
-	}
-	return true;
+    for ( int i = 0 ; i < _n ; ++i )
+    {
+        if ( _r[i] > _r_min[i] )
+            return false;
+    }
+    return true;
 }
 
 
@@ -437,17 +414,17 @@ void NOMAD::XMesh::set_mesh_indices ( const NOMAD::Point & r )
 {
     
     if ( r.size() != _n )
-		throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
+        throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
                                 "NOMAD::XMesh::set_mesh_indices(): dimension of provided mesh indices must be consistent with their previous dimension" );
-
-	_r=r;
-	for ( int i = 0 ; i < _n ; ++i )
-	{
-		if ( r[i] > _r_max[i] )
-			_r_max[i] = r[i];
-		if ( r[i] < _r_min[i] )
-			_r_min[i] = r[i];
-	}
+    
+    _r=r;
+    for ( int i = 0 ; i < _n ; ++i )
+    {
+        if ( r[i] > _r_max[i] )
+            _r_max[i] = r[i];
+        if ( r[i] < _r_min[i] )
+            _r_min[i] = r[i];
+    }
 }
 
 
@@ -456,6 +433,7 @@ void NOMAD::XMesh::set_mesh_indices ( const NOMAD::Point & r )
 /*-----------------------------------------------------------*/
 void NOMAD::XMesh::set_limit_mesh_index ( int l )
 {
+    
     _limit_mesh_index=l;
 }
 
@@ -465,16 +443,20 @@ void NOMAD::XMesh::set_limit_mesh_index ( int l )
 /*-----------------------------------------------------------*/
 /*              scale and project on the mesh                */
 /*-----------------------------------------------------------*/
-NOMAD::Double NOMAD::XMesh::scale_and_project(int i, const NOMAD::Double & l) const
+NOMAD::Double NOMAD::XMesh::scale_and_project(int i, const NOMAD::Double & l, bool round_up) const
 {
+
     NOMAD::Double delta = get_delta( i );
     NOMAD::Double Delta = get_Delta( i );
-
     
     if ( i<=_n && delta.is_defined() && Delta.is_defined() )
     {
+
         NOMAD::Double d = Delta / delta * l;
-        return d.NOMAD::Double::round()*delta;
+        if ( ! round_up )
+            return ( d < 0.0 ? -std::floor(.5-d.value()) : std::floor(.5+d.value()) ) * delta;
+        else
+            return d.NOMAD::Double::ceil()*delta;
     }
     else
         throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
@@ -486,26 +468,29 @@ NOMAD::Double NOMAD::XMesh::scale_and_project(int i, const NOMAD::Double & l) co
 
 NOMAD::Point NOMAD::XMesh::get_mesh_ratio_if_success ( void ) const
 {
-		
-	try
-	{
-		NOMAD::Point ratio( _n );
-		for (int i=0 ; i < _n ; i++)
-		{
-			NOMAD::Double power_of_tau
-			= pow ( _update_basis.value() , ( (_r[i] >= 0) ? 0 : 2*_r[i].value() )  );
-		
-			NOMAD::Double power_of_tau_if_success
-			= pow ( _update_basis.value() , ( (_r[i] + _coarsening_step >= 0) ? 0 : 2*(_r[i].value() + _coarsening_step) )  );
-		
-			ratio[i] = power_of_tau_if_success/power_of_tau;
-			
-		}
-			
-		return ratio;
-	}
-	catch ( NOMAD::Double::Invalid_Value & )
-	{
-		return NOMAD::Point( _n,-1 );
-	}
+    
+    try
+    {
+        NOMAD::Point ratio( _n );
+        for (int i=0 ; i < _n ; i++)
+        {
+            NOMAD::Double power_of_tau
+            = pow ( _update_basis.value() , ( (_r[i] >= 0) ? 0 : 2*_r[i].value() )  );
+            
+            NOMAD::Double power_of_tau_if_success
+            = pow ( _update_basis.value() , ( (_r[i] + _coarsening_step >= 0) ? 0 : 2*(_r[i].value() + _coarsening_step) )  );
+            
+            ratio[i] = power_of_tau_if_success/power_of_tau;
+            
+        }
+        
+        return ratio;
+    }
+    catch ( NOMAD::Double::Invalid_Value & )
+    {
+        return NOMAD::Point( _n,-1 );
+    }
 }
+
+
+

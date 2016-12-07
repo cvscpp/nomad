@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -126,12 +133,13 @@ void NOMAD::Extended_Poll::add_extended_poll_point ( NOMAD::Point     & ep ,
     // new eval point:
     // ---------------
     NOMAD::Eval_Point * pt  = new NOMAD::Eval_Point;
-    pt->set				 ( ep , _p.get_bb_nb_outputs() );
-    pt->set_signature	 ( new_s                       );
+    pt->set ( ep , _p.get_bb_nb_outputs() );
+    pt->set_signature ( new_s );
+    
     
     for ( int i = 0 ; i < pt->get_n() ; ++i )
     {
-        if (  (pt->get_signature()->get_input_type())[i] != NOMAD::CONTINUOUS && ! (*pt)[i].is_integer() )
+        if (  (pt->get_signature()->get_input_types())[i] != NOMAD::CONTINUOUS && ! (*pt)[i].is_integer() )
             
             throw NOMAD::Exception ( "Extended_Poll.cpp" , __LINE__ ,
                                     "NOMAD::Extended_Poll::add_extended_points(): the categorical variables of the added point must be an integer." );
@@ -292,8 +300,8 @@ void NOMAD::Extended_Poll::descent ( const NOMAD::Eval_Point  * y               
     
     
     // Set mesh indices to 0
-    NOMAD::Point delta( signature->get_n(), 0 );
-    descent_p.get_signature()->get_mesh()->set_mesh_indices( delta );
+    NOMAD::Point zero_mesh_indices( signature->get_n(), 0 );
+    descent_p.get_signature()->get_mesh()->set_mesh_indices( zero_mesh_indices );
     
     // Use best_feasible or best_infeasible limit mesh index as a termination criterion for descent
     const NOMAD::Eval_Point * old_bf = mads.get_best_feasible();
@@ -303,8 +311,9 @@ void NOMAD::Extended_Poll::descent ( const NOMAD::Eval_Point  * y               
         l1 = static_cast<int>((old_bf->get_signature()->get_mesh()->get_min_mesh_indices())[0].value());  // index same for all variables when using categorical variable
     else if ( old_bi )
         l2 = static_cast<int>((old_bi->get_signature()->get_mesh()->get_min_mesh_indices())[0].value());
-    descent_p.get_signature()->get_mesh()->set_limit_mesh_index( min( l1, l2) );
     
+    
+    descent_p.get_signature()->get_mesh()->set_limit_mesh_index( std::min( l1, l2) );    
     
     
     // Evaluator_Control object:
@@ -508,10 +517,9 @@ void NOMAD::Extended_Poll::descent ( const NOMAD::Eval_Point  * y               
 /*----------------------------------------------------------------*/
 /*               create the descent parameters (private)          */
 /*----------------------------------------------------------------*/
-void NOMAD::Extended_Poll::set_descent_parameters
-( const NOMAD::Eval_Point * y         ,
- const NOMAD::Stats      & stats     ,
- NOMAD::Parameters       & descent_p   ) const
+void NOMAD::Extended_Poll::set_descent_parameters ( const NOMAD::Eval_Point * y         ,
+                                                   const NOMAD::Stats      & stats     ,
+                                                   NOMAD::Parameters       & descent_p   ) const
 {
     
     // extended poll center signature
@@ -527,6 +535,7 @@ void NOMAD::Extended_Poll::set_descent_parameters
     descent_p.set_LOWER_BOUND       ( epc_signature->get_lb()                 );
     descent_p.set_UPPER_BOUND       ( epc_signature->get_ub()                 );
     descent_p.set_FIXED_VARIABLE    ( epc_signature->get_fixed_variables()    );
+    descent_p.set_GRANULARITY       ( epc_signature->get_granularity()        );
     descent_p.set_PERIODIC_VARIABLE ( epc_signature->get_periodic_variables() );
     descent_p.set_VARIABLE_GROUP    ( epc_signature->get_var_groups()         );
     descent_p.set_BB_OUTPUT_TYPE    ( _p.get_bb_output_type() );
@@ -565,8 +574,8 @@ void NOMAD::Extended_Poll::set_descent_parameters
         descent_p.set_MODEL_EVAL_SORT ( _p.get_model_eval_sort());
         descent_p.set_MODEL_SEARCH (_p.has_model_search());
         
-        
     }
+    
     
     descent_p.set_LH_SEARCH   ( 0 , 0 );
     
@@ -619,8 +628,8 @@ void NOMAD::Extended_Poll::set_descent_parameters
     descent_p.set_OPPORTUNISTIC_MIN_F_IMPRVMT  ( _p.get_opportunistic_min_f_imprvmt()  );
     descent_p.set_OPPORTUNISTIC_MIN_NB_SUCCESS ( _p.get_opportunistic_min_nb_success() );
     
-    if (_p.eval_points_as_block())
-        descent_p.set_BB_MAX_BLOCK_SIZE(	_p.get_bb_max_block_size()		);
+    if ( _p.eval_points_as_block() )
+        descent_p.set_BB_MAX_BLOCK_SIZE( _p.get_bb_max_block_size() );
     
     
     descent_p.set_CACHE_FILE        ( _p.get_cache_file()        );
@@ -632,7 +641,7 @@ void NOMAD::Extended_Poll::set_descent_parameters
     descent_p.set_DISPLAY_ALL_EVAL(_p.get_display_all_eval());
     if ( _p.out().get_poll_dd() == NOMAD::FULL_DISPLAY )
         descent_p.set_DISPLAY_DEGREE ( NOMAD::NORMAL_DISPLAY );
-    else if (_p.out().get_poll_dd() == NOMAD::NORMAL_DISPLAY )
+    else if ( _p.out().get_poll_dd() == NOMAD::NORMAL_DISPLAY )
         descent_p.set_DISPLAY_DEGREE ( NOMAD::MINIMAL_DISPLAY );
     else
         descent_p.set_DISPLAY_DEGREE ( _p.out().get_poll_dd());
@@ -680,8 +689,7 @@ void NOMAD::Extended_Poll::set_descent_parameters
         const OrthogonalMesh * mesh = epc_signature->get_mesh();
         descent_p.set_MIN_MESH_SIZE ( mesh->get_min_mesh_size() );
         descent_p.set_MIN_POLL_SIZE ( mesh->get_min_poll_size() );
-        descent_p.set_INITIAL_POLL_SIZE ( mesh->get_initial_poll_size() , false );
-        
+        descent_p.set_INITIAL_POLL_SIZE ( mesh->get_initial_poll_size() , false );        
     }
     
     // check the parameters:
@@ -703,14 +711,13 @@ void NOMAD::Extended_Poll::set_descent_parameters
 /*----------------------------------------------------------------*/
 /*            evaluation of an extended poll point (private)      */
 /*----------------------------------------------------------------*/
-const NOMAD::Eval_Point * NOMAD::Extended_Poll::eval_epp
-( NOMAD::Eval_Point        * y              ,
- Mads                     & mads           ,
- bool                     & stop           ,
- NOMAD::stop_type         & stop_reason    ,
- NOMAD::success_type      & success        ,
- const NOMAD::Eval_Point *& new_feas_inc   ,
- const NOMAD::Eval_Point *& new_infeas_inc ) const
+const NOMAD::Eval_Point * NOMAD::Extended_Poll::eval_epp ( NOMAD::Eval_Point        * y              ,
+                                                          Mads                     & mads           ,
+                                                          bool                     & stop           ,
+                                                          NOMAD::stop_type         & stop_reason    ,
+                                                          NOMAD::success_type      & success        ,
+                                                          const NOMAD::Eval_Point *& new_feas_inc   ,
+                                                          const NOMAD::Eval_Point *& new_infeas_inc ) const
 {
     NOMAD::Evaluator_Control & ev_control     = mads.get_evaluator_control();
     const NOMAD::Display     & out            = _p.out();
@@ -804,7 +811,8 @@ void NOMAD::Extended_Poll::run ( Mads                     & mads            ,
             out << std::endl << NOMAD::open_block ( oss.str() ) << std::endl;
         }
         
-        if ( has_sgte ) {
+        if ( has_sgte )
+        {
             _p.set_SGTE_EVAL_SORT ( false ); // this ensures that only surrogate
             _p.force_check_flag();           // evaluations are performed
         }
@@ -855,7 +863,8 @@ void NOMAD::Extended_Poll::run ( Mads                     & mads            ,
                                         &evaluated_pts            );
         if ( has_sgte )
         {
-            if ( !_p.get_opt_only_sgte() ) {
+            if ( !_p.get_opt_only_sgte() )
+            {
                 success      = NOMAD::UNSUCCESSFUL;
                 new_feas_inc = new_infeas_inc = NULL;
             }
@@ -982,8 +991,7 @@ void NOMAD::Extended_Poll::run ( Mads                     & mads            ,
 /*  sort the extended poll points after they have been evaluated  */
 /*  (private)                                                     */
 /*----------------------------------------------------------------*/
-void NOMAD::Extended_Poll::sort_epp
-( const std::list<const NOMAD::Eval_Point *> & evaluated_pts )
+void NOMAD::Extended_Poll::sort_epp ( const std::list<const NOMAD::Eval_Point *> & evaluated_pts )
 {
     const NOMAD::Display                 & out            = _p.out();
     NOMAD::dd_type                         display_degree = out.get_poll_dd();
@@ -1034,7 +1042,7 @@ void NOMAD::Extended_Poll::sort_epp
         y->Point::operator = ( *cur );
         
         // display:
-        if ( display_degree == NOMAD::FULL_DISPLAY ) 
+        if ( display_degree == NOMAD::FULL_DISPLAY )
         {
             out << "point #";
             out.display_int_w ( ++i , nb_pts );
@@ -1056,11 +1064,12 @@ void NOMAD::Extended_Poll::sort_epp
 /*--------------------------------------------------------------------*/
 bool NOMAD::Extended_Poll::set_neighbors_exe ( std::string & error_str )
 {
-    error_str.clear();    
+    error_str.clear();
     
     _neighbors_exe = _p.get_neighbors_exe();
     
-    if ( _neighbors_exe.empty() ) {
+    if ( _neighbors_exe.empty() )
+    {
         error_str = "categorical variables: parameter NEIGHBORS_EXE is undefined";
         return false;
     }
@@ -1071,16 +1080,18 @@ bool NOMAD::Extended_Poll::set_neighbors_exe ( std::string & error_str )
     NOMAD::get_words ( _neighbors_exe , neighbors_exe_words );
     
     // _neighbors_exe is composed of several words (it is a command):
-    if ( neighbors_exe_words.size() > 1 ) 
+    if ( neighbors_exe_words.size() > 1 )
     {
         
         _neighbors_exe.clear();
         
         std::list<std::string>::const_iterator it  = neighbors_exe_words.begin() ,
         end = neighbors_exe_words.end();
-        while (true) {
+        while (true)
+        {
             
-            if ( (*it)[0] != '$' ) {
+            if ( (*it)[0] != '$' )
+            {
                 _neighbors_exe += "\"" + problem_dir;
                 _neighbors_exe += *it + "\"";
             }
@@ -1148,7 +1159,7 @@ void NOMAD::Extended_Poll::construct_extended_points ( const NOMAD::Eval_Point &
     // input file writing:
     // -------------------
     std::string input_file_name =
-    tmp_dir + NOMAD::BLACKBOX_INPUT_FILE_PREFIX 
+    tmp_dir + NOMAD::BLACKBOX_INPUT_FILE_PREFIX
     + sint + NOMAD::BLACKBOX_INPUT_FILE_EXT;
     
     std::string output_file_name =
@@ -1170,7 +1181,7 @@ void NOMAD::Extended_Poll::construct_extended_points ( const NOMAD::Eval_Point &
     
     fout.close();
     
-    if ( fout.fail() ) 
+    if ( fout.fail() )
     {
         remove ( input_file_name.c_str () );
         std::string err = "could not write file neighbors input file " + input_file_name;
@@ -1207,7 +1218,7 @@ void NOMAD::Extended_Poll::construct_extended_points ( const NOMAD::Eval_Point &
     
     std::ifstream fin ( output_file_name.c_str() );
     
-    if ( fin.fail() ) 
+    if ( fin.fail() )
     {
         remove ( input_file_name.c_str () );
         remove ( output_file_name.c_str() );
@@ -1220,13 +1231,14 @@ void NOMAD::Extended_Poll::construct_extended_points ( const NOMAD::Eval_Point &
     while ( true )
     {
         NOMAD::Point y(n);
-        try 
-        {      
+        try
+        {
             fin >> y;
         }
         catch ( NOMAD::Point::Bad_Input & )
         {
-            if ( y.is_defined() ) {
+            if ( y.is_defined() )
+            {
                 remove ( input_file_name.c_str () );
                 remove ( output_file_name.c_str() );
                 std::string err = "error with neighbor in file " + output_file_name;

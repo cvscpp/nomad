@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -76,14 +83,14 @@ void NOMAD::Speculative_Search::search ( NOMAD::Mads              & mads        
     
     const NOMAD::Display    & out = _p.out();
     NOMAD::dd_type display_degree = out.get_search_dd();
-    if ( display_degree == NOMAD::FULL_DISPLAY ) {
+    if ( display_degree == NOMAD::FULL_DISPLAY )
+    {
         std::ostringstream oss;
         oss << NOMAD::SPEC_SEARCH;
         out << std::endl << NOMAD::open_block ( oss.str() ) << std::endl;
     }
     
-    //int                       lkm1;  // l_{k-1}
-    // int                       lk;    // l_k
+    
     int                       n;
     NOMAD::Signature        * signature;
     NOMAD::Point              delta_m_k;
@@ -104,7 +111,8 @@ void NOMAD::Speculative_Search::search ( NOMAD::Mads              & mads        
         {
             
             const NOMAD::Direction * dir = x[i]->get_direction();
-            if ( dir && ( dir->is_mads() || dir->get_type()==NOMAD::MODEL_SEARCH_DIR ) ) {
+            if ( dir && ( dir->is_mads() || dir->get_type()==NOMAD::MODEL_SEARCH_DIR ) )
+            {
                 
                 // get the x_k's signature:
                 signature = x[i]->get_signature();
@@ -144,6 +152,7 @@ void NOMAD::Speculative_Search::search ( NOMAD::Mads              & mads        
                         factor[k]=0;
                     
                 }
+                
                 NOMAD::Point mesh_indices_k( x[i]->get_signature()->get_mesh()->get_mesh_indices() );
                 signature->get_mesh()->update( NOMAD::FULL_SUCCESS, mesh_indices_k , dir );
                 
@@ -155,10 +164,10 @@ void NOMAD::Speculative_Search::search ( NOMAD::Mads              & mads        
                 sk->set ( n , _p.get_bb_nb_outputs() );
                 sk->set_signature  ( signature );
                 sk->set_direction  ( &new_dir );
-                
                 sk->Point::operator = ( xkm1 + new_dir );
                 
-                if ( display_degree == NOMAD::FULL_DISPLAY ) {
+                if ( display_degree == NOMAD::FULL_DISPLAY )
+                {
                     out << "trial point #" << sk->get_tag()
                     << ": ( ";
                     sk->Point::display ( out ," " , 2 , NOMAD::Point::get_display_limit() );
@@ -179,7 +188,7 @@ void NOMAD::Speculative_Search::search ( NOMAD::Mads              & mads        
     
     nb_search_pts = ev_control.get_nb_eval_points();
     
-    // eval_list_of_points:s
+    // eval_list_of_points:
     // --------------------
     new_feas_inc = new_infeas_inc = NULL;
     
@@ -193,7 +202,8 @@ void NOMAD::Speculative_Search::search ( NOMAD::Mads              & mads        
                                     new_infeas_inc          ,
                                     success                   );
     
-    if ( display_degree == NOMAD::FULL_DISPLAY ) {
+    if ( display_degree == NOMAD::FULL_DISPLAY ) 
+    {
         std::ostringstream oss;
         oss << "end of speculative search (" << success << ")";
         out << NOMAD::close_block ( oss.str() ) << std::endl;

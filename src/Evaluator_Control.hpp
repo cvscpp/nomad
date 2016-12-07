@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -47,10 +54,6 @@
 #include "Pareto_Front.hpp"
 #include "Slave.hpp"
 #include "Quad_Model.hpp"
-
-#ifdef USE_TGP
-#include "TGP_Model.hpp"
-#endif
 
 #ifdef R_VERSION
 extern "C" {
@@ -112,10 +115,6 @@ namespace NOMAD {
         NOMAD::Slave * _slave; // Slave object for master process
 #endif
         
-#ifdef USE_TGP
-        NOMAD::TGP_Model   * _last_TGP_model;       ///< Last TGP model from the model search.
-#endif
-        
         NOMAD::Model_Stats   _model_ordering_stats; ///< Model ordering stats.
         NOMAD::Stats       & _stats;                ///< Algorithm stats.
         
@@ -145,11 +144,11 @@ namespace NOMAD {
         
         /// Save the solution file or update the history file.
         /**
-         \param file_name		Name of the file -- \b IN.
-         \param x				Lattest solution -- \b IN.
-         \param is_sol		Flag equal to \c true if the file is
-         a solution file; otherwise it is a history file.
-         \param display_bimv	Display best infeasible (min. viol.) if \c true
+         \param file_name       Name of the file                        -- \b IN.
+         \param x               Lattest solution                        -- \b IN.
+         \param is_sol          Flag equal to \c true if the file is
+         a solution file; otherwise it is a history file.               -- \b IN.
+         \param display_bimv    Display best infeasible (min. viol.)(optional) if \c true
          */
         void write_sol_or_his_file ( const std::string        & file_name ,
                                     const NOMAD::Eval_Point  & x         ,
@@ -235,13 +234,7 @@ namespace NOMAD {
         void quad_model_ordering ( NOMAD::dd_type   display_degree ,
                                   bool           & modified_list    );
         
-        /// TGP model ordering (parameter \c MODEL_EVAL_SORT).
-        /**
-         \param display_degree Display degree                              -- \b IN.
-         \param modified_list  To indicate a change in the evaluation list -- \b OUT.
-         */
-        void TGP_model_ordering ( NOMAD::dd_type   display_degree ,
-                                 bool           & modified_list    );
+        
         
         /// Count the output stats (STAT_SUM and STAT_AVG).
         /**
@@ -294,24 +287,24 @@ namespace NOMAD {
         
         /// Evaluate points.
         /*
-         \param list_x			The list of points						-- \b IN/OUT.
-         \param true_barrier		Barrier for true evaluations			-- \b IN/OUT.
-         \param sgte_barrier		Barrier for surrogate evaluations		-- \b IN/OUT.
-         \param pareto_front		A pointer to the Pareto front			-- \b IN/OUT
+         \param list_x              The list of points                          -- \b IN/OUT.
+         \param true_barrier        Barrier for true evaluations                -- \b IN/OUT.
+         \param sgte_barrier        Barrier for surrogate evaluations           -- \b IN/OUT.
+         \param pareto_front        A pointer to the Pareto front               -- \b IN/OUT
          (may be \c NULL).
-         \param list_count_eval	A list of bool for counted evaluations	-- \b OUT.
-         \param stop				Stop flag								-- \b IN/OUT.
-         \param stop_reason		Stop reason								-- \b OUT.
-         \param h_max				Maximal feasibility value				-- \b IN.
+         \param list_count_eval     A list of bool for counted evaluations      -- \b OUT.
+         \param stop                Stop flag                                   -- \b IN/OUT.
+         \param stop_reason         Stop reason                                 -- \b OUT.
+         \param h_max               Maximal feasibility value                   -- \b IN.
          */
-        void eval_points ( std::list<NOMAD::Eval_Point *>	& list_x            ,
-                          NOMAD::Barrier					& true_barrier ,
-                          NOMAD::Barrier					& sgte_barrier ,
-                          NOMAD::Pareto_Front				* pareto_front ,
-                          std::list<bool>					& list_count_eval   ,
-                          bool							& stop         ,
-                          NOMAD::stop_type				& stop_reason  ,
-                          const NOMAD::Double				& h_max          );
+        void eval_points ( std::list<NOMAD::Eval_Point *>   & list_x            ,
+                          NOMAD::Barrier                    & true_barrier      ,
+                          NOMAD::Barrier                    & sgte_barrier      ,
+                          NOMAD::Pareto_Front               * pareto_front      ,
+                          std::list<bool>                   & list_count_eval   ,
+                          bool                              & stop              ,
+                          NOMAD::stop_type                  & stop_reason       ,
+                          const NOMAD::Double               & h_max             );
         
         
         
@@ -388,17 +381,16 @@ namespace NOMAD {
          \param success        Success for these evaluations           -- \b OUT.
          \param evaluated_pts  List of processed points                -- \b OUT.
          */
-        void private_eval_list_of_points
-        ( NOMAD::search_type                     search         ,
-         NOMAD::Barrier                       & true_barrier   ,
-         NOMAD::Barrier                       & sgte_barrier   ,
-         NOMAD::Pareto_Front                  * pareto_front   ,
-         bool                                 & stop           ,
-         NOMAD::stop_type                     & stop_reason    ,
-         const NOMAD::Eval_Point             *& new_feas_inc   ,
-         const NOMAD::Eval_Point             *& new_infeas_inc ,
-         NOMAD::success_type                  & success        ,
-         std::list<const NOMAD::Eval_Point *> & evaluated_pts    );
+        void private_eval_list_of_points ( NOMAD::search_type                     search         ,
+                                          NOMAD::Barrier                       & true_barrier   ,
+                                          NOMAD::Barrier                       & sgte_barrier   ,
+                                          NOMAD::Pareto_Front                  * pareto_front   ,
+                                          bool                                 & stop           ,
+                                          NOMAD::stop_type                     & stop_reason    ,
+                                          const NOMAD::Eval_Point             *& new_feas_inc   ,
+                                          const NOMAD::Eval_Point             *& new_infeas_inc ,
+                                          NOMAD::success_type                  & success        ,
+                                          std::list<const NOMAD::Eval_Point *> & evaluated_pts    );
         
         
 #ifdef MODEL_STATS
@@ -435,7 +427,7 @@ namespace NOMAD {
             Evaluator_Control::_force_quit = true;
         }
         
-        /// Force evaluation failure.
+        /// Force evaluation failure!
         static void force_evaluation_failure ( void )
         {
             Evaluator_Control::_force_evaluation_failure = true;
@@ -539,8 +531,8 @@ namespace NOMAD {
         
         /// Update the solution file.
         /**
-         \param x				The lattest solution									-- \b IN.
-         \param display_bimv	Required to display least infeasible (default=false)	-- \b IN
+         \param x                The lattest solution                                   -- \b IN.
+         \param display_bimv    Required to display least infeasible (default=false)    -- \b IN
          */
         void write_solution_file ( const NOMAD::Eval_Point & x , bool display_bimv=false) const;
         
@@ -613,13 +605,6 @@ namespace NOMAD {
          */
         void set_evaluator ( NOMAD::Evaluator * e ) { _ev = e; }
         
-#ifdef USE_TGP
-        /// Set the last TGP model from the model search.
-        /**
-         \param m The last TGP model -- \b IN.
-         */
-        void set_last_TGP_model ( NOMAD::TGP_Model * m ) { _last_TGP_model = m; }
-#endif
         
         /// Reset.
         void reset ( void );
@@ -633,13 +618,12 @@ namespace NOMAD {
          \param true_barrier   Barrier for true evaluations            -- \b IN/OUT.
          \param sgte_barrier   Barrier for surrogate evaluations       -- \b IN/OUT.
          */
-        void ordering_lop
-        ( NOMAD::search_type              search             , // IN    : search type
-         bool                                 & stop           ,
-         NOMAD::stop_type                     & stop_reason    ,
-         NOMAD::Barrier                & true_barrier       , // IN/OUT: truth barrier
-         NOMAD::Barrier                & sgte_barrier        // IN/OUT: surrogate barrier
-        );
+        void ordering_lop ( NOMAD::search_type              search             , // IN    : search type
+                           bool                                 & stop           ,
+                           NOMAD::stop_type                     & stop_reason    ,
+                           NOMAD::Barrier                & true_barrier       , // IN/OUT: truth barrier
+                           NOMAD::Barrier                & sgte_barrier );       // IN/OUT: surrogate barrier
+        
         
         
         
@@ -658,17 +642,16 @@ namespace NOMAD {
          \param success        Success for this series of evaluations  -- \b OUT.
          \param evaluated_pts  List of processed points                -- \b OUT.
          */
-        void eval_list_of_points
-        ( NOMAD::search_type                     search         ,
-         NOMAD::Barrier                       & true_barrier   ,
-         NOMAD::Barrier                       & sgte_barrier   ,
-         NOMAD::Pareto_Front                  * pareto_front   ,
-         bool                                 & stop           ,
-         NOMAD::stop_type                     & stop_reason    ,
-         const NOMAD::Eval_Point             *& new_feas_inc   ,
-         const NOMAD::Eval_Point             *& new_infeas_inc ,
-         NOMAD::success_type                  & success        ,
-         std::list<const NOMAD::Eval_Point *> * evaluated_pts = NULL );
+        void eval_list_of_points ( NOMAD::search_type                     search         ,
+                                  NOMAD::Barrier                       & true_barrier   ,
+                                  NOMAD::Barrier                       & sgte_barrier   ,
+                                  NOMAD::Pareto_Front                  * pareto_front   ,
+                                  bool                                 & stop           ,
+                                  NOMAD::stop_type                     & stop_reason    ,
+                                  const NOMAD::Eval_Point             *& new_feas_inc   ,
+                                  const NOMAD::Eval_Point             *& new_infeas_inc ,
+                                  NOMAD::success_type                  & success        ,
+                                  std::list<const NOMAD::Eval_Point *> * evaluated_pts = NULL );
         
         /// Add a point to the list of points to be evaluated.
         /**
@@ -765,8 +748,7 @@ namespace NOMAD {
                                    bool                          & stop           ,
                                    NOMAD::stop_type              & stop_reason    ,
                                    NOMAD::success_type           & success        ,
-                                   std::list<const NOMAD::Eval_Point *>
-                                   & evaluated_pts    );
+                                   std::list<const NOMAD::Eval_Point *> & evaluated_pts    );
 #endif
     };
 }

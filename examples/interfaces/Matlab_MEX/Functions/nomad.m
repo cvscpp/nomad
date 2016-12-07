@@ -2,11 +2,10 @@
 %
 %   min f(x)      subject to:     nlcon(x) <= 0
 %    x                            lb <= x <= ub
-%                                 xi in Z
-%                                 xj in {0,1}
+%                                 x in R
 %            
 %%%%%%%%%%%%% GERAD VERSION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   [x,fval,exitflag,iter,nfval] = nomad(fun,x0,lb,ub,opts)
+%   [x,fval,exitflag,iter,nfval] = nomad(fun,x0,lb,ub,opts,param)
 %
 %   Input arguments:
 %       fun - nonlinear function handle (f and nlcon)
@@ -14,10 +13,11 @@
 %       lb - decision variable lower bounds
 %       ub - decision variable upper bounds
 %       opts - solver options (see nomadset)
+%       param - extra parameter passed to the blackbox function
 %
 %   Return arguments:
 %       x - solution vector
-%       fval - objective value at the solution
+%       fval - objective value at the solution (paretor front if bi-obj)
 %       exitflag - exit status (see below)
 %       iter - number of iterations taken by the solver
 %       nfval - number of function evaluations taken by the solver

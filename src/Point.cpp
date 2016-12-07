@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -58,18 +65,18 @@ int NOMAD::Point::_display_limit   = NOMAD::DEFAULT_POINT_DISPLAY_LIMIT;
 NOMAD::Point::Point ( int n , const NOMAD::Double & d ) : _n (n) , _coords (NULL)
 {
 #ifdef MEMORY_DEBUG
-	++NOMAD::Point::_cardinality;
-	if ( NOMAD::Point::_cardinality > NOMAD::Point::_max_cardinality )
-		++NOMAD::Point::_max_cardinality;
+    ++NOMAD::Point::_cardinality;
+    if ( NOMAD::Point::_cardinality > NOMAD::Point::_max_cardinality )
+        ++NOMAD::Point::_max_cardinality;
 #endif
-	if (_n > 0)
+    if (_n > 0)
     {
-		_coords = new NOMAD::Double [_n];  
-		if ( d.is_defined() )
-			std::fill ( _coords , _coords+_n , d );
-	}
-	else
-		_n = 0;
+        _coords = new NOMAD::Double [_n];
+        if ( d.is_defined() )
+            std::fill ( _coords , _coords+_n , d );
+    }
+    else
+        _n = 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -78,17 +85,17 @@ NOMAD::Point::Point ( int n , const NOMAD::Double & d ) : _n (n) , _coords (NULL
 NOMAD::Point::Point ( const NOMAD::Point & p ) : _n (p._n) , _coords (NULL)
 {
 #ifdef MEMORY_DEBUG
-	++NOMAD::Point::_cardinality;
-	if ( NOMAD::Point::_cardinality >= NOMAD::Point::_max_cardinality )
-		++NOMAD::Point::_max_cardinality;
+    ++NOMAD::Point::_cardinality;
+    if ( NOMAD::Point::_cardinality >= NOMAD::Point::_max_cardinality )
+        ++NOMAD::Point::_max_cardinality;
 #endif
-	if ( _n > 0 )
+    if ( _n > 0 )
     {
-		NOMAD::Double       * p1 =   _coords = new NOMAD::Double [_n];
-		const NOMAD::Double * p2 = p._coords;
-		for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
-			*p1 = *p2;
-	}
+        NOMAD::Double       * p1 =   _coords = new NOMAD::Double [_n];
+        const NOMAD::Double * p2 = p._coords;
+        for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
+            *p1 = *p2;
+    }
 }
 
 /*-----------------------------------------------*/
@@ -97,9 +104,9 @@ NOMAD::Point::Point ( const NOMAD::Point & p ) : _n (p._n) , _coords (NULL)
 NOMAD::Point::~Point ( void )
 {
 #ifdef MEMORY_DEBUG
-	--NOMAD::Point::_cardinality;
+    --NOMAD::Point::_cardinality;
 #endif
-	delete [] _coords;
+    delete [] _coords;
 }
 
 /*-----------------------------------------------*/
@@ -108,23 +115,23 @@ NOMAD::Point::~Point ( void )
 /*-----------------------------------------------*/
 void NOMAD::Point::reset ( int n , const NOMAD::Double & d )
 {
-	if ( n <= 0 )
+    if ( n <= 0 )
     {
-		_n = 0; 
-		delete [] _coords;
-		_coords = NULL;
-	}
-	else
+        _n = 0;
+        delete [] _coords;
+        _coords = NULL;
+    }
+    else
     {
-		if ( _n != n )
+        if ( _n != n )
         {
-			delete [] _coords;
-			_n      = n;
-			_coords = new NOMAD::Double [_n];
-		}
-		if ( d.is_defined() )
-			std::fill ( _coords , _coords+_n , d );
-	}
+            delete [] _coords;
+            _n      = n;
+            _coords = new NOMAD::Double [_n];
+        }
+        if ( d.is_defined() )
+            std::fill ( _coords , _coords+_n , d );
+    }
 }
 
 /*----------------------------------------------------------------*/
@@ -132,31 +139,31 @@ void NOMAD::Point::reset ( int n , const NOMAD::Double & d )
 /*----------------------------------------------------------------*/
 void NOMAD::Point::resize ( int n )
 {
-	if ( n == _n )
-		return;
+    if ( n == _n )
+        return;
     
-	if ( n <= 0 )
+    if ( n <= 0 )
     {
-		_n = 0; 
-		delete [] _coords;
-		_coords = NULL;
-		return;
-	}
-	NOMAD::Double * new_coords = new NOMAD::Double [n];
-	if ( _coords )
+        _n = 0;
+        delete [] _coords;
+        _coords = NULL;
+        return;
+    }
+    NOMAD::Double * new_coords = new NOMAD::Double [n];
+    if ( _coords )
     {
-		int min = ( n < _n ) ? n : _n;
-		
-		NOMAD::Double       * p1 = new_coords;
-		const NOMAD::Double * p2 = _coords;
-		
-		for ( int i = 0 ; i < min ; ++i , ++p1 , ++p2 )
-			*p1 = *p2;
-		
-		delete [] _coords;
-	}
-	_coords = new_coords;
-	_n      = n;
+        int min = ( n < _n ) ? n : _n;
+        
+        NOMAD::Double       * p1 = new_coords;
+        const NOMAD::Double * p2 = _coords;
+        
+        for ( int i = 0 ; i < min ; ++i , ++p1 , ++p2 )
+            *p1 = *p2;
+        
+        delete [] _coords;
+    }
+    _coords = new_coords;
+    _n      = n;
 }
 
 /*-----------------------------------------------------------*/
@@ -166,25 +173,25 @@ void NOMAD::Point::resize ( int n )
 // const version:
 const NOMAD::Double & NOMAD::Point::operator [] ( int i ) const
 {
-	if ( !_coords )
-		throw NOMAD::Point::Not_Defined ( "Point.cpp" , __LINE__ ,
-										 "operator x[i] (const): 'x' not defined" );
-	if ( i < 0 || i >= _n )
-		throw NOMAD::Point::Bad_Access ( "Point.cpp" , __LINE__ ,
-										"operator x[i] (const): 'i' outside the array's bounds." );
-	return _coords[i];
+    if ( !_coords )
+        throw NOMAD::Point::Not_Defined ( "Point.cpp" , __LINE__ ,
+                                         "operator x[i] (const): 'x' not defined" );
+    if ( i < 0 || i >= _n )
+        throw NOMAD::Point::Bad_Access ( "Point.cpp" , __LINE__ ,
+                                        "operator x[i] (const): 'i' outside the array's bounds." );
+    return _coords[i];
 }
 
 // non-const version:
 NOMAD::Double & NOMAD::Point::operator [] ( int i )
 {
-	if ( !_coords )
-		throw NOMAD::Point::Not_Defined ( "Point.cpp" , __LINE__ ,
-										 "operator x[i]: 'x' not defined" );
-	if ( i < 0 || i >= _n )
-		throw NOMAD::Point::Bad_Access ( "Point.cpp" , __LINE__ ,
-										"operator x[i] (const): 'i' outside the array's bounds." );
-	return _coords[i];
+    if ( !_coords )
+        throw NOMAD::Point::Not_Defined ( "Point.cpp" , __LINE__ ,
+                                         "operator x[i]: 'x' not defined" );
+    if ( i < 0 || i >= _n )
+        throw NOMAD::Point::Bad_Access ( "Point.cpp" , __LINE__ ,
+                                        "operator x[i] (const): 'i' outside the array's bounds." );
+    return _coords[i];
 }
 
 /*-----------------------------------------------------------*/
@@ -192,25 +199,25 @@ NOMAD::Double & NOMAD::Point::operator [] ( int i )
 /*-----------------------------------------------------------*/
 const NOMAD::Point & NOMAD::Point::operator = ( const NOMAD::Point & p )
 {
-	if ( this == &p )
-		return *this;
-	
-	if ( _n != p._n )
+    if ( this == &p )
+        return *this;
+    
+    if ( _n != p._n )
     {
-		delete [] _coords;
-		_n = p._n;
-		if (_n > 0)
-			_coords = new NOMAD::Double [_n];
-		else
-			_coords = NULL;
-	}
-	
-	NOMAD::Double       * p1 =   _coords;
-	const NOMAD::Double * p2 = p._coords;
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
-		*p1 = *p2;
-	
-	return *this;
+        delete [] _coords;
+        _n = p._n;
+        if (_n > 0)
+            _coords = new NOMAD::Double [_n];
+        else
+            _coords = NULL;
+    }
+    
+    NOMAD::Double       * p1 =   _coords;
+    const NOMAD::Double * p2 = p._coords;
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
+        *p1 = *p2;
+    
+    return *this;
 }
 
 /*------------------------------------*/
@@ -218,36 +225,36 @@ const NOMAD::Point & NOMAD::Point::operator = ( const NOMAD::Point & p )
 /*      (*this = ref + k * delta)     */
 /*------------------------------------*/
 void NOMAD::Point::project_to_mesh ( const NOMAD::Point & ref   ,
-									const NOMAD::Point & delta ,
-									const NOMAD::Point & lb    ,
-									const NOMAD::Point & ub      )
+                                    const NOMAD::Point & delta ,
+                                    const NOMAD::Point & lb    ,
+                                    const NOMAD::Point & ub      )
 {
-	if ( delta._n != _n               ||
-		ref._n   != _n               ||
-		( lb._n > 0 && lb._n != _n ) ||
-		( ub._n > 0 && ub._n != _n )    )
-		throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
-										   "Point::project_to_mesh(): invalid Point sizes" );
-	
-	NOMAD::Double * p  = _coords       ,
-	* pr = ref._coords   ,
-	* pd = delta._coords ,
-	* pl = lb._coords    ,
-	* pu = ub._coords;
-	int k;
-	
-	if ( lb._n == 0 && ub._n == 0 )
-		for ( k = 0 ; k < _n ; ++k , ++pr , ++p , ++pd )
-			p->project_to_mesh ( *pr , *pd );
-	else if ( lb._n == 0 )
-		for ( k = 0 ; k < _n ; ++k , ++pr , ++p , ++pd , ++pu )
-			p->project_to_mesh ( *pr , *pd , NOMAD::Double() , *pu );
-	else if ( ub._n == 0 )
-		for ( k = 0 ; k < _n ; ++k , ++pr , ++p , ++pd , ++pl )
-			p->project_to_mesh ( *pr , *pd , *pl );
-	else
-		for ( k = 0 ; k < _n ; ++k , ++pr , ++p , ++pd , ++pl , ++pu )
-			p->project_to_mesh ( *pr , *pd , *pl , *pu );
+    if ( delta._n != _n               ||
+        ref._n   != _n               ||
+        ( lb._n > 0 && lb._n != _n ) ||
+        ( ub._n > 0 && ub._n != _n )    )
+        throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
+                                           "Point::project_to_mesh(): invalid Point sizes" );
+    
+    NOMAD::Double * p  = _coords       ,
+    * pr = ref._coords   ,
+    * pd = delta._coords ,
+    * pl = lb._coords    ,
+    * pu = ub._coords;
+    int k;
+    
+    if ( lb._n == 0 && ub._n == 0 )
+        for ( k = 0 ; k < _n ; ++k , ++pr , ++p , ++pd )
+            p->project_to_mesh ( *pr , *pd );
+    else if ( lb._n == 0 )
+        for ( k = 0 ; k < _n ; ++k , ++pr , ++p , ++pd , ++pu )
+            p->project_to_mesh ( *pr , *pd , NOMAD::Double() , *pu );
+    else if ( ub._n == 0 )
+        for ( k = 0 ; k < _n ; ++k , ++pr , ++p , ++pd , ++pl )
+            p->project_to_mesh ( *pr , *pd , *pl );
+    else
+        for ( k = 0 ; k < _n ; ++k , ++pr , ++p , ++pd , ++pl , ++pu )
+            p->project_to_mesh ( *pr , *pd , *pl , *pu );
 }
 
 
@@ -255,41 +262,41 @@ void NOMAD::Point::project_to_mesh ( const NOMAD::Point & ref   ,
 /*                             display                       */
 /*-----------------------------------------------------------*/
 void NOMAD::Point::display ( const NOMAD::Display & out ,
-							const std::string    & sep ,
-							int                    w   ,
-							int                    lim   ) const
+                            const std::string    & sep ,
+                            int                    w   ,
+                            int                    lim   ) const
 {
-	int nm1 = _n-1;
-	
-	// for a limited display of maximum lim elements:
-	if ( lim > 0 && lim < _n )
-	{
-		
-		int l1 = (lim + 1) / 2 , l2 = lim / 2 , i;
-		
-		// first coordinates:
-		for ( i = 0 ; i < l1 ; ++i )
-			out << std::setw ( w ) << _coords[i] << sep;
-		
-		// separator:
-		out << "..." << sep;
-		
-		// last coordinates:
-		for ( i = _n - l2 ; i < nm1 ; ++i )
-			out << std::setw ( w ) << _coords[i] << sep;
-	}
-	
-	// normal display (lim <= 0 or lim >= _n):
-	else 
-	{
-		const NOMAD::Double * p = _coords;
-		for ( int i = 0 ; i < nm1 ; ++i , ++p )
-			out << std::setw ( w ) << *p << sep;
-	}
-	
-	// last coordinate (different because there is no separator after that):
-	if ( _n > 0 )
-		out << std::setw ( w ) << _coords[nm1];
+    int nm1 = _n-1;
+    
+    // for a limited display of maximum lim elements:
+    if ( lim > 0 && lim < _n )
+    {
+        
+        int l1 = (lim + 1) / 2 , l2 = lim / 2 , i;
+        
+        // first coordinates:
+        for ( i = 0 ; i < l1 ; ++i )
+            out << std::setw ( w ) << _coords[i] << sep;
+        
+        // separator:
+        out << "..." << sep;
+        
+        // last coordinates:
+        for ( i = _n - l2 ; i < nm1 ; ++i )
+            out << std::setw ( w ) << _coords[i] << sep;
+    }
+    
+    // normal display (lim <= 0 or lim >= _n):
+    else
+    {
+        const NOMAD::Double * p = _coords;
+        for ( int i = 0 ; i < nm1 ; ++i , ++p )
+            out << std::setw ( w ) << *p << sep;
+    }
+    
+    // last coordinate (different because there is no separator after that):
+    if ( _n > 0 )
+        out << std::setw ( w ) << _coords[nm1];
 }
 
 /*-----------------------------------------------------------*/
@@ -297,12 +304,12 @@ void NOMAD::Point::display ( const NOMAD::Display & out ,
 /*-----------------------------------------------------------*/
 std::istream & NOMAD::operator >> ( std::istream & in , NOMAD::Point & p )
 {
-	int n = p.size();
-	for ( int k = 0 ; k < n ; ++k )
-		in >> p[k];
-	if ( in.fail() )
-		throw NOMAD::Point::Bad_Input ( "Point.cpp" , __LINE__ , "in >> x: bad input" );
-	return in;
+    int n = p.size();
+    for ( int k = 0 ; k < n ; ++k )
+        in >> p[k];
+    if ( in.fail() )
+        throw NOMAD::Point::Bad_Input ( "Point.cpp" , __LINE__ , "in >> x: bad input" );
+    return in;
 }
 
 /*-----------------------------------------------------------*/
@@ -311,19 +318,19 @@ std::istream & NOMAD::operator >> ( std::istream & in , NOMAD::Point & p )
 /*-----------------------------------------------------------*/
 void NOMAD::Point::set ( int n , const NOMAD::Double * a )
 {
-	if ( n <= 0 || !a )
-		return;
-	
-	if ( _n != n )
+    if ( n <= 0 || !a )
+        return;
+    
+    if ( _n != n )
     {
-		delete [] _coords;
-		_n      = n;
-		_coords = new NOMAD::Double [_n];
-	}
-	
-	NOMAD::Double * p = _coords;
-	for ( int k = 0 ; k < _n ; ++k , ++p , ++a )
-		*p = *a;
+        delete [] _coords;
+        _n      = n;
+        _coords = new NOMAD::Double [_n];
+    }
+    
+    NOMAD::Double * p = _coords;
+    for ( int k = 0 ; k < _n ; ++k , ++p , ++a )
+        *p = *a;
 }
 
 /*-----------------------------------------------------------*/
@@ -331,13 +338,13 @@ void NOMAD::Point::set ( int n , const NOMAD::Double * a )
 /*-----------------------------------------------------------*/
 bool NOMAD::Point::is_complete ( void ) const
 {
-	if ( _n <= 0 )
-		return false;
-	const NOMAD::Double * p = _coords;
-	for ( int i = 0 ; i < _n ; ++i , ++p )
-		if ( !p->is_defined() )
-			return false;
-	return true;
+    if ( _n <= 0 )
+        return false;
+    const NOMAD::Double * p = _coords;
+    for ( int i = 0 ; i < _n ; ++i , ++p )
+        if ( !p->is_defined() )
+            return false;
+    return true;
 }
 
 /*---------------------------------------------------------------*/
@@ -345,13 +352,13 @@ bool NOMAD::Point::is_complete ( void ) const
 /*---------------------------------------------------------------*/
 bool NOMAD::Point::is_defined ( void ) const
 {
-	if ( _n <= 0 )
-		return false;
-	const NOMAD::Double * p = _coords;
-	for ( int i = 0 ; i < _n ; ++i , ++p )
-		if ( p->is_defined() )
-			return true;
-	return false;
+    if ( _n <= 0 )
+        return false;
+    const NOMAD::Double * p = _coords;
+    for ( int i = 0 ; i < _n ; ++i , ++p )
+        if ( p->is_defined() )
+            return true;
+    return false;
 }
 
 /*---------------------------------------------------------------*/
@@ -359,25 +366,25 @@ bool NOMAD::Point::is_defined ( void ) const
 /*---------------------------------------------------------------*/
 int NOMAD::Point::nb_defined ( void ) const
 {
-	const NOMAD::Double * p = _coords;
-	int                   k = 0;
-	for ( int i = 0 ; i < _n ; ++i , ++p )
-		if ( p->is_defined() )
-			++k;
-	return k;
-} 
+    const NOMAD::Double * p = _coords;
+    int                   k = 0;
+    for ( int i = 0 ; i < _n ; ++i , ++p )
+        if ( p->is_defined() )
+            ++k;
+    return k;
+}
 
 /*-----------------------------------------------------------*/
 /*                           negation                        */
 /*-----------------------------------------------------------*/
 const NOMAD::Point NOMAD::Point::operator - ( void ) const
 {
-	NOMAD::Point          tmp (_n);
-	NOMAD::Double       * p1 = tmp._coords;
-	const NOMAD::Double *  p2 = _coords;
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
-		*p1 = - *p2;
-	return tmp;
+    NOMAD::Point          tmp (_n);
+    NOMAD::Double       * p1 = tmp._coords;
+    const NOMAD::Double *  p2 = _coords;
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
+        *p1 = - *p2;
+    return tmp;
 }
 
 /*----------------------------------------------------------*/
@@ -385,10 +392,10 @@ const NOMAD::Point NOMAD::Point::operator - ( void ) const
 /*----------------------------------------------------------*/
 const NOMAD::Point & NOMAD::Point::operator *= ( const NOMAD::Double & d )
 {
-	NOMAD::Double * p = _coords;
-	for ( int k = 0 ; k < _n ; ++k , ++p )
-		*p *= d;
-	return *this;
+    NOMAD::Double * p = _coords;
+    for ( int k = 0 ; k < _n ; ++k , ++p )
+        *p *= d;
+    return *this;
 }
 
 /*----------------------------------------------------------*/
@@ -396,18 +403,18 @@ const NOMAD::Point & NOMAD::Point::operator *= ( const NOMAD::Double & d )
 /*----------------------------------------------------------*/
 const NOMAD::Point NOMAD::Point::operator * ( const NOMAD::Point & p ) const
 {
-	if ( p._n != _n )
-		throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
-										   "x * y: x.size != y.size" );
-	NOMAD::Point          tmp ( _n );
-	NOMAD::Double       * p1 = tmp._coords;
-	const NOMAD::Double * p2 =     _coords;
-	const NOMAD::Double * p3 =   p._coords;
+    if ( p._n != _n )
+        throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
+                                           "x * y: x.size != y.size" );
+    NOMAD::Point          tmp ( _n );
+    NOMAD::Double       * p1 = tmp._coords;
+    const NOMAD::Double * p2 =     _coords;
+    const NOMAD::Double * p3 =   p._coords;
     
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 , ++p3 )
-		*p1 = *p2 * *p3;
-	
-	return tmp;
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 , ++p3 )
+        *p1 = *p2 * *p3;
+    
+    return tmp;
 }
 
 /*----------------------------------------------------------*/
@@ -415,18 +422,18 @@ const NOMAD::Point NOMAD::Point::operator * ( const NOMAD::Point & p ) const
 /*----------------------------------------------------------*/
 const NOMAD::Point NOMAD::Point::operator / ( const NOMAD::Point & p ) const
 {
-	if ( p._n != _n )
-		throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
-										   "x / y: x.size != y.size" );
-	NOMAD::Point          tmp ( _n );
-	NOMAD::Double       * p1 = tmp._coords;
-	const NOMAD::Double * p2 =     _coords;
-	const NOMAD::Double * p3 =   p._coords;
+    if ( p._n != _n )
+        throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
+                                           "x / y: x.size != y.size" );
+    NOMAD::Point          tmp ( _n );
+    NOMAD::Double       * p1 = tmp._coords;
+    const NOMAD::Double * p2 =     _coords;
+    const NOMAD::Double * p3 =   p._coords;
     
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 , ++p3 )
-		*p1 = *p2 / *p3;
-	
-	return tmp;
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 , ++p3 )
+        *p1 = *p2 / *p3;
+    
+    return tmp;
 }
 
 /*----------------------------------------------------------*/
@@ -434,18 +441,18 @@ const NOMAD::Point NOMAD::Point::operator / ( const NOMAD::Point & p ) const
 /*----------------------------------------------------------*/
 const NOMAD::Point NOMAD::Point::operator + ( const NOMAD::Point & p ) const
 {
-	if ( p._n != _n )
-		throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
-										   "x + y: x.size != y.size" );
-	NOMAD::Point          tmp ( _n );
-	NOMAD::Double       * p1 = tmp._coords;
-	const NOMAD::Double * p2 =     _coords;
-	const NOMAD::Double * p3 =   p._coords;
+    if ( p._n != _n )
+        throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
+                                           "x + y: x.size != y.size" );
+    NOMAD::Point          tmp ( _n );
+    NOMAD::Double       * p1 = tmp._coords;
+    const NOMAD::Double * p2 =     _coords;
+    const NOMAD::Double * p3 =   p._coords;
     
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 , ++p3 )
-		*p1 = *p2 + *p3;
-	
-	return tmp;
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 , ++p3 )
+        *p1 = *p2 + *p3;
+    
+    return tmp;
 }
 
 /*----------------------------------------------------------*/
@@ -453,18 +460,18 @@ const NOMAD::Point NOMAD::Point::operator + ( const NOMAD::Point & p ) const
 /*----------------------------------------------------------*/
 const NOMAD::Point NOMAD::Point::operator - ( const NOMAD::Point & p ) const
 {
-	if ( p._n != _n )
-		throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
-										   "x - y: x.size != y.size" );
-	NOMAD::Point          tmp ( _n );
-	NOMAD::Double       * p1 = tmp._coords;
-	const NOMAD::Double * p2 =     _coords;
-	const NOMAD::Double * p3 =   p._coords;
+    if ( p._n != _n )
+        throw NOMAD::Point::Bad_Operation ( "Point.cpp" , __LINE__ ,
+                                           "x - y: x.size != y.size" );
+    NOMAD::Point          tmp ( _n );
+    NOMAD::Double       * p1 = tmp._coords;
+    const NOMAD::Double * p2 =     _coords;
+    const NOMAD::Double * p3 =   p._coords;
     
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 , ++p3 )
-		*p1 = *p2 - *p3;
-	
-	return tmp;
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 , ++p3 )
+        *p1 = *p2 - *p3;
+    
+    return tmp;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -473,28 +480,28 @@ const NOMAD::Point NOMAD::Point::operator - ( const NOMAD::Point & p ) const
 /*--------------------------------------------------------------------------*/
 bool NOMAD::Point::operator < ( const NOMAD::Point & p ) const
 {
-	if ( this == &p )
-		return false;
-	
-	if ( _n < p._n )
-		return true;
-	if ( _n > p._n )
-		return false;
-	
-	const NOMAD::Double * p1 =   _coords;
-	const NOMAD::Double * p2 = p._coords;
-	
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
+    if ( this == &p )
+        return false;
+    
+    if ( _n < p._n )
+        return true;
+    if ( _n > p._n )
+        return false;
+    
+    const NOMAD::Double * p1 =   _coords;
+    const NOMAD::Double * p2 = p._coords;
+    
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
     {
-		
-		if ( *p1 < *p2 )
-			return true;
-		
-		if ( *p1 > *p2 )
-			return false;
-	}
-	
-	return false;
+        
+        if ( *p1 < *p2 )
+            return true;
+        
+        if ( *p1 > *p2 )
+            return false;
+    }
+    
+    return false;
 }
 
 /*---------------------------------------------------------------------*/
@@ -502,40 +509,40 @@ bool NOMAD::Point::operator < ( const NOMAD::Point & p ) const
 /*---------------------------------------------------------------------*/
 bool NOMAD::Point::comp_with_undef ( const NOMAD::Point & p ) const
 {
-	if ( this == &p )
-		return false;
-	
-	if ( _n < p._n )
-		return true;
-	if ( _n > p._n )
-		return false;
-	
-	const NOMAD::Double * p1 =   _coords;
-	const NOMAD::Double * p2 = p._coords;
-	
-	bool p1d , p2d;
-	
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
+    if ( this == &p )
+        return false;
+    
+    if ( _n < p._n )
+        return true;
+    if ( _n > p._n )
+        return false;
+    
+    const NOMAD::Double * p1 =   _coords;
+    const NOMAD::Double * p2 = p._coords;
+    
+    bool p1d , p2d;
+    
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
     {
-		p1d = p1->is_defined();
-		p2d = p2->is_defined();
-		
-		if ( !p1d && !p2d )
-			continue;
-		
-		if ( !p1d )
-			return true;
-		
-		if ( !p2d )
-			return false;
-		
-		if ( *p1 < *p2 )
-			return true;
-		
-		if ( *p1 > *p2 )
-			return false;
-	}
-	return false;
+        p1d = p1->is_defined();
+        p2d = p2->is_defined();
+        
+        if ( !p1d && !p2d )
+            continue;
+        
+        if ( !p1d )
+            return true;
+        
+        if ( !p2d )
+            return false;
+        
+        if ( *p1 < *p2 )
+            return true;
+        
+        if ( *p1 > *p2 )
+            return false;
+    }
+    return false;
 }
 
 /*-----------------------------------------------------------*/
@@ -543,18 +550,18 @@ bool NOMAD::Point::comp_with_undef ( const NOMAD::Point & p ) const
 /*-----------------------------------------------------------*/
 bool NOMAD::Point::operator == ( const NOMAD::Point & p ) const
 {
-	if ( this == &p )
-		return true;
-	if ( p._n != _n )
-		return false;
-	
-	const NOMAD::Double * p1 =   _coords;
-	const NOMAD::Double * p2 = p._coords;
-	for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
-		if ( *p1 != *p2 )
-			return false;
-	
-	return true;
+    if ( this == &p )
+        return true;
+    if ( p._n != _n )
+        return false;
+    
+    const NOMAD::Double * p1 =   _coords;
+    const NOMAD::Double * p2 = p._coords;
+    for ( int k = 0 ; k < _n ; ++k , ++p1 , ++p2 )
+        if ( *p1 != *p2 )
+            return false;
+    
+    return true;
 }
 
 /*-----------------------------------------------------------*/
@@ -562,23 +569,43 @@ bool NOMAD::Point::operator == ( const NOMAD::Point & p ) const
 /*-----------------------------------------------------------*/
 const NOMAD::Double NOMAD::Point::get_angle ( const NOMAD::Point & x ) const
 {
-	if ( _n != x._n )
-		return NOMAD::Double();
-	
-	NOMAD::Double inner_product = 0.0 , norm_1 = 0.0 , norm_2 = 0.0;
-	
-	const NOMAD::Double * p1 =   _coords;
-	const NOMAD::Double * p2 = x._coords;
-	
-	for ( int i = 0 ; i < _n ; ++i , ++p1 , ++p2 )
+    if ( _n != x._n )
+        return NOMAD::Double();
+    
+    NOMAD::Double inner_product = 0.0 , norm_1 = 0.0 , norm_2 = 0.0;
+    
+    const NOMAD::Double * p1 =   _coords;
+    const NOMAD::Double * p2 = x._coords;
+    
+    for ( int i = 0 ; i < _n ; ++i , ++p1 , ++p2 )
     {
-		norm_1        += *p1 * *p1;
-		norm_2        += *p2 * *p2;
-		inner_product += *p1 * *p2;
-	}
-	
-	if ( norm_1 == 0.0 || norm_2 == 0.0 )
-		return NOMAD::Double();
-	
-	return acos ( ( inner_product / ( norm_1.sqrt() * norm_2.sqrt() ) ).value() );
+        norm_1        += *p1 * *p1;
+        norm_2        += *p2 * *p2;
+        inner_product += *p1 * *p2;
+    }
+    
+    if ( norm_1 == 0.0 || norm_2 == 0.0 )
+        return NOMAD::Double();
+    
+    return acos ( ( inner_product / ( norm_1.sqrt() * norm_2.sqrt() ) ).value() );
+}
+
+
+/*-----------------------------------------------------------*/
+/*                      get coord                            */
+/*-----------------------------------------------------------*/
+const NOMAD::Double NOMAD::Point::get_coord (int i) const
+{
+    return _coords[i];
+}
+
+
+/*-----------------------------------------------------------*/
+/*  Set the coordinate j to value v                          */
+/*-----------------------------------------------------------*/
+void NOMAD::Point::set_coord ( int j , const NOMAD::Double v )
+{
+    if (( j < 0 ) || (j >= _n))
+        return;
+    _coords[j] = v;
 }

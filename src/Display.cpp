@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -406,7 +413,8 @@ std::ostream & NOMAD::operator << ( std::ostream                            & ou
 /*-----------------------------------------------------------------*/
 std::ostream & NOMAD::operator << ( std::ostream & out , NOMAD::bb_input_type bi )
 {
-    switch ( bi ) {
+    switch ( bi )
+    {
         case NOMAD::CONTINUOUS:
             out << "cont(R)";
             break;
@@ -484,34 +492,12 @@ std::ostream & NOMAD::operator << ( std::ostream & out , NOMAD::model_type mt )
         case NOMAD::QUADRATIC_MODEL:
             out << "quadratic";
             break;
-        case NOMAD::TGP_MODEL:
-            out << "TGP";
-            break;
         case NOMAD::NO_MODEL:
             out << "no models";
     }
     return out;
 }
 
-/*-----------------------------------------------------------------*/
-/*                      to display a TGP mode                      */
-/*-----------------------------------------------------------------*/
-std::ostream & NOMAD::operator << ( std::ostream & out , NOMAD::TGP_mode_type m )
-{
-    switch ( m )
-    {
-        case NOMAD::TGP_FAST:
-            out << "fast";
-            break;
-        case NOMAD::TGP_PRECISE:
-            out << "precise";
-            break;
-        case NOMAD::TGP_USER:
-            out << "user";
-            break;
-    }
-    return out;
-}
 
 /*-----------------------------------------------------------------*/
 /*                  to display an evaluation type                  */
@@ -579,6 +565,9 @@ std::ostream & NOMAD::operator << ( std::ostream & out , NOMAD::stop_type st )
             out << "mesh index limits";
             break;
         case NOMAD::XL_LIMITS_REACHED:
+            out << "mesh index limits";
+            break;
+        case NOMAD::GL_LIMITS_REACHED:
             out << "mesh index limits";
             break;
         case NOMAD::MAX_TIME_REACHED:
@@ -785,6 +774,9 @@ std::ostream & NOMAD::operator << ( std::ostream          & out ,
             break;
         case NOMAD::ORTHO_NP1_NEG:
             out << "Ortho-MADS n+1 NEG";
+            break;
+        case NOMAD::ORTHO_NP1_UNI:
+            out << "Ortho-MADS n+1 UNI";
             break;
         case NOMAD::DYN_ADDED:
             out << "Dynamic n+1th direction";

@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -55,9 +62,6 @@
 #include "XMesh.hpp"
 #include "SMesh.hpp"
 
-#ifdef USE_TGP
-#include "TGP_Model_Search.hpp"
-#endif
 
 namespace NOMAD {
     
@@ -77,6 +81,7 @@ namespace NOMAD {
         NOMAD::Evaluator_Control _ev_control_for_sorting;    ///< Evaluator control.
         NOMAD::Barrier           _true_barrier;  ///< Barrier for true function evaluations.
         NOMAD::Barrier           _sgte_barrier;  ///< Barrier for surrogate evaluations.
+        
         
         NOMAD::OrthogonalMesh * _mesh;   ///< Access to the OrthogonalMesh
         
@@ -101,6 +106,8 @@ namespace NOMAD {
         static bool _flag_reset_mesh;     ///< Reset or not the mesh before a MADS run.
         static bool _flag_reset_barriers; ///< Reset or not the barriers before a MADS run.
         static bool _flag_p1_active;      ///< Flag equal to \c true if phase one is active.
+        
+        
         
         /*-----------------------------------------------------------------------------*/
         
@@ -153,12 +160,12 @@ namespace NOMAD {
          size stopping criterion has to be
          disabled for integer variables -- \b OUT.
          */
-        void poll ( bool					& stop,
-                   NOMAD::stop_type		& stop_reason,
-                   NOMAD::success_type		& success,
-                   const NOMAD::Eval_Point *& new_feas_inc,
+        void poll ( bool                    & stop          ,
+                   NOMAD::stop_type         & stop_reason   ,
+                   NOMAD::success_type      & success       ,
+                   const NOMAD::Eval_Point *& new_feas_inc  ,
                    const NOMAD::Eval_Point *& new_infeas_inc,
-                   bool					& forbid_poll_size_stop   );
+                   bool                     & forbid_poll_size_stop   );
         
         /// Sets the poll trial points from poll direction, poll center and mesh size
         /**
@@ -169,12 +176,12 @@ namespace NOMAD {
          \param  offset        Dir index offset for primary and sec. poll center -- \b IN.
          \param  sorting       If true than the points are for sorting           -- \b IN.
          */
-        void set_poll_trial_points (  std::list<NOMAD::Direction> & dirs,
-                                    size_t                           offset,
-                                    const NOMAD::Eval_Point     &  poll_center,
-                                    bool					    	& stop,
-                                    NOMAD::stop_type				&stop_reason,
-                                    bool							sorting);
+        void set_poll_trial_points (  std::list<NOMAD::Direction>   & dirs          ,
+                                    size_t                            offset        ,
+                                    const NOMAD::Eval_Point         & poll_center   ,
+                                    bool                            & stop          ,
+                                    NOMAD::stop_type                & stop_reason   ,
+                                    bool                              sorting       );
         
         
         /// Compute a prospect point by optimization on quadratic models.
@@ -184,19 +191,19 @@ namespace NOMAD {
          \param  prospect_point  The prospect point  -- \b OUT.
          \return A flag equal to \c true if the prospect direction has been computed.
          */
-        bool optimize_quad_model ( const NOMAD::Eval_Point         & poll_center ,
-                                  const std::list<NOMAD::Direction> & dirs    ,
-                                  NOMAD::Point                    & prospect_point    )  ;
+        bool optimize_quad_model ( const NOMAD::Eval_Point          & poll_center   ,
+                                  const std::list<NOMAD::Direction> & dirs          ,
+                                  NOMAD::Point                      & prospect_point)  ;
         
         
         /// Sets the poll directions from signature, poll center and mesh size
         /**
-         \param dirs			List of directions for the poll			          -- \b OUT.
-         \param i_pc			Poll type                                         -- \b IN.
-         \param offset		Dir index offset for primary and sec. poll center -- \b IN.
-         \param poll_center   The poll center                                   -- \b IN.
-         \param stop 			Stop flag, true if cannot get direction   		  -- \b IN/OUT.
-         \param stop_reason	Stop type										  -- \b OUT.
+         \param dirs            List of directions for the poll                     -- \b OUT.
+         \param i_pc            Poll type                                           -- \b IN.
+         \param offset          Dir index offset for primary and sec. poll center   -- \b IN.
+         \param poll_center     The poll center                                     -- \b IN.
+         \param stop            Stop flag, true if cannot get direction             -- \b IN/OUT.
+         \param stop_reason     Stop type                                           -- \b OUT.
          */
         void set_poll_directions ( std::list<NOMAD::Direction> & dirs        ,
                                   NOMAD::poll_type              i_pc        ,
@@ -205,14 +212,27 @@ namespace NOMAD {
                                   bool                        & stop        ,
                                   NOMAD::stop_type            & stop_reason   );
         
+        
+        /// Sets the poll intensification points from signature, poll center and mesh size
+        /**
+         \param poll_center     The poll center                                 -- \b IN.
+         \param offset          Dir index offset for intensification            -- \b IN.
+         \param stop            Stop flag, true if cannot get direction         -- \b IN/OUT.
+         \param stop_reason     Stop type                                       -- \b OUT.
+         */
+        void set_poll_intensification_points ( const NOMAD::Eval_Point    & poll_center ,
+                                              size_t                      & offset      ,
+                                              bool                        & stop        ,
+                                              NOMAD::stop_type            & stop_reason );
+        
         /// Reduce the number of poll directions -> n
         /**
-         \param dirs			List of directions for the poll			-- \b IN/OUT.
-         \param  poll_center   the poll center                         -- \b IN.
+         \param dirs            List of directions for the poll        -- \b IN/OUT.
+         \param  poll_center    The poll center                         -- \b IN.
          \return success for this step.
          */
-        bool set_reduced_poll_to_n_directions(std::list<NOMAD::Direction>	& dirs,
-                                              const NOMAD::Eval_Point		& poll_center);
+        bool set_reduced_poll_to_n_directions(std::list<NOMAD::Direction>   & dirs,
+                                              const NOMAD::Eval_Point       & poll_center);
         
         /// Compute the rank of a list of directions
         /**
@@ -299,13 +319,13 @@ namespace NOMAD {
         /**
          - The computed opposite directions already include Delta^k_m.
          \param dirs          List of existing directions (no snap to bounds) -- \b IN.
-         \param newDirs		New dynamic directions              -- \b OUT.
+         \param newDirs       New dynamic directions              -- \b OUT.
          \param poll_center   Poll center                         -- \b IN.
          \return true if new dynamic direction generated false otherwise
          */
-        bool get_dynamic_directions (const std::list<NOMAD::Direction>	&	dirs,
-                                     std::list<NOMAD::Direction>			&	newDirs,
-                                     const NOMAD::Eval_Point				&	poll_center) ;
+        bool get_dynamic_directions (const std::list<NOMAD::Direction> & dirs,
+                                     std::list<NOMAD::Direction>       & newDirs,
+                                     const NOMAD::Eval_Point           & poll_center) ;
         
         
         
@@ -316,7 +336,7 @@ namespace NOMAD {
          least one direction in the set is
          of type Ortho-MADS N+1.
          */
-        bool dirs_have_orthomads_np1 ( const std::list<NOMAD::Direction> & dirs );
+        bool dirs_have_orthomads_np1_dyn ( const std::list<NOMAD::Direction> & dirs );
         
         
         ///  Check if a dir needs to be obtained from model optimization
@@ -329,12 +349,12 @@ namespace NOMAD {
         
         /// get a single direction using quad model optimization or sum of negatives
         /**
-         \param dirs			Reduced poll directions	(no snap to bounds)	-- \b IN.
-         \param poll_center	Poll center								    -- \b IN.
+         \param dirs           Reduced poll directions (no snap to bounds)    -- \b IN.
+         \param poll_center    Poll center                                    -- \b IN.
          \return new direction
          */
-        NOMAD::Direction get_single_dynamic_direction (const std::list<NOMAD::Direction>	&	dirs,
-                                                       const NOMAD::Eval_Point			&	poll_center) ;
+        NOMAD::Direction get_single_dynamic_direction (const std::list<NOMAD::Direction>  & dirs,
+                                                       const NOMAD::Eval_Point            & poll_center) ;
         
         
         /*-----------------------------------------------------------------------------*/
@@ -355,7 +375,7 @@ namespace NOMAD {
         _ev_control_for_sorting( p , _stats , _ev_control.get_evaluator() , &(_ev_control.get_cache()) , &(_ev_control.get_sgte_cache()) ) ,
         _true_barrier          ( p , NOMAD::TRUTH              ) ,
         _sgte_barrier          ( p , NOMAD::SGTE               ) ,
-        _mesh				   ( p.get_signature()->get_mesh() ) ,
+        _mesh                  ( p.get_signature()->get_mesh() ) ,
         _pareto_front          ( NULL                          ) ,
         _user_search           ( NULL                          ) ,
         _model_search1         ( NULL                          ) ,
@@ -388,7 +408,7 @@ namespace NOMAD {
         _ev_control_for_sorting( p , _stats , _ev_control.get_evaluator() , cache , sgte_cache ) ,
         _true_barrier          ( p , NOMAD::TRUTH                     ) ,
         _sgte_barrier          ( p , NOMAD::SGTE                      ) ,
-        _mesh                  ( p.get_signature()->get_mesh()		  ) ,
+        _mesh                  ( p.get_signature()->get_mesh()        ) ,
         _pareto_front          ( NULL                                 ) ,
         _user_search           ( NULL                                 ) ,
         _model_search1         ( NULL                                 ) ,
@@ -406,7 +426,7 @@ namespace NOMAD {
         /**
          \return Stop reason.
          */
-        NOMAD::stop_type run ( void );
+        virtual NOMAD::stop_type run ( void );
         
         /// Algorithm execution for multi-objective.
         /**

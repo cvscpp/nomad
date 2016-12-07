@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -34,12 +41,12 @@
 /*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
 /*-------------------------------------------------------------------------------------*/
 /**
-  \file   Direction.cpp
-  \brief  Polling direction (implementation)
-  \author Sebastien Le Digabel
-  \date   2010-04-05
-  \see    Direction.hpp
-*/
+ \file   Direction.cpp
+ \brief  Polling direction (implementation)
+ \author Sebastien Le Digabel
+ \date   2010-04-05
+ \see    Direction.hpp
+ */
 #include "Direction.hpp"
 
 /*-----------------------------------*/
@@ -54,15 +61,15 @@ int NOMAD::Direction::_max_cardinality = 0;
 /*                       constructor 1                     */
 /*---------------------------------------------------------*/
 NOMAD::Direction::Direction ( void )
-  : NOMAD::Point  (                            ) ,
-    _type         ( NOMAD::UNDEFINED_DIRECTION ) ,
+: NOMAD::Point  (                            ) ,
+_type         ( NOMAD::UNDEFINED_DIRECTION ) ,
 _index        ( -1                         ),
 _dir_group_index (-1)
 {
 #ifdef MEMORY_DEBUG
-  ++NOMAD::Direction::_cardinality;
-  if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
-    ++NOMAD::Direction::_max_cardinality;
+    ++NOMAD::Direction::_cardinality;
+    if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
+        ++NOMAD::Direction::_max_cardinality;
 #endif
 }
 
@@ -70,18 +77,18 @@ _dir_group_index (-1)
 /*                       constructor 2                     */
 /*---------------------------------------------------------*/
 NOMAD::Direction::Direction ( int                     n    ,
-			      const NOMAD::Double   & v    ,
-			      NOMAD::direction_type   type ,		 
-					int dir_group_index		 )
-  : NOMAD::Point  ( n , v ) ,
-    _type         ( type  ) ,
-    _index        ( -1   ) ,
-    _dir_group_index (dir_group_index)
+                             const NOMAD::Double   & v    ,
+                             NOMAD::direction_type   type ,
+                             int dir_group_index         )
+: NOMAD::Point  ( n , v ) ,
+_type         ( type  ) ,
+_index        ( -1   ) ,
+_dir_group_index (dir_group_index)
 {
 #ifdef MEMORY_DEBUG
-  ++NOMAD::Direction::_cardinality;
-  if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
-    ++NOMAD::Direction::_max_cardinality;
+    ++NOMAD::Direction::_cardinality;
+    if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
+        ++NOMAD::Direction::_max_cardinality;
 #endif
 }
 
@@ -89,34 +96,34 @@ NOMAD::Direction::Direction ( int                     n    ,
 /*                       constructor 2b                    */
 /*---------------------------------------------------------*/
 NOMAD::Direction::Direction ( int                     n    ,
-							 const NOMAD::Double   & v    ,
-							 NOMAD::direction_type   type   )
+                             const NOMAD::Double   & v    ,
+                             NOMAD::direction_type   type   )
 : NOMAD::Point  ( n , v ) ,
 _type         ( type  ) ,
 _index        ( -1    ),
 _dir_group_index (-1)
 {
 #ifdef MEMORY_DEBUG
-  ++NOMAD::Direction::_cardinality;
-  if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
-    ++NOMAD::Direction::_max_cardinality;
+    ++NOMAD::Direction::_cardinality;
+    if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
+        ++NOMAD::Direction::_max_cardinality;
 #endif
 }
 
 /*---------------------------------------------------------*/
 /*                       constructor 3                     */
 /*---------------------------------------------------------*/
-NOMAD::Direction::Direction ( const NOMAD::Point    & x    , 
-			      NOMAD::direction_type   type   )
-  : NOMAD::Point  ( x    ) ,
-    _type         ( type ) ,
+NOMAD::Direction::Direction ( const NOMAD::Point    & x    ,
+                             NOMAD::direction_type   type   )
+: NOMAD::Point  ( x    ) ,
+_type         ( type ) ,
 _index        ( -1   ),
 _dir_group_index (-1)
 {
 #ifdef MEMORY_DEBUG
-  ++NOMAD::Direction::_cardinality;
-  if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
-    ++NOMAD::Direction::_max_cardinality;
+    ++NOMAD::Direction::_cardinality;
+    if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
+        ++NOMAD::Direction::_max_cardinality;
 #endif
 }
 
@@ -124,15 +131,15 @@ _dir_group_index (-1)
 /*                      copy constructor                   */
 /*---------------------------------------------------------*/
 NOMAD::Direction::Direction ( const Direction & d )
-  : NOMAD::Point  ( d        ) ,
-    _type         ( d._type  ) ,
-    _index        ( d._index ),
+: NOMAD::Point  ( d        ) ,
+_type         ( d._type  ) ,
+_index        ( d._index ),
 _dir_group_index (d._dir_group_index)
 {
 #ifdef MEMORY_DEBUG
-  ++NOMAD::Direction::_cardinality;
-  if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
-    ++NOMAD::Direction::_max_cardinality;
+    ++NOMAD::Direction::_cardinality;
+    if ( NOMAD::Direction::_cardinality > NOMAD::Direction::_max_cardinality )
+        ++NOMAD::Direction::_max_cardinality;
 #endif
 }
 
@@ -142,7 +149,7 @@ _dir_group_index (d._dir_group_index)
 NOMAD::Direction::~Direction ( void )
 {
 #ifdef MEMORY_DEBUG
-  --NOMAD::Direction::_cardinality;
+    --NOMAD::Direction::_cardinality;
 #endif
 }
 
@@ -151,15 +158,15 @@ NOMAD::Direction::~Direction ( void )
 /*---------------------------------------------------------*/
 NOMAD::Direction & NOMAD::Direction::operator = ( const NOMAD::Direction & d )
 {
-  if ( this == &d )
+    if ( this == &d )
+        return *this;
+    
+    NOMAD::Point::operator = ( d );
+    
+    _type  = d._type;
+    _index = d._index;
+    
     return *this;
-
-  NOMAD::Point::operator = ( d );
-  
-  _type  = d._type;
-  _index = d._index;
-
-  return *this;
 }
 
 /*---------------------------------------------------------*/
@@ -167,9 +174,9 @@ NOMAD::Direction & NOMAD::Direction::operator = ( const NOMAD::Direction & d )
 /*---------------------------------------------------------*/
 void NOMAD::Direction::clear ( void )
 {
-  NOMAD::Point::clear();
-  _type  = NOMAD::UNDEFINED_DIRECTION;
-  _index = -1;
+    NOMAD::Point::clear();
+    _type  = NOMAD::UNDEFINED_DIRECTION;
+    _index = -1;
 }
 
 /*-----------------------------------------------------------*/
@@ -177,22 +184,24 @@ void NOMAD::Direction::clear ( void )
 /*-----------------------------------------------------------*/
 const NOMAD::Direction NOMAD::Direction::operator - ( void ) const
 {
-  return NOMAD::Direction ( this->NOMAD::Point::operator-() , _type );
+    return NOMAD::Direction ( this->NOMAD::Point::operator-() , _type );
 }
+
 
 /*---------------------------------------------------------*/
 /*                          display                        */
 /*---------------------------------------------------------*/
 void NOMAD::Direction::display ( const NOMAD::Display & out ,
-				 const std::string    & sep ,
-				 int                    w   ,
-				 int                    lim   ) const
+                                const std::string    & sep ,
+                                int                    w   ,
+                                int                    lim   ) const
 {
-  if ( is_defined() ) {
-    out << "( ";
-    NOMAD::Point::display ( out , sep , w , lim );
-    out << " ) " << _type;
-  }
-  else
-    out << "undefined";
+    if ( is_defined() )
+    {
+        out << "( ";
+        NOMAD::Point::display ( out , sep , w , lim );
+        out << " ) " << _type;
+    }
+    else
+        out << "undefined";
 }

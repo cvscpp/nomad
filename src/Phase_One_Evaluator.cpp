@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -48,30 +55,30 @@
 /*------------------------------------------------------------------*/
 void NOMAD::Phase_One_Evaluator::compute_f ( NOMAD::Eval_Point & x ) const
 {
-	if ( x.get_bb_outputs().size() != _p.get_bb_nb_outputs() )
-	{
-		std::ostringstream err;
-		err << "Phase_One_Evaluator::compute_f(x): "
-		<< "x has a wrong number of blackbox outputs ("
-		<< x.get_bb_outputs().size() <<  " != " << _p.get_bb_nb_outputs() << ")";
-		throw NOMAD::Exception ( "Phase_One_Evaluator.cpp" , __LINE__ , err.str() );
-	}
-	
-	// objective value for MADS phase 1: the squared sum of all EB constraint violations
-	// (each EB constraint has been previously transformed into OBJ values):
-	const std::list<int>               & index_obj = _p.get_index_obj();
-	const std::list<int>::const_iterator end       = index_obj.end();
-	const NOMAD::Point                 & bbo       = x.get_bb_outputs();
-	NOMAD::Double                        h_min     = _p.get_h_min();
-	NOMAD::Double                        sum       = 0.0;
-	NOMAD::Double                        v;
-	
-	for ( std::list<int>::const_iterator it = index_obj.begin() ; it != end ; ++it )
-	{
-		v = bbo[*it];
-		if ( v > h_min )
-			sum += v.pow2();
-	}
-	
-	x.set_f ( sum );
+    if ( x.get_bb_outputs().size() != _p.get_bb_nb_outputs() )
+    {
+        std::ostringstream err;
+        err << "Phase_One_Evaluator::compute_f(x): "
+        << "x has a wrong number of blackbox outputs ("
+        << x.get_bb_outputs().size() <<  " != " << _p.get_bb_nb_outputs() << ")";
+        throw NOMAD::Exception ( "Phase_One_Evaluator.cpp" , __LINE__ , err.str() );
+    }
+    
+    // objective value for MADS phase 1: the squared sum of all EB constraint violations
+    // (each EB constraint has been previously transformed into OBJ values):
+    const std::list<int>               & index_obj = _p.get_index_obj();
+    const std::list<int>::const_iterator end       = index_obj.end();
+    const NOMAD::Point                 & bbo       = x.get_bb_outputs();
+    NOMAD::Double                        h_min     = _p.get_h_min();
+    NOMAD::Double                        sum       = 0.0;
+    NOMAD::Double                        v;
+    
+    for ( std::list<int>::const_iterator it = index_obj.begin() ; it != end ; ++it )
+    {
+        v = bbo[*it];
+        if ( v > h_min )
+            sum += v.pow2();
+    }
+    
+    x.set_f ( sum );
 }

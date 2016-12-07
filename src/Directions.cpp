@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -46,14 +53,14 @@
 #include "SMesh.hpp"
 
 
+
 /*---------------------------------------------------------*/
 /*                       constructor                       */
 /*---------------------------------------------------------*/
-NOMAD::Directions::Directions
-( int                                     nc                 ,
- const std::set<NOMAD::direction_type> & direction_types    ,
- const std::set<NOMAD::direction_type> & sec_poll_dir_types ,
- const NOMAD::Display                  & out                  )
+NOMAD::Directions::Directions ( int                                     nc                 ,
+                               const std::set<NOMAD::direction_type> & direction_types    ,
+                               const std::set<NOMAD::direction_type> & sec_poll_dir_types ,
+                               const NOMAD::Display                  & out                  )
 : _nc                 ( nc                 ) ,
 _direction_types    ( direction_types    ) ,
 _sec_poll_dir_types ( sec_poll_dir_types ) ,
@@ -88,7 +95,6 @@ NOMAD::Directions::~Directions ( void )
         for ( int i = 0 ; i <= n ; ++i )
             delete _bl[i];
     }
-    
 }
 
 /*---------------------------------------------------------*/
@@ -105,6 +111,7 @@ void NOMAD::Directions::lt_mads_init ( void )
     _lt_initialized = true;
 }
 
+
 /*---------------------------------------------------------*/
 /*                         set_binary                      */
 /*---------------------------------------------------------*/
@@ -115,7 +122,8 @@ void NOMAD::Directions::set_binary ( void )
     _is_orthomads   = false;
     _direction_types.clear();
     _direction_types.insert ( NOMAD::GPS_BINARY );
-    if ( !_sec_poll_dir_types.empty() ) {
+    if ( !_sec_poll_dir_types.empty() )
+    {
         _sec_poll_dir_types.clear();
         _sec_poll_dir_types.insert ( NOMAD::GPS_BINARY );
     }
@@ -137,12 +145,12 @@ void NOMAD::Directions::set_categorical ( void )
 /*  compute binary directions when all groups of variables are binary   */
 /*  (private)                                                           */
 /*----------------------------------------------------------------------*/
-void NOMAD::Directions::compute_binary_directions
-( std::list<NOMAD::Direction> & d ) const
+void NOMAD::Directions::compute_binary_directions ( std::list<NOMAD::Direction> & d ) const
 {
     // _GPS_BINARY_ n directions:
     NOMAD::Direction * pd;
-    for ( int i = 0 ; i < _nc ; ++i ) {
+    for ( int i = 0 ; i < _nc ; ++i )
+    {
         d.push_back ( NOMAD::Direction ( _nc , 0.0 , NOMAD::GPS_BINARY ) );
         pd = &(*(--d.end()));
         (*pd)[i] = 1.0;
@@ -153,9 +161,9 @@ void NOMAD::Directions::compute_binary_directions
 /*----------------------------------------------------------------------------*/
 /*            get the directions on a unit n-sphere for a given mesh          */
 /*----------------------------------------------------------------------------*/
-void NOMAD::Directions::compute ( std::list<NOMAD::Direction> & dirs		,
-                                 NOMAD::poll_type              poll			,
-                                 const NOMAD::OrthogonalMesh  & mesh		)
+void NOMAD::Directions::compute ( std::list<NOMAD::Direction> & dirs        ,
+                                 NOMAD::poll_type              poll         ,
+                                 const NOMAD::OrthogonalMesh  & mesh        )
 {
     
     dirs.clear();
@@ -208,6 +216,7 @@ void NOMAD::Directions::compute ( std::list<NOMAD::Direction> & dirs		,
             NOMAD::Direction dir ( _nc , 0.0 , *it );
             NOMAD::Double    alpha_t_l;
             
+            
             success_dir=compute_dir_on_unit_sphere ( dir );
             
             if ( success_dir )
@@ -243,7 +252,7 @@ void NOMAD::Directions::compute ( std::list<NOMAD::Direction> & dirs		,
 #endif
                 // Ortho-MADS 2n and n+1:
                 // ----------------------
-                if ( *it == NOMAD::ORTHO_2N || *it == NOMAD::ORTHO_NP1_QUAD || *it == NOMAD::ORTHO_NP1_NEG )
+                if ( *it == NOMAD::ORTHO_2N || *it == NOMAD::ORTHO_NP1_QUAD || *it == NOMAD::ORTHO_NP1_NEG || *it==NOMAD::ORTHO_NP1_UNI )
                 {
                     
                     // creation of the 2n directions:
@@ -261,6 +270,38 @@ void NOMAD::Directions::compute ( std::list<NOMAD::Direction> & dirs		,
                     
                     // Householder transformations on the 2n directions on a unit n-sphere:
                     householder ( dir , true , H );
+                    
+                    if ( *it == NOMAD::ORTHO_NP1_UNI )
+                    {
+                        std::list<NOMAD::Direction> refac_dirs;
+                        
+                        // dir 0
+                        NOMAD::Point dir0=-(*H[0]);
+                        for ( i = 1 ; i < _nc ; ++i )
+                        {
+                            dir0=dir0-(*H[i]);
+                        }
+                        dir0*=1.0/sqrt(double(_nc));
+                        refac_dirs.push_back ( NOMAD::Direction ( dir0, NOMAD::ORTHO_NP1_UNI ) );
+                        
+                        NOMAD::Double beta=(sqrt(_nc+1.0)-1.0)/sqrt(double(_nc));
+                        dir0*=beta;
+                        for ( i = 0 ; i < _nc ; i++ )
+                        {
+                            NOMAD::Point diri(*H[i]);
+                            diri*=sqrt(double(_nc+1));
+                            diri=diri+dir0;
+                            diri*=1.0/sqrt(double(_nc));
+                            refac_dirs.push_back ( NOMAD::Direction ( diri, NOMAD::ORTHO_NP1_UNI ) );
+                            
+                        }
+                        
+                        dirs.clear();
+                        dirs.assign( refac_dirs.begin(), refac_dirs.end() );
+                        
+                        
+                    }
+                    
                     
                     
                     delete [] H;
@@ -302,7 +343,9 @@ void NOMAD::Directions::compute ( std::list<NOMAD::Direction> & dirs		,
             
             // LT-MADS 2n or LT-MADS n+1:
             // --------------------------
-            else {
+            else
+            {
+                
                 
                 // row permutation vector:
                 int * row_permutation_vector  = new int [_nc];
@@ -623,10 +666,10 @@ void NOMAD::Directions::compute ( std::list<NOMAD::Direction> & dirs		,
 
 
 /*-----------------------------------------------------------------------------*/
-/*       compute a random direction	on a unit N-Sphere          			   */
+/*       compute a random direction on a unit N-Sphere                         */
 /*  see http://en.wikipedia.org/wiki/N-sphere                                  */
 /*-----------------------------------------------------------------------------*/
-bool NOMAD::Directions::compute_dir_on_unit_sphere ( NOMAD::Direction	& random_dir ) const
+bool NOMAD::Directions::compute_dir_on_unit_sphere ( NOMAD::Direction    & random_dir ) const
 {
     
     int           i;
@@ -634,6 +677,8 @@ bool NOMAD::Directions::compute_dir_on_unit_sphere ( NOMAD::Direction	& random_d
     
     for ( i = 0 ; i < _nc ; ++i )
         random_dir[i]=NOMAD::RNG::normal_rand(0,1);
+    
+    //     }
     
     norm=random_dir.norm();
     
@@ -660,7 +705,8 @@ NOMAD::Double NOMAD::Directions::eval_ortho_norm ( const NOMAD::Double & x      
 {
     NOMAD::Double fx = 0.0;
     
-    for ( int i = 0 ; i < _nc ; ++i ) {
+    for ( int i = 0 ; i < _nc ; ++i )
+    {
         new_b[i] = ( x * b[i] / norm ).round();
         fx += new_b[i]*new_b[i];
     }
@@ -680,7 +726,8 @@ NOMAD::Double NOMAD::Directions::get_phi ( int t , int p )
     int          ll = t;
     NOMAD::Double d = 0.0;
     
-    for ( int i = 0 ; i < size ; ++i ) {
+    for ( int i = 0 ; i < size ; ++i )
+    {
         div = NOMAD::Double ( pow ( p , size-i-1.0 ) ).round();
         d  += ( ll / div ) * pow ( static_cast<double>(p) , i-size );
         ll  = ll % div;
@@ -702,11 +749,13 @@ void NOMAD::Directions::householder ( const NOMAD::Direction  & dir     ,
     
     NOMAD::Double norm2 = dir.squared_norm() , v , h2i;
     
-    for ( i = 0 ; i < _nc ; ++i ) {
+    for ( i = 0 ; i < _nc ; ++i )
+    {
         
         h2i = 2 * dir[i];
         
-        for ( j = 0 ; j < _nc ; ++j ) {
+        for ( j = 0 ; j < _nc ; ++j )
+        {
             
             // H[i]:
             (*H[i])[j] = v = (i==j) ? norm2 - h2i * dir[j] : - h2i * dir[j];
@@ -727,6 +776,7 @@ const NOMAD::Direction * NOMAD::Directions::get_bl ( const NOMAD::OrthogonalMesh
 {
     
     NOMAD::Point  mesh_indices = mesh.get_mesh_indices();
+    
     int mesh_index =static_cast<int>(mesh_indices[0].value());
     NOMAD::Direction * bl = _bl    [ mesh_index + NOMAD::L_LIMITS ];
     hat_i                 = _hat_i [ mesh_index + NOMAD::L_LIMITS ];
@@ -858,7 +908,8 @@ bool NOMAD::Directions::operator < ( const NOMAD::Directions & d ) const
     it2 = d._direction_types.begin() ,
     end = _direction_types.end();
     
-    while ( it1 != end ) {
+    while ( it1 != end )
+    {
         if ( *it1 < *it2 )
             return true;
         if ( *it2 < *it1 )
@@ -871,7 +922,8 @@ bool NOMAD::Directions::operator < ( const NOMAD::Directions & d ) const
     it2 = d._sec_poll_dir_types.begin();
     end = _sec_poll_dir_types.end();
     
-    while ( it1 != end ) {
+    while ( it1 != end )
+    {
         if ( *it1 < *it2 )
             return true;
         if ( *it2 < *it1 )

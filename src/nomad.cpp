@@ -1,16 +1,21 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2           */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -139,6 +144,7 @@ int main ( int argc , char ** argv )
             // display NOMAD info:
             if ( p.get_display_degree() > NOMAD::MINIMAL_DISPLAY)
                 NOMAD::display_info ( out );
+            
             
             // parameters display:
             if ( NOMAD::Slave::is_master() &&
@@ -285,18 +291,24 @@ void NOMAD::display_info ( const NOMAD::Display & out )
     if ( !NOMAD::Slave::is_master() )
         return;
 #endif
-    NOMAD::display_version ( out );
-    out << NOMAD::open_block ( "Copyright (C) 2001-2015" )
-    << "Mark A. Abramson     - The Boeing Company"              << std::endl
+    out << std::endl << "NOMAD - version "
+    << NOMAD::VERSION
+    << NOMAD::open_block(" has been created by")
     << "Charles Audet        - Ecole Polytechnique de Montreal" << std::endl
-    << "Gilles Couture       - Ecole Polytechnique de Montreal" << std::endl
-    << "John E. Dennis, Jr.  - Rice University"                 << std::endl
     << "Sebastien Le Digabel - Ecole Polytechnique de Montreal" << std::endl
     << "Christophe Tribes    - Ecole Polytechnique de Montreal" << std::endl
     << NOMAD::close_block()
     << std::endl
-    << "Funded in part by AFOSR and Exxon Mobil."               << std::endl
+    << "The copyright of NOMAD - version "
+    << NOMAD::VERSION
+    << NOMAD::open_block(" is owned by")
+    << "Sebastien Le Digabel - Ecole Polytechnique de Montreal" << std::endl
+    << "Christophe Tribes    - Ecole Polytechnique de Montreal" << std::endl
+    << NOMAD::close_block()
+    << std::endl << "NOMAD version 3 is a new version of Nomad v1 and v2, it has been funded by AFOSR and Exxon Mobil." << std::endl
+    << "Nomad v1 and v2 were created and developed by Mark A. Abramson from The Boeing Company, Charles Audet and Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from Rice University, and were funded by AFOSR and Exxon Mobil." << std::endl
     << std::endl
+    << "Download  : www.gerad.ca/nomad" << std::endl
     << "License   : \'" << NOMAD::LGPL_FILE       << "\'" << std::endl
     << "User guide: \'" << NOMAD::USER_GUIDE_FILE << "\'" << std::endl
     << "Examples  : \'" << NOMAD::EXAMPLES_DIR    << "\'" << std::endl
@@ -304,7 +316,15 @@ void NOMAD::display_info ( const NOMAD::Display & out )
     << std::endl
     << "Please report bugs to nomad@gerad.ca"
     << std::endl;
+    out << endl << "Seed: "<< NOMAD::RNG::get_seed()<<endl;
 }
+
+
+
+
+
+
+
 
 /*------------------------------------------*/
 /*             display NOMAD usage          */
@@ -321,7 +341,7 @@ void NOMAD::display_usage ( char* exeName, const NOMAD::Display & out )
     << "Developer help : " << exeName << " -d keyword(s) (or 'all')"     << std::endl
     << "Version        : " << exeName << " -v"                           << std::endl
     << "Usage          : " << exeName << " -u"                          << std::endl
-    << std::endl;  
+    << std::endl;
 #else
     out << std::endl
     << "Run NOMAD      : " << exeName << " parameters_file"          << std::endl
@@ -330,6 +350,6 @@ void NOMAD::display_usage ( char* exeName, const NOMAD::Display & out )
     << "Developer help : " << exeName << " -d keyword(s) (or 'all')" << std::endl
     << "Version        : " << exeName << " -v"                       << std::endl
     << "Usage          : " << exeName << " -u"                       << std::endl
-    << std::endl; 
+    << std::endl;
 #endif
 }

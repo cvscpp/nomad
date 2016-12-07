@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -83,6 +90,7 @@ namespace NOMAD {
          \param d The right-hand side object -- \b IN.
          */
         Directions & operator = ( const Directions & d );
+        
         
         /// LT-MADS initializations.
         void lt_mads_init ( void );
@@ -198,20 +206,20 @@ namespace NOMAD {
         
         /// Compute the directions for a given mesh.
         /**
-         \param mesh               The given mesh                                             -- \b IN.
-         \param dirs               Set of directions                                          -- \b OUT.
-         \param poll               Type of poll (primary or secondary)                        -- \b IN.
+         \param mesh    The given mesh                        -- \b IN.
+         \param dirs    Set of directions                     -- \b OUT.
+         \param poll    Type of poll (primary or secondary)   -- \b IN.
          */
         void compute ( std::list<NOMAD::Direction> & dirs           ,
                       NOMAD::poll_type               poll           ,
-                      const NOMAD::OrthogonalMesh  & mesh			);
+                      const NOMAD::OrthogonalMesh  & mesh            );
         
         /// Compute a random direction on a N-Sphere.
         /**
-         \param random_dir								-- \b OUT.
+         \param random_dir                                    -- \b OUT.
          \return A boolean equal to \c true if the computation went well.
          */
-        bool compute_dir_on_unit_sphere (	NOMAD::Direction	& random_dir ) const;
+        bool compute_dir_on_unit_sphere ( NOMAD::Direction    & random_dir ) const;
         
         
         /// Check if Ortho-MADS directions are used.
@@ -287,7 +295,7 @@ namespace NOMAD {
     
     /// Display a NOMAD::Directions object.
     /**
-     \param out The NOMAD::Display object -- \b IN.
+     \param out The NOMAD::Display object                    -- \b IN.
      \param d   The NOMAD::Directions object to be displayed -- \b IN.
      \return    The NOMAD::Display object.
      */

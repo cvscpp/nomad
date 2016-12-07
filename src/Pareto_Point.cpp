@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -34,12 +41,12 @@
 /*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
 /*-------------------------------------------------------------------------------------*/
 /**
-  \file   Pareto_Point.cpp
-  \brief  Pareto point (implementation)
-  \author Sebastien Le Digabel
-  \date   2010-04-09
-  \see    Pareto_Point.hpp
-*/
+ \file   Pareto_Point.cpp
+ \brief  Pareto point (implementation)
+ \author Sebastien Le Digabel
+ \date   2010-04-09
+ \see    Pareto_Point.hpp
+ */
 #include "Pareto_Point.hpp"
 
 /*--------------------------------------------------------*/
@@ -51,13 +58,13 @@
 bool NOMAD::Pareto_Point::operator <
 ( const NOMAD::Set_Element<NOMAD::Eval_Point> & fp ) const
 {
-  if ( this == &fp || get_element() == fp.get_element() )
-    return false;
-  
-  int i1 = NOMAD::Multi_Obj_Evaluator::get_i1();
-
-  return get_element()->get_bb_outputs()[i1].value() <
-         fp.get_element()->get_bb_outputs()[i1].value();
+    if ( this == &fp || get_element() == fp.get_element() )
+        return false;
+    
+    int i1 = NOMAD::Multi_Obj_Evaluator::get_i1();
+    
+    return get_element()->get_bb_outputs()[i1].value() <
+    fp.get_element()->get_bb_outputs()[i1].value();
 }
 
 /*---------------------------------------------------------------*/
@@ -67,25 +74,25 @@ bool NOMAD::Pareto_Point::operator <
 /*---------------------------------------------------------------*/
 bool NOMAD::Pareto_Point::dominates ( const NOMAD::Pareto_Point & pp ) const
 {
-  if ( this == &pp || get_element() == pp.get_element() )
+    if ( this == &pp || get_element() == pp.get_element() )
+        return false;
+    
+    int i1 = NOMAD::Multi_Obj_Evaluator::get_i1();
+    int i2 = NOMAD::Multi_Obj_Evaluator::get_i2();
+    
+    // we compare F(x)=[f1(x),f2(x)] and F(y)=[f1(y),f2(y)]:
+    double f1x  = get_element()->get_bb_outputs   ()[i1].value();
+    double f2x  = get_element()->get_bb_outputs   ()[i2].value();
+    double f1y  = pp.get_element()->get_bb_outputs()[i1].value();
+    double f2y  = pp.get_element()->get_bb_outputs()[i2].value();
+    
+    if ( f1x < f1y )
+        return f2x <= f2y;
+    
+    if ( f1x == f1y )
+        return ( f2x < f2y );
+    
     return false;
-
-  int i1 = NOMAD::Multi_Obj_Evaluator::get_i1();
-  int i2 = NOMAD::Multi_Obj_Evaluator::get_i2();
-
-  // we compare F(x)=[f1(x),f2(x)] and F(y)=[f1(y),f2(y)]:
-  double f1x  = get_element()->get_bb_outputs   ()[i1].value();
-  double f2x  = get_element()->get_bb_outputs   ()[i2].value();
-  double f1y  = pp.get_element()->get_bb_outputs()[i1].value();
-  double f2y  = pp.get_element()->get_bb_outputs()[i2].value();
-  
-  if ( f1x < f1y )
-    return f2x <= f2y;
-
-  if ( f1x == f1y )
-    return ( f2x < f2y );
-  
-  return false;
 }
 
 /*---------------------------------------------------------------*/
@@ -93,14 +100,14 @@ bool NOMAD::Pareto_Point::dominates ( const NOMAD::Pareto_Point & pp ) const
 /*---------------------------------------------------------------*/
 void NOMAD::Pareto_Point::display ( const NOMAD::Display & out ) const
 {
-  const NOMAD::Point & bbo = get_element()->get_bb_outputs();
-  int                  w   = 13;
-
-  out << "x=( ";
-  get_element()->NOMAD::Point::display ( out , " " , w , -1 );
-  out << " ) F(x)=[ ";
-  bbo.Point::display ( out , " " , w , -1 );
-  out << " ] [ f1(x) f2(x) ]=[ "
-      << std::setw(w) << bbo[NOMAD::Multi_Obj_Evaluator::get_i1()] << " "
-      << std::setw(w) << bbo[NOMAD::Multi_Obj_Evaluator::get_i2()] << " ]";
+    const NOMAD::Point & bbo = get_element()->get_bb_outputs();
+    int                  w   = 13;
+    
+    out << "x=( ";
+    get_element()->NOMAD::Point::display ( out , " " , w , -1 );
+    out << " ) F(x)=[ ";
+    bbo.Point::display ( out , " " , w , -1 );
+    out << " ] [ f1(x) f2(x) ]=[ "
+    << std::setw(w) << bbo[NOMAD::Multi_Obj_Evaluator::get_i1()] << " "
+    << std::setw(w) << bbo[NOMAD::Multi_Obj_Evaluator::get_i2()] << " ]";
 }

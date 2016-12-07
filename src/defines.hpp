@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -53,7 +60,7 @@
 // #define R_VERSION // defined for the R version only
 
 // Matlab version OPTI style (if not defined than GERAD style)
-// #define OPTI_VERSION
+// #define OPTI_VERSION 
 
 // Define in order to display debug information
 //#define DEBUG
@@ -61,27 +68,20 @@
 // define in order to display memory debug information:
 //#define MEMORY_DEBUG
 
-// define in order to display TGP information.
-// #define TGP_DEBUG
-
-// #define USE_TGP is defined in the makefile
 
 #ifdef DEBUG
 #ifndef MEMORY_DEBUG
 #define MEMORY_DEBUG
-#ifndef TGP_DEBUG
-#define TGP_DEBUG
-#endif
 #endif
 #endif
 
 
-// CASE Linux using gnu compiler
+// CASE Linux using gnu compiler   
 #ifdef __gnu_linux__
 #define GCC_X
 #endif
 
-// CASE OSX using gnu compiler
+// CASE OSX using gnu compiler 
 #ifdef __APPLE__
 #ifdef __GNUC__
 #define GCC_X
@@ -102,10 +102,10 @@
 #pragma warning(disable:4996)
 #endif
 
-// For NOMAD random number generator
+// For NOMAD random number generator 
 #if !defined(UINT32_MAX)
 typedef unsigned int uint32_t;
-#define UINT32_MAX	0xffffffff
+#define UINT32_MAX    0xffffffff
 #endif
 
 // to display model stats for each evaluation at
@@ -125,23 +125,15 @@ typedef unsigned int uint32_t;
 namespace NOMAD {
     
     /// Current version:
-    const std::string BASE_VERSION = "3.7.2";
+    const std::string BASE_VERSION = "3.7.3";
     
 #ifdef R_VERSION
     const std::string VERSION = BASE_VERSION + ".R";
 #else
 #ifdef USE_MPI
-#ifdef USE_TGP
-    const std::string VERSION = BASE_VERSION + ".TGP" + ".MPI";
-#else
     const std::string VERSION = BASE_VERSION + ".MPI";
-#endif
-#else
-#ifdef USE_TGP
-    const std::string VERSION = BASE_VERSION + ".TGP";
 #else
     const std::string VERSION = BASE_VERSION;
-#endif
 #endif
 #endif
     
@@ -197,11 +189,10 @@ namespace NOMAD {
     // Old static Mesh index constants
     const int L_LIMITS    = 50;         ///< Limits for the smesh index values
     const int UNDEFINED_L = L_LIMITS+1;  ///< Undefined value for the smesh index
-    
+
     // xmesh index constants
     const int XL_LIMITS    = -50;         ///< Limits for the xmesh index values
     const int UNDEFINED_XL = XL_LIMITS-1;  ///< Undefined value for the xmesh index
-    
     
     /// Default epsilon used by NOMAD::Double
     /** Use Parameters::set_EPSILON(), or parameter EPSILON,
@@ -228,6 +219,9 @@ namespace NOMAD {
     const double LOG10 = 2.30258509299;
     
     const double INF = std::numeric_limits<double>::max(); ///< Infinity
+    const double P_INF_INT = std::numeric_limits<int>::max(); ///< plus infinity for int
+    const double M_INF_INT = std::numeric_limits<int>::min(); ///< minus infinity for int
+
     
     const double D_INT_MAX = UINT32_MAX; ///< The UINT32_MAX constant as a \c double
     
@@ -235,7 +229,7 @@ namespace NOMAD {
     const double SVD_EPS      = 1e-13;      ///< Epsilon for SVD
     const int    SVD_MAX_MPN  = 1500;       ///< Matrix maximal size (\c m+n )
     const double SVD_MAX_COND = NOMAD::INF; ///< Max. acceptable cond. number
-    
+        
     /// Default value for parameter POINT_DISPLAY_LIMIT
     /** Use Parameters::set_POINT_DISPLAY_LIMIT() or parameter POINT_DISPLAY_LIMIT
      or Point::set_display_limit() to change it */
@@ -246,7 +240,7 @@ namespace NOMAD {
     const int DISPLAY_PRECISION_BB  = 15;  ///< Display precision for blackboxes
     
     /// Constant for blackbox files #1.
-    const std::string BLACKBOX_INPUT_FILE_PREFIX = "nomad";
+    const std::string BLACKBOX_INPUT_FILE_PREFIX = "nomad"; 
     
     /// Constant for blackbox files #2.
     const std::string BLACKBOX_INPUT_FILE_EXT = "input";
@@ -261,7 +255,7 @@ namespace NOMAD {
     enum dd_type
     {
         NO_DISPLAY     , ///< No display
-        MINIMAL_DISPLAY, ///< Minimal dispay
+        MINIMAL_DISPLAY, ///< Minimal dispay        
         NORMAL_DISPLAY , ///< Normal display
         FULL_DISPLAY     ///< Full display
     };
@@ -342,16 +336,15 @@ namespace NOMAD {
     enum model_type
     {
         QUADRATIC_MODEL , ///< Quadratic model
-        TGP_MODEL       , ///< TGP model
         NO_MODEL          ///< No models
     };
     
-    /// TGP mode
-    enum TGP_mode_type
+    enum intensification_type
     {
-        TGP_FAST    , ///< TGP fast mode.
-        TGP_PRECISE , ///< TGP precise mode.
-        TGP_USER      ///< TGP user mode.
+        NO_INTENSIFICATION ,
+        POLL_ONLY , ///< Poll intensification only
+        SEARCH_ONLY , ///< Search intensification only
+        POLL_AND_SEARCH
     };
     
     /// Success type of an iteration
@@ -389,6 +382,7 @@ namespace NOMAD {
         L_MIN_REACHED              ,  ///< Min mesh index
         L_LIMITS_REACHED           ,  ///< Mesh index limits
         XL_LIMITS_REACHED          ,  ///< Mesh index limits
+           GL_LIMITS_REACHED          ,  ///< Mesh index limits
         MAX_TIME_REACHED           ,  ///< Max time
         MAX_BB_EVAL_REACHED        ,  ///< Max number of blackbox evaluations
         MAX_SGTE_EVAL_REACHED      ,  ///< Max number of surrogate evaluations
@@ -424,8 +418,9 @@ namespace NOMAD {
         NO_DIRECTION           , ///< No direction
         ORTHO_1                , ///< OrthoMADS 1
         ORTHO_2                , ///< OrthoMADS 2
-        ORTHO_NP1_QUAD         , ///< OrthoMADS n+1 use Quad model to determine n+1-th direction
+        ORTHO_NP1_QUAD         , ///< OrthoMADS n+1 use Quad model to determine n+1-th direction 
         ORTHO_NP1_NEG          , ///< OrthoMADS n+1 use negative sum of n first directions to determine n+1-th direction
+        ORTHO_NP1_UNI          , ///< OrthoMADS n+1 uniform directions
         DYN_ADDED              , ///< Dynamic addition (n+1-th direction added for ORTHO n+1)
         ORTHO_2N               , ///< OrthoMADS 2n
         LT_1                   , ///< LT-MADS 1
@@ -471,7 +466,7 @@ namespace NOMAD {
         //   (keep in first position)
         DS_SIM_BBE    ,    ///< Number of simulated bb evaluations
         DS_BBE        ,    ///< Number of bb evaluations
-        DS_BLK_EVA	  ,    ///< Number of block evaluation calls	
+        DS_BLK_EVA      ,    ///< Number of block evaluation calls    
         DS_SGTE       ,    ///< Number of surrogate evaluations
         DS_BBO        ,    ///< All blackbox outputs
         DS_EVAL       ,    ///< Number of evaluations
@@ -504,6 +499,13 @@ namespace NOMAD {
         EVAL_OK          ,  ///< Correct evaluation
         EVAL_IN_PROGRESS ,  ///< Evaluation in progress
         UNDEFINED_STATUS    ///< Undefined evaluation status
+    };
+    
+    enum mesh_type
+    {
+        XMESH , /// Anisotropic (eXtensible) mesh
+        SMESH , /// Isotropic Standard mesh
+        NO_MESH_TYPE
     };
     
 }

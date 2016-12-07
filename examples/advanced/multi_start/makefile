@@ -1,11 +1,23 @@
-EXE                 = multi.exe
-COMPILATOR          = g++
-COMPILATOR_OPTIONS  = -ansi -O2
-L1                  = $(NOMAD_HOME)/lib/nomad.a
-LIBS                = $(L1) -lm
-INCLUDE             = -I$(NOMAD_HOME)/src -I.
-COMPILE             = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
-OBJS                = multi.o
+UNAME := $(shell uname)
+
+EXE                    = multi.exe
+COMPILATOR             = g++
+COMPILATOR_OPTIONS     = -ansi -O2
+
+LIB_DIR                = $(NOMAD_HOME)/lib
+LIB_NOMAD              = libnomad.so 
+
+CXXFLAGS               =           
+ifeq ($(UNAME), Linux)
+CXXFLAGS              += -Wl,-rpath,'$(LIB_DIR)'
+CXXFLAGS              += -ansi
+endif
+
+LDLIBS                 = -lm -lnomad
+
+INCLUDE                = -I$(NOMAD_HOME)/src -I.
+COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
+OBJS                   = multi.o
 
 ifndef NOMAD_HOME
 define ECHO_NOMAD
@@ -14,11 +26,15 @@ define ECHO_NOMAD
 endef
 endif
 
-$(EXE): $(L1) $(OBJS)
+$(EXE): $(OBJS)
 	$(ECHO_NOMAD)
 	@echo "   building the scalar version ..."
 	@echo "   exe file : "$(EXE)
-	$(COMPILATOR) -o $(EXE) $(OBJS) $(LIBS) $(COMPILATOR_OPTIONS)
+	@$(COMPILATOR) -o $(EXE) $(OBJS) $(LDLIBS) $(CXXFLAGS) -L$(LIB_DIR) 
+ifeq ($(UNAME), Darwin)
+	@install_name_tool -change $(LIB_NOMAD) $(NOMAD_HOME)/lib/$(LIB_NOMAD) $(EXE)
+endif
+
 
 multi.o: multi.cpp
 	$(ECHO_NOMAD)

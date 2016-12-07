@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -182,6 +189,7 @@ void NOMAD::Quad_Model_Search::search ( NOMAD::Mads              & mads         
     // stats:
     NOMAD::Stats & stats = mads.get_stats();
     
+    
     // number of interpolation points:
     int nY[2];
     nY[0] = nY[1] = -1;
@@ -217,7 +225,8 @@ void NOMAD::Quad_Model_Search::search ( NOMAD::Mads              & mads         
             NOMAD::Signature * signature = xk[i_inc]->get_signature();
             if ( !signature )
             {
-                if ( display_degree == NOMAD::FULL_DISPLAY ) {
+                if ( display_degree == NOMAD::FULL_DISPLAY )
+                {
                     std::ostringstream oss;
                     oss << "end of " << NOMAD::MODEL_SEARCH << " (no signature)";
                     out << std::endl << NOMAD::close_block ( oss.str() ) << std::endl;
@@ -227,7 +236,7 @@ void NOMAD::Quad_Model_Search::search ( NOMAD::Mads              & mads         
                 return;
             }
             
-            // current mesh index:
+            // current mesh indices:
             NOMAD::Point mesh_indices = signature->get_mesh()->get_mesh_indices();
             
             
@@ -244,6 +253,7 @@ void NOMAD::Quad_Model_Search::search ( NOMAD::Mads              & mads         
                 _all_searches_stats.update ( _one_search_stats );
                 return;
             }
+            
             
             // compute the interpolation radius: points in Y must be at
             // a max distance of ms_radius_factor times Delta^k:
@@ -422,8 +432,10 @@ void NOMAD::Quad_Model_Search::search ( NOMAD::Mads              & mads         
     } // end of main loop
     
     // check the number of times that not enough points could be considered:
-    if ( nY[0] <= 1 && nY[1] <= 1 ) {
-        if ( display_degree == NOMAD::FULL_DISPLAY ) {
+    if ( nY[0] <= 1 && nY[1] <= 1 )
+    {
+        if ( display_degree == NOMAD::FULL_DISPLAY )
+        {
             std::ostringstream oss;
             oss << "end of " << NOMAD::MODEL_SEARCH
             << " (not enough points)";
@@ -437,7 +449,8 @@ void NOMAD::Quad_Model_Search::search ( NOMAD::Mads              & mads         
     // check if no model has been computed:
     if ( !model_ok )
     {
-        if ( display_degree == NOMAD::FULL_DISPLAY ) {
+        if ( display_degree == NOMAD::FULL_DISPLAY )
+        {
             std::ostringstream oss;
             oss << "end of " << NOMAD::MODEL_SEARCH
             << " (model computation or optimization error)";
@@ -507,7 +520,8 @@ void NOMAD::Quad_Model_Search::search ( NOMAD::Mads              & mads         
     _all_searches_stats.update ( _one_search_stats );
     
     // final display:
-    if ( display_degree == NOMAD::FULL_DISPLAY ) {
+    if ( display_degree == NOMAD::FULL_DISPLAY )
+    {
         std::ostringstream oss;
         oss << "end of " << NOMAD::MODEL_SEARCH << " (" << success << ")";
         out << std::endl << NOMAD::close_block ( oss.str() ) << std::endl;
@@ -517,20 +531,20 @@ void NOMAD::Quad_Model_Search::search ( NOMAD::Mads              & mads         
 /*---------------------------------------------------------------*/
 /*        project to mesh and create a trial point (private)     */
 /*---------------------------------------------------------------*/
-void NOMAD::Quad_Model_Search::create_trial_point
-( NOMAD::Evaluator_Control & ev_control     ,
- NOMAD::Point               x              ,
- const NOMAD::Quad_Model  & model          ,
- NOMAD::Signature         & signature      ,
- const NOMAD::Point       & mesh_indices   ,
- const NOMAD::Point       & delta        ,
- NOMAD::dd_type             display_degree ,
- const NOMAD::Display     & out              )
+void NOMAD::Quad_Model_Search::create_trial_point ( NOMAD::Evaluator_Control & ev_control     ,
+                                                   NOMAD::Point               x              ,
+                                                   const NOMAD::Quad_Model  & model          ,
+                                                   NOMAD::Signature         & signature      ,
+                                                   const NOMAD::Point       & mesh_indices   ,
+                                                   const NOMAD::Point       & delta        ,
+                                                   NOMAD::dd_type             display_degree ,
+                                                   const NOMAD::Display     & out              )
 {
     
     bool proj_to_mesh = _p.get_model_search_proj_to_mesh();
     
-    if ( display_degree == NOMAD::FULL_DISPLAY ) {
+    if ( display_degree == NOMAD::FULL_DISPLAY )
+    {
         out << "candidate";
         if ( proj_to_mesh )
             out << " (before projection)";
@@ -553,7 +567,7 @@ void NOMAD::Quad_Model_Search::create_trial_point
     }
     
     
-    // Round for integer and binary variables:
+    // Round for integer and variables:
     bool has_integer=false;
     bool has_binary=false;
     for (int i=0;i<n;i++)
@@ -570,8 +584,11 @@ void NOMAD::Quad_Model_Search::create_trial_point
         else if ( _p.get_bb_input_type()[i] == NOMAD::BINARY )
         {
             has_binary=true;
-            if ( x[i]!= 0.0 )
+            if ( x[i] < 0.5 )
+                x[i] = 0.0;
+            else
                 x[i] = 1.0;
+                    
         }
     }
     if ( has_integer && display_degree == NOMAD::FULL_DISPLAY )
@@ -609,6 +626,7 @@ void NOMAD::Quad_Model_Search::create_trial_point
     tk->Point::operator = ( x );
     
     // compute model f and h in order to accept or reject the trial point:
+    
     NOMAD::Double h0 , f0; // model values of f and h at the center
     NOMAD::Double h1 , f1; // model values of f and h at the trial point
     
@@ -658,7 +676,8 @@ void NOMAD::Quad_Model_Search::create_trial_point
     }
     
     // add the new point to the list of search trial points:
-    if ( accept_point ) {
+    if ( accept_point )
+    {
         ev_control.add_eval_point ( tk                      ,
                                    display_degree          ,
                                    _p.get_snap_to_bounds() ,
@@ -667,7 +686,8 @@ void NOMAD::Quad_Model_Search::create_trial_point
                                    f1                      ,
                                    h1                        );
 #ifdef MODEL_STATS
-        if ( tk ) {
+        if ( tk )
+        {
             tk->set_mod_use ( 1                ); // 1 for model search
             tk->set_cond    ( model.get_cond() );
             tk->set_Yw      ( model.get_Yw  () );
@@ -678,7 +698,9 @@ void NOMAD::Quad_Model_Search::create_trial_point
 #endif
         
     }
-    else {
+    else
+    {
+        
         if ( display_degree == NOMAD::FULL_DISPLAY )
             out << "candidate rejected" << std::endl;
         _one_search_stats.add_MS_rejected();
@@ -694,16 +716,15 @@ void NOMAD::Quad_Model_Search::create_trial_point
 /*    in [-1000;1000]                                            */
 /*                                                               */
 /*---------------------------------------------------------------*/
-bool NOMAD::Quad_Model_Search::optimize_model
-( const NOMAD::Quad_Model  & model          ,
- const NOMAD::Eval_Point ** xk             ,
- int                        i_inc          ,
- NOMAD::dd_type             display_degree ,
- const NOMAD::Display     & out            ,
- NOMAD::Point             & xf             ,
- NOMAD::Point             & xi             ,
- bool                     & stop           ,
- NOMAD::stop_type         & stop_reason      )
+bool NOMAD::Quad_Model_Search::optimize_model ( const NOMAD::Quad_Model  & model          ,
+                                               const NOMAD::Eval_Point ** xk             ,
+                                               int                        i_inc          ,
+                                               NOMAD::dd_type             display_degree ,
+                                               const NOMAD::Display     & out            ,
+                                               NOMAD::Point             & xf             ,
+                                               NOMAD::Point             & xi             ,
+                                               bool                     & stop           ,
+                                               NOMAD::stop_type         & stop_reason      )
 {
     xf.clear();
     xi.clear();
@@ -714,7 +735,8 @@ bool NOMAD::Quad_Model_Search::optimize_model
     int         i;
     
     // initial displays:
-    if ( display_degree == NOMAD::FULL_DISPLAY ) {
+    if ( display_degree == NOMAD::FULL_DISPLAY )
+    {
         std::ostringstream oss;
         oss << "model optimization";
         if ( xk[0] && xk[1] )
@@ -730,6 +752,9 @@ bool NOMAD::Quad_Model_Search::optimize_model
     
     // blackbox outputs:
     model_param.set_BB_OUTPUT_TYPE ( _p.get_bb_output_type() );
+    
+    // blackbox inputs:
+    // Default: all variables are treated as continuous
     
     // barrier parameters:
     model_param.set_H_MIN  ( _p.get_h_min () );
@@ -799,7 +824,6 @@ bool NOMAD::Quad_Model_Search::optimize_model
     else
         model_param.set_MAX_BB_EVAL ( 50000 );
     
-    
     model_param.set_SNAP_TO_BOUNDS ( true );
     
     // disable user calls:
@@ -812,7 +836,7 @@ bool NOMAD::Quad_Model_Search::optimize_model
                             flag_reset_barriers ,
                             flag_p1_active        );
     
-    NOMAD::Mads::set_flag_check_bimads  (false  );		
+    NOMAD::Mads::set_flag_check_bimads   ( false );
     NOMAD::Mads::set_flag_reset_mesh     ( true  );
     NOMAD::Mads::set_flag_reset_barriers ( true  );
     NOMAD::Mads::set_flag_p1_active      ( false );
@@ -877,15 +901,15 @@ bool NOMAD::Quad_Model_Search::optimize_model
             
             // model evaluator creation:
             NOMAD::Evaluator *ev;
-            if (model_param.get_nb_obj()==2)
+            
+            if ( model_param.get_nb_obj()==2 )
                 ev =new NOMAD::Multi_Obj_Quad_Model_Evaluator( model_param , model );
             else
-                ev=new NOMAD::Single_Obj_Quad_Model_Evaluator(model_param, model);
+                ev=new NOMAD::Single_Obj_Quad_Model_Evaluator( model_param, model );
             
             // algorithm creation and execution:
             NOMAD::Mads    mads ( model_param , ev );
             
-            // Handle the case where nb_bb_obj>=2 but no-bimads (case of PhaseOneSearch) ---> need Phase_One_Evaluator for compute_f
             NOMAD::Phase_One_Evaluator * p1ev=NULL;
             if ( model_param.get_nb_obj() >= 2 && ! flag_check_bimads )
             {
@@ -896,11 +920,12 @@ bool NOMAD::Quad_Model_Search::optimize_model
             NOMAD::stop_type st = mads.run();
             
             delete ev;
-            if (p1ev)
+            if ( p1ev )
                 delete p1ev;
             
             // check the stopping criterion:
-            if ( st == NOMAD::CTRL_C || st == NOMAD::MAX_CACHE_MEMORY_REACHED ) {
+            if ( st == NOMAD::CTRL_C || st == NOMAD::MAX_CACHE_MEMORY_REACHED ) 
+            {
                 std::ostringstream oss;
                 oss << "model optimization: " << st;
                 error_str   = oss.str();
@@ -926,11 +951,13 @@ bool NOMAD::Quad_Model_Search::optimize_model
             const NOMAD::Eval_Point * best_feas   = mads.get_best_feasible  ();
             const NOMAD::Eval_Point * best_infeas = mads.get_best_infeasible();
             
-            if ( best_feas ) {
+            if ( best_feas ) 
+            {
                 xf  = *best_feas;
                 xf *= 0.001;
                 
-                if ( display_degree == NOMAD::FULL_DISPLAY ) {
+                if ( display_degree == NOMAD::FULL_DISPLAY ) 
+                {
                     out << "best feasible point after unscaling  : ( ";
                     xf.NOMAD::Point::display ( out );
                     out << " )" << std::endl;
@@ -941,11 +968,13 @@ bool NOMAD::Quad_Model_Search::optimize_model
             else if ( display_degree == NOMAD::FULL_DISPLAY )
                 out << "no feasible solution" << std::endl;
             
-            if ( best_infeas ) {
+            if ( best_infeas ) 
+            {
                 xi  = *best_infeas;
                 xi *= 0.001;
                 
-                if ( display_degree == NOMAD::FULL_DISPLAY ) {
+                if ( display_degree == NOMAD::FULL_DISPLAY ) 
+                {
                     out << "best infeasible point before unscaling: ( ";
                     xi.NOMAD::Point::display ( out );
                     out << " )" << std::endl;
@@ -956,12 +985,14 @@ bool NOMAD::Quad_Model_Search::optimize_model
             else if ( display_degree == NOMAD::FULL_DISPLAY )
                 out << "no infeasible solution" << std::endl;
             
-            if ( !xf.is_defined() && !xi.is_defined() ) {
+            if ( !xf.is_defined() && !xi.is_defined() ) 
+            {
                 error     = true;
                 error_str = "optimization error: no solution";
             }
         }
-        catch ( std::exception & e ) {
+        catch ( std::exception & e ) 
+        {
             error     = true;
             error_str = std::string ( "optimization error: " ) + e.what();
         }
@@ -979,7 +1010,8 @@ bool NOMAD::Quad_Model_Search::optimize_model
     
     
     // close display block:
-    if ( display_degree == NOMAD::FULL_DISPLAY ) {
+    if ( display_degree == NOMAD::FULL_DISPLAY ) 
+    {
         if ( error )
             out.close_block ( error_str );
         else

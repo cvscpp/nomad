@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -34,12 +41,12 @@
 /*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
 /*-------------------------------------------------------------------------------------*/
 /**
-  \file   Exception.cpp
-  \brief  custom class for exceptions (implementation)
-  \author Sebastien Le Digabel
-  \date   2010-03-29
-  \see    Exception.hpp
-*/
+ \file   Exception.cpp
+ \brief  custom class for exceptions (implementation)
+ \author Sebastien Le Digabel
+ \date   2010-03-29
+ \see    Exception.hpp
+ */
 #include "Exception.hpp"
 
 /*----------------------------------------------------------------*/
@@ -47,10 +54,10 @@
 /*----------------------------------------------------------------*/
 const char * NOMAD::Exception::what ( void ) const throw()
 {
-  std::ostringstream oss;
-  oss << "NOMAD::Exception thrown (" << _file << ", " << _line << ")";
-  if ( !_what.empty() )
-    oss << " " << _what;
-  _what = oss.str();
-  return _what.c_str();
+    std::ostringstream oss;
+    oss << "NOMAD::Exception thrown (" << _file << ", " << _line << ")";
+    if ( !_what.empty() )
+        oss << " " << _what;
+    _what = oss.str();
+    return _what.c_str();
 }

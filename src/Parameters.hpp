@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -71,8 +78,6 @@ namespace NOMAD {
         int           quad_max_Y_size;    ///< Limit sup on the size of \c Y.
         NOMAD::Double model_np1_quad_epsilon;///< Ortho n+1 quadratic model epsilon (scaling used for (n+1)th dynamic direction with Ortho n+1)
         
-        NOMAD::TGP_mode_type tgp_mode;    ///< TGP mode (fast or precise).
-        bool          tgp_reuse_model;    ///< Use the model from MS for the MES.
     };
     
     /// Class for the NOMAD parameters.
@@ -102,6 +107,15 @@ namespace NOMAD {
          */
         void interpret_mesh_sizes ( const NOMAD::Parameter_Entries & entries    ,
                                    const std::string              & param_name   );
+        
+        /// Interpretation of the entries for granular variables.
+        /**
+         \param entries Parameter entries -- \b IN.
+         \param param_name Parameter name -- \b IN.
+         */
+        void interpret_granularity ( const NOMAD::Parameter_Entries & entries    ,
+                                    const std::string              & param_name   );
+        
         
         /// Interpretation of the entries for bounds and fixed variables.
         /**
@@ -238,8 +252,8 @@ namespace NOMAD {
         /// Display parameter help.
         /**
          For a list of parameters.
-         \param param_names_list	List of parameter names              -- \b IN.
-         \param developer			Bool to request developer help (defaut=false) -- \b IN.
+         \param param_names_list    List of parameter names                         -- \b IN.
+         \param developer           Bool to request developer help (defaut=false)   -- \b IN.
          */
         void help ( const std::list<std::string> & param_names_list , bool developer=false) const;
         
@@ -314,6 +328,12 @@ namespace NOMAD {
         
         /// Maximum number of simulated evaluations.
         int                    _max_sim_bb_eval;
+        
+        
+        /// Maximum number of evaluation during intensification of poll and/or search
+        int                    _max_eval_intensification;
+        
+        int                    _intensification_type;
         
         int                    _max_time;           ///< Maximum time.
         int                    _max_iterations;     ///< Maximum number of iterations.
@@ -398,6 +418,19 @@ namespace NOMAD {
          \return The \c MAX_BB_EVAL parameter.
          */
         int get_max_bb_eval ( void ) const;
+        
+        /// Access to the \c INTENSITIFICATION_TYPE parameter.
+        /**
+         \return The \c INTENSIFICATION_TYPE parameter.
+         */
+        int get_intensification_type ( void ) const { return _intensification_type ; }
+        
+        /// Access to the \c MAX_EVAL_INTENSIFICATION parameter.
+        /**
+         \return The \c MAX_EVAL_INTENSIFICATION parameter.
+         */
+        int get_max_eval_intensification ( void ) const { return _max_eval_intensification ; }
+        
         
         /// Access to the \c MAX_TIME parameter.
         /**
@@ -566,6 +599,12 @@ namespace NOMAD {
          \param bbe The \c MAX_BB_EVAL parameter -- \b IN.
          */
         void set_MAX_BB_EVAL ( int bbe );
+        
+        /// Set the \c MAX_EVAL_INTENSIFICATION parameter.
+        /**
+         \param bbe The \c MAX_EVAL_INTENSIFICATION parameter -- \b IN.
+         */
+        void set_MAX_EVAL_INTENSIFICATION ( int bbe );
         
         /// Set the \c MAX_TIME parameter.
         /**
@@ -912,18 +951,6 @@ namespace NOMAD {
          */
         int get_model_quad_min_Y_size ( void ) const;
         
-        /// Access to the \c MODEL_TGP_MODE parameter.
-        /**
-         \return The \c MODEL_TGP_MODE parameter.
-         */
-        NOMAD::TGP_mode_type get_model_tgp_mode ( void ) const;
-        
-        /// Access to the \c MODEL_TGP_REUSE_MODEL parameter.
-        /**
-         \return The \c MODEL_TGP_REUSE_MODEL parameter.
-         */
-        bool get_model_tgp_reuse_model ( void ) const;
-        
         /// Access to the \c MODEL_SEARCH_MAX_TRIAL_PTS parameter.
         /**
          \return The \c MODEL_SEARCH_MAX_TRIAL_PTS parameter.
@@ -1074,18 +1101,6 @@ namespace NOMAD {
          */
         void set_MODEL_NP1_QUAD_EPSILON ( const NOMAD::Double & r );
         
-        /// Set the \c MODEL_TGP_MODE parameter.
-        /**
-         \param m The \c MODEL_TGP_MODE parameter -- \b IN.
-         */
-        void set_MODEL_TGP_MODE ( NOMAD::TGP_mode_type m );
-        
-        /// Set the \c MODEL_TGP_REUSE_MODEL parameter.
-        /**
-         \param rm The \c MODEL_TGP_REUSE_MODEL parameter -- \b IN.
-         */
-        void set_MODEL_TGP_REUSE_MODEL ( bool rm );
-        
         /// Set the \c MODEL_SEARCH_MAX_TRIAL_PTS parameter.
         /**
          \param s The \c MODEL_SEARCH_MAX_TRIAL_PTS parameter -- \b IN.
@@ -1152,13 +1167,14 @@ namespace NOMAD {
         // -----
     private:
         
-        bool		  _use_smesh;               ///< Use smesh (default xmesh)
-        bool		  _anisotropic_mesh;		///< Anisotropic mesh (xmesh only, i.e. _use_smesh=false)
+        NOMAD::mesh_type _mesh_type;            ///< The type of mesh used (xmesh [D], smesh [old] )
+        bool          _anisotropic_mesh;        ///< Anisotropic mesh (xmesh only)
         NOMAD::Double _mesh_update_basis;        ///< Mesh update basis (tau).
         NOMAD::Double _poll_update_basis;        ///< Poll update basis (beta).
         int           _mesh_coarsening_exponent; ///< Mesh coarsening exponent.
         int           _mesh_refining_exponent;   ///< Mesh refining exponent.
         int           _initial_mesh_index;       ///< Initial mesh index (ell_0).
+        int           _limit_mesh_index;         ///< Limit value of mesh index.
         NOMAD::Point  _initial_mesh_size; ///< Initial (absolute) mesh size (delta^0).
         NOMAD::Point  _min_mesh_size;     ///< Minimal (absolute) mesh size (delta_min).
         NOMAD::Point  _initial_poll_size; ///< Initial (absolute) poll size (delta^0).
@@ -1174,12 +1190,12 @@ namespace NOMAD {
          */
         bool get_anisotropic_mesh ( void ) const;
         
-        /// Access to the \c USE_SMESH parameter.
-        /**
-         \return The \c USE_SMESH parameter -- \b IN.
-         */
-        bool get_use_smesh ( void ) const;
         
+        /// Access to the \c MESH_TYPE parameter.
+        /**
+         \return The \c MESH_TYPE parameter -- \b IN.
+         */
+        const NOMAD::mesh_type & get_mesh_type ( void ) const;
         
         
         /// Access to the \c POLL_UPDATE_BASIS parameter.
@@ -1212,7 +1228,6 @@ namespace NOMAD {
          \return The \c INITIAL_MESH_INDEX parameter.
          */
         int get_initial_mesh_index ( void ) const;
-        
         
         /// Access to the \c INITIAL_MESH_SIZE parameter.
         /**
@@ -1251,12 +1266,11 @@ namespace NOMAD {
          */
         void set_ANISOTROPIC_MESH ( bool anis );
         
-        /// Set the \c USE_SMESH parameter.
+        /// Set the \c MESH_TYPE parameter.
         /**
-         \param use_smesh The \c USE_SMESH parameter -- \b IN.
+         \param mt The \c MESH_TYPE parameter -- \b IN.
          */
-        void set_USE_SMESH ( bool use_smesh );
-        
+        void set_MESH_TYPE ( NOMAD::mesh_type mt );
         
         /// Set the \c MESH_UPDATE_BASIS parameter.
         /**
@@ -1269,7 +1283,6 @@ namespace NOMAD {
          \param r The \c POLL_UPDATE_BASIS parameter -- \b IN.
          */
         void set_POLL_UPDATE_BASIS ( const NOMAD::Double & r );
-        
         
         /// Set the \c INITIAL_MESH_INDEX parameter.
         /**
@@ -1295,7 +1308,8 @@ namespace NOMAD {
          \param relative Indicated as a relative value
          -- \b IN -- \b optional (default = \c false).
          */
-        void set_MIN_MESH_SIZE ( const NOMAD::Double & mms , bool relative = false );
+        void set_MIN_MESH_SIZE ( const NOMAD::Double & mms ,
+                                bool relative = false );
         
         /// Set the \c MIN_MESH_SIZE parameter.
         /**
@@ -1314,7 +1328,8 @@ namespace NOMAD {
          \param relative Indicated as relative values
          -- \b IN -- \b optional (default = \c false).
          */
-        void set_MIN_MESH_SIZE ( const NOMAD::Point & mms , bool relative = false );
+        void set_MIN_MESH_SIZE ( const NOMAD::Point & mms ,
+                                bool relative = false );
         
         /// Set the \c MIN_POLL_SIZE parameter.
         /**
@@ -1322,7 +1337,8 @@ namespace NOMAD {
          \param relative Indicated as a relative value
          -- \b IN -- \b optional (default = \c false).
          */
-        void set_MIN_POLL_SIZE ( const NOMAD::Double & mps , bool relative = false );
+        void set_MIN_POLL_SIZE ( const NOMAD::Double & mps ,
+                                bool relative = false );
         
         /// Set the \c MIN_POLL_SIZE parameter.
         /**
@@ -1341,7 +1357,8 @@ namespace NOMAD {
          \param relative Indicated as relative values
          -- \b IN -- \b optional (default = \c false).
          */
-        void set_MIN_POLL_SIZE ( const NOMAD::Point & mps , bool relative = false );
+        void set_MIN_POLL_SIZE ( const NOMAD::Point & mps ,
+                                bool relative = false );
         
         /// Set the \c INITIAL_MESH_SIZE parameter.
         /**
@@ -1349,7 +1366,8 @@ namespace NOMAD {
          \param relative Indicated as a relative value
          -- \b IN -- \b optional (default = \c false).
          */
-        void set_INITIAL_MESH_SIZE ( const NOMAD::Double & ims , bool relative = false );
+        void set_INITIAL_MESH_SIZE ( const NOMAD::Double & ims ,
+                                    bool relative = false );
         
         /// Set the \c INITIAL_MESH_SIZE parameter.
         /**
@@ -1368,7 +1386,8 @@ namespace NOMAD {
          \param relative Indicated as relative values
          -- \b IN -- \b optional (default = \c false).
          */
-        void set_INITIAL_MESH_SIZE ( const NOMAD::Point & ims , bool relative = false );
+        void set_INITIAL_MESH_SIZE ( const NOMAD::Point & ims ,
+                                    bool relative = false );
         
         
         /// Set the \c INITIAL_POLL_SIZE parameter.
@@ -1377,7 +1396,8 @@ namespace NOMAD {
          \param relative Indicated as a relative value
          -- \b IN -- \b optional (default = \c false).
          */
-        void set_INITIAL_POLL_SIZE ( const NOMAD::Double & ims , bool relative = false );
+        void set_INITIAL_POLL_SIZE ( const NOMAD::Double & ims ,
+                                    bool relative = false );
         
         /// Set the \c INITIAL_POLL_SIZE parameter.
         /**
@@ -1397,6 +1417,63 @@ namespace NOMAD {
          -- \b IN -- \b optional (default = \c false).
          */
         void set_INITIAL_POLL_SIZE ( const NOMAD::Point & ims , bool relative = false );
+        
+        
+        /// Set the \c LIMIT_MESH_INDEX parameter.
+        /**
+         \param lmi      Limit mesh index   -- \b IN.
+         */
+        void set_LIMIT_MESH_INDEX ( const int & lmi );
+        
+        
+        
+        // Granular variables:
+        // -------------------
+    private:
+        
+        NOMAD::Point _granularity; ///< Granularity.
+        
+    public:
+        
+        /// Access to the granular variables.
+        /**
+         \return The granular variables.
+         */
+        const NOMAD::Point & get_granularity ( void ) const ;
+        
+        /// Access to the number of granular variables (granularity !=0).
+        /**
+         \return The number of real granular variables.
+         */
+        int get_number_granular_variables ( void ) const;
+        
+        
+        /// Reset the granular variables.
+        /**
+         This sets all variables with a granularity of zero.
+         */
+        void reset_granulary ( void );
+        
+        /// Set the granularity for one variable.
+        /**
+         \param i     Index of the variable       -- \b IN.
+         \param value Granularity of the variable -- \b IN.
+         */
+        void set_GRANULARITY ( int i , const NOMAD::Double & value );
+        
+        /// Set the granularity of a series of variables.
+        /**
+         \param fv The granular variables; This point is of dimension \c n;
+         regular variables have a granularity of zero -- \b IN.
+         */
+        void set_GRANULARITY ( const NOMAD::Point & fv );
+        
+        
+        /// Set the granularity of all variables.
+        /**
+         \param v The granularity of all variables -- \b IN.
+         */
+        void set_GRANULARITY ( const NOMAD::Double & v );
         
         
         
@@ -1445,8 +1522,9 @@ namespace NOMAD {
          */
         bool has_dynamic_direction(void) const;
         
-        
         /// Reset the directions.
+        /**
+         */
         void reset_directions ( void );
         
         
@@ -1474,6 +1552,7 @@ namespace NOMAD {
          \param dt The set of new direction types -- \b IN.
          */
         void set_SEC_POLL_DIR_TYPE ( const std::set<NOMAD::direction_type> & dt );
+        
         
         /// Enables use of quad model to determine prospect direction
         /// for Ortho n+1 direction type
@@ -1784,8 +1863,7 @@ namespace NOMAD {
          \param g Group to reset; may be \c _var_groups or \c _user_var_groups
          -- \b IN/OUT.
          */
-        void reset_variable_groups
-        ( std::set<NOMAD::Variable_Group*,NOMAD::VG_Comp> & g ) const;
+        void reset_variable_groups ( std::set<NOMAD::Variable_Group*,NOMAD::VG_Comp> & g ) const;
         
     public:
         
@@ -1813,10 +1891,9 @@ namespace NOMAD {
          \param prim_poll_dir_types Types of the poll directions           -- \b IN.
          \param sec_poll_dir_types  Types of the secondary poll directions -- \b IN.
          */
-        void set_VARIABLE_GROUP
-        ( const std::set<int>                   & var_indexes         ,
-         const std::set<NOMAD::direction_type> & prim_poll_dir_types ,
-         const std::set<NOMAD::direction_type> & sec_poll_dir_types  );
+        void set_VARIABLE_GROUP ( const std::set<int>                   & var_indexes         ,
+                                 const std::set<NOMAD::direction_type> & prim_poll_dir_types ,
+                                 const std::set<NOMAD::direction_type> & sec_poll_dir_types  );
         
         /// Set several groups of variables.
         /**
@@ -2151,7 +2228,7 @@ namespace NOMAD {
          */
         std::map<std::string,std::string> _sgte_exe;
         
-        bool _disable_eval_sort;  ///< Sort disablement  
+        bool _disable_eval_sort;  ///< Sort disablement
         
         /// Flag equal to \c true if surrogates are used to sort evaluation points.
         bool _sgte_eval_sort;
@@ -2168,7 +2245,7 @@ namespace NOMAD {
          */
         int _sgte_cost;
         
-        /// Maximum number of surrogate evaluations. 
+        /// Maximum number of surrogate evaluations.
         int _sgte_max_eval;
         
         /// Surrogate cache file.
@@ -2467,7 +2544,7 @@ namespace NOMAD {
         
         /// Minimum number of evaluations.
         /**
-         Parameter \c OPPORTUNISTIC_MIN_EVAL.       
+         Parameter \c OPPORTUNISTIC_MIN_EVAL.
          */
         int _opportunistic_min_eval;
         
@@ -2488,7 +2565,7 @@ namespace NOMAD {
         /**
          Parameter \c BB_MAX_BLOCK_SIZE.
          */
-        int _bb_max_block_size; 
+        int _bb_max_block_size;
         
         /// Block of points evaluation
         /**
@@ -2576,7 +2653,6 @@ namespace NOMAD {
          \param opp_lucky_eval The \c OPPORTUNISTIC_LUCKY_EVAL parameter -- \b IN.
          */
         void set_OPPORTUNISTIC_LUCKY_EVAL ( bool opp_lucky_eval );
-        
         
         
         

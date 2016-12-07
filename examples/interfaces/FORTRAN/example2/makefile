@@ -1,13 +1,27 @@
-EXE                 = test.exe
-COMPILATOR          = g++
-FCOMPILATOR         = gfortran
-COMPILATOR_OPTIONS  = -ansi -Wall -O3 
-L1                  = $(NOMAD_HOME)/lib/nomad.a
-LIBS                = $(L1) -lm
-INCLUDE             = -I$(NOMAD_HOME)/src -I.
-COMPILE             = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
-FCOMPILE            = $(FCOMPILATOR) -O3 -c
-OBJS                = nomad.o test.o
+UNAME := $(shell uname)
+
+EXE                    = test.exe
+COMPILATOR             = g++
+FCOMPILATOR            = gfortran
+COMPILATOR_OPTIONS     = -ansi -Wall -O3 
+
+LIB_DIR                = $(NOMAD_HOME)/lib
+LIB_NOMAD              = libnomad.so 
+
+CXXFLAGS               =           
+ifeq ($(UNAME), Linux)
+CXXFLAGS              += -Wl,-rpath,'$(LIB_DIR)'
+CXXFLAGS              += -ansi
+endif
+
+
+LDLIBS                 = -lm -lnomad -lstdc++
+
+INCLUDE                = -I$(NOMAD_HOME)/src -I.
+COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
+FCOMPILE               = $(FCOMPILATOR) -O3 -c
+
+OBJS                   = nomad.o test.o
 
 ifndef NOMAD_HOME
 define ECHO_NOMAD
@@ -16,18 +30,17 @@ define ECHO_NOMAD
 endef
 endif
 
-$(EXE): $(L1) $(OBJS)
+$(EXE): $(OBJS)
 	$(ECHO_NOMAD)
-	$(FCOMPILATOR) -o $(EXE) $(OBJS) $(LIBS) -lstdc++
+	$(FCOMPILATOR) -o $(EXE) $(OBJS) $(LDLIBS) -L$(LIB_DIR) $(CXXFLAGS)
 
 nomad.o: nomad.cpp
+	$(ECHO_NOMAD)
 	$(COMPILE) nomad.cpp
 
 test.o: test.f
-	$(FCOMPILE) test.f
-
-$(L1): ;
 	$(ECHO_NOMAD)
+	$(FCOMPILE) test.f
 	
 clean:
 	@echo "   cleaning obj files"

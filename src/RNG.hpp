@@ -1,14 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -31,10 +40,11 @@
 /*                                                                                     */
 /*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
 /*-------------------------------------------------------------------------------------*/
+
 /**
  \file   RNG.hpp
  \brief  Custom class for random number generator
- \author Christophe Tribes and Sebastien Le Digabel 
+ \author Christophe Tribes and Sebastien Le Digabel
  \date   2011-09-28
  \see    RNG.cpp
  */
@@ -48,21 +58,21 @@
 using namespace std;
 
 namespace NOMAD {
-
+    
     
     /// Class for random number generator
-	/**
+    /**
      This class is used to set a seed for the random number generator and
      get a random integer or a random double between two values.
-	 */
-	class RNG {
-		
-	public:
+     */
+    class RNG {
         
- 		/// Get current seed
-		/*
-		 /return An integer in [0,UINT32_MAX].
-		 */
+    public:
+        
+        /// Get current seed
+        /*
+         /return An integer in [0,UINT32_MAX].
+         */
         static int get_seed ( void )
         {
             return static_cast<int>(_s);
@@ -76,56 +86,56 @@ namespace NOMAD {
             _z=z_def;
         }
         
-		/// Set seed
-		/*
-		 /param s The seed -- \b IN.
-		 */
-		static void set_seed(int s);
-    
-		
-		/// Get a random integer as uint32
-		/** This function serves to obtain a random number \c
-		 /return An integer in the interval [0,UINT32_MAX].
-		 */
-		static uint32_t rand();
+        /// Set seed
+        /*
+         /param s The seed -- \b IN.
+         */
+        static void set_seed(int s);
         
-		
-		/// Get a random number having a normal distribution as double
-		/*
+        
+        /// Get a random integer as uint32
+        /** This function serves to obtain a random number \c
+         /return An integer in the interval [0,UINT32_MAX].
+         */
+        static uint32_t rand();
+        
+        
+        /// Get a random number having a normal distribution as double
+        /*
          /param a Lower bound  -- \b IN.
          /param b Upper bound  -- \b IN.
          /return A double in the interval [a,b].
-		 */
-		static double rand(double a, double b)
+         */
+        static double rand(double a, double b)
         {
             return a+((b-a)*NOMAD::RNG::rand())/UINT32_MAX;
         }
-		
-		/// Get a random number approaching a normal distribution (N(0,Var)) as double
-		//  A series of Nsample random numbers Xi in the interval [-sqrt(3*Var);+sqrt(3*Var)] is used -> E[Xi]=0, Var(Xi)=var
-		// see http://en.wikipedia.org/wiki/Central_limit_theorem
-		/*
-         /param Nsample	Number of samples for averaging				-- \b IN.
-         /param Var		Variance of the target normal distribution	-- \b IN.
+        
+        /// Get a random number approaching a normal distribution (N(0,Var)) as double
+        //  A series of Nsample random numbers Xi in the interval [-sqrt(3*Var);+sqrt(3*Var)] is used -> E[Xi]=0, Var(Xi)=var
+        // see http://en.wikipedia.org/wiki/Central_limit_theorem
+        /*
+         /param Nsample    Number of samples for averaging                -- \b IN.
+         /param Var        Variance of the target normal distribution     -- \b IN.
          /return A double in the interval [-sqrt(3*Var);+sqrt(3*Var)].
-		 */
-		static double normal_rand_mean_0( double Var=1 , int Nsample=12 ) ;
+         */
+        static double normal_rand_mean_0( double Var=1 , int Nsample=12 ) ;
         
         
         /// Get a random number approaching a normal distribution ( N(Mean,Var) ) as double
-		/*
-         /param Mean	Mean of the target normal distribution		-- \b IN.
-         /param Var		Variance of the target normal distribution	-- \b IN.
+        /*
+         /param Mean    Mean of the target normal distribution          -- \b IN.
+         /param Var        Variance of the target normal distribution   -- \b IN.
          /return A random number.
-		 */
+         */
         static double normal_rand( double Mean=0 , double Var=1 ) ;
         
-		
-	private:
+        
+    private:
         
         static uint32_t x_def,y_def,z_def,_x,_y,_z;  ///< Default parameter value for the random number generator (_s used as the seed).
         static int _s;
-	};
+    };
 }
 
 

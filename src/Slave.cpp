@@ -1,16 +1,23 @@
 /*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.2      */
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
 /*                                                                                     */
-/*  Copyright (C) 2001-2015  Mark Abramson        - the Boeing Company, Seattle        */
-/*                           Charles Audet        - Ecole Polytechnique, Montreal      */
-/*                           Gilles Couture       - Ecole Polytechnique, Montreal      */
-/*                           John Dennis          - Rice University, Houston           */
-/*                           Sebastien Le Digabel - Ecole Polytechnique, Montreal      */
-/*                           Christophe Tribes    - Ecole Polytechnique, Montreal      */
 /*                                                                                     */
-/*  funded in part by AFOSR and Exxon Mobil                                            */
+/*  NOMAD - version 3.7.3 has been created by                                          */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
 /*                                                                                     */
-/*  Author: Sebastien Le Digabel                                                       */
+/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
+/*                                                                                     */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
+/*                                                                                     */
+/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
+/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
+/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
+/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
+/*                                                                                     */
 /*                                                                                     */
 /*  Contact information:                                                               */
 /*    Ecole Polytechnique de Montreal - GERAD                                          */
@@ -66,7 +73,8 @@ void NOMAD::Slave::init ( void ) const
 #endif
     
     // Slave::force_quit() will be called if ctrl-c is pressed:
-    if ( !NOMAD::Slave::is_master() ) {
+    if ( !NOMAD::Slave::is_master() )
+    {
         
         NOMAD::Evaluator::force_quit();
         
@@ -84,7 +92,8 @@ void NOMAD::Slave::init ( void ) const
 /*----------------------------------------*/
 int NOMAD::Slave::get_rank ( void )
 {
-    if ( NOMAD::Slave::_rank < 0 ) {
+    if ( NOMAD::Slave::_rank < 0 )
+    {
 #ifdef USE_MPI
         MPI_Comm_rank ( MPI_COMM_WORLD, &NOMAD::Slave::_rank );
 #else
@@ -100,7 +109,8 @@ int NOMAD::Slave::get_rank ( void )
 /*----------------------------------------*/
 int NOMAD::Slave::get_nb_processes ( void )
 {
-    if ( NOMAD::Slave::_np < 0 ) {
+    if ( NOMAD::Slave::_np < 0 )
+    {
 #ifdef USE_MPI
         MPI_Comm_size ( MPI_COMM_WORLD, &NOMAD::Slave::_np );
 #else
@@ -122,7 +132,8 @@ void NOMAD::Slave::run ( void ) const
     NOMAD::Eval_Point * x          = NULL;
     bool                count_eval = false;
     
-    while ( true ) {
+    while ( true )
+    {
         
         // receive signal from master:
         // ---------------------------
@@ -135,7 +146,8 @@ void NOMAD::Slave::run ( void ) const
         
         // EVAL signal:
         // ------------
-        if ( signal == NOMAD::EVAL_SIGNAL ) {
+        if ( signal == NOMAD::EVAL_SIGNAL )
+        {
             
             // receive and evaluate the point:
             x = eval_point ( count_eval );
@@ -161,7 +173,8 @@ void NOMAD::Slave::run ( void ) const
         
         // WAIT signal:
         // ------------
-        // else if ( signal == NOMAD::WAIT_SIGNAL ) {
+        // else if ( signal == NOMAD::WAIT_SIGNAL )
+        //{
         // }
     }
     
@@ -195,7 +208,8 @@ void NOMAD::Slave::init_slaves ( const NOMAD::Display & out )
     NOMAD::Clock   clk;
     
     // 1. launch requests:
-    for ( source = 1 ; source < NOMAD::Slave::_np ; ++source ) {
+    for ( source = 1 ; source < NOMAD::Slave::_np ; ++source )
+    {
         req[source] = new MPI_Request;
         NOMAD::Slave::receive_data ( &signal , 1 , MPI_CHAR , source ,  req[source] );
         if ( display_degree == NOMAD::FULL_DISPLAY )
@@ -302,7 +316,8 @@ void NOMAD::Slave::stop_slaves ( const NOMAD::Display & out )
     MPI_Request ** req = new MPI_Request * [ NOMAD::Slave::_np ];
     
     // 1. launch requests:
-    for ( source = 1 ; source < NOMAD::Slave::_np ; ++source ) {
+    for ( source = 1 ; source < NOMAD::Slave::_np ; ++source )
+    {
         req[source] = new MPI_Request;
         NOMAD::Slave::receive_data ( &signal , 1 , MPI_CHAR , source ,  req[source] );
         if ( display_degree == NOMAD::FULL_DISPLAY )
@@ -311,15 +326,19 @@ void NOMAD::Slave::stop_slaves ( const NOMAD::Display & out )
     
     // 2. test requests (with a maximal delay of MAX_REQ_WAIT):
     int cnt = 0 , flag;
-    while ( nb_stopped < nb_slaves && clk.get_real_time() < NOMAD::MAX_REQ_WAIT ) {
+    while ( nb_stopped < nb_slaves && clk.get_real_time() < NOMAD::MAX_REQ_WAIT )
+    {
         
-        for ( source = 1 ; source < NOMAD::Slave::_np ; ++source ) {
+        for ( source = 1 ; source < NOMAD::Slave::_np ; ++source )
+        {
             
-            if ( req[source] ) {
+            if ( req[source] )
+            {
                 
                 MPI_Test ( req[source] , &flag , &status );
                 
-                if ( flag ) {
+                if ( flag )
+                {
                     
                     MPI_Wait ( req[source] , &status );
                     
@@ -342,8 +361,10 @@ void NOMAD::Slave::stop_slaves ( const NOMAD::Display & out )
     NOMAD::Slave::_stop_ok     = true;
     
     // 3. delete requests:
-    for ( source = 1 ; source < NOMAD::Slave::_np ; ++source ) {
-        if ( req[source] ) {
+    for ( source = 1 ; source < NOMAD::Slave::_np ; ++source )
+    {
+        if ( req[source] )
+        {
             MPI_Cancel ( req[source] );
             delete req[source];
             NOMAD::Slave::_stop_ok = false;
@@ -371,7 +392,8 @@ int NOMAD::Slave::receive_data ( void        * buf      ,
     int tag = ( NOMAD::Slave::is_master() ) ? source : NOMAD::Slave::get_rank();
     
     // immediate receive:
-    if ( req ) {
+    if ( req )
+    {
         if ( source == MPI_ANY_SOURCE )
             throw NOMAD::Exception ( "Slave.cpp" , __LINE__ ,
                                     "Slave::receive_data(): immediate receive with no source" );
@@ -379,7 +401,8 @@ int NOMAD::Slave::receive_data ( void        * buf      ,
     }
     
     // normal receive:
-    else {
+    else
+    {
         MPI_Status status;
         if ( source == MPI_ANY_SOURCE )
             tag = MPI_ANY_TAG;
@@ -459,7 +482,8 @@ NOMAD::Eval_Point * NOMAD::Slave::eval_point ( bool & count_eval ) const
     try {
         eval_ok = _ev->eval_x ( *x , h_max , count_eval );
     }
-    catch ( ... ) {
+    catch ( ... )
+    {
         eval_ok = false;
     }
     
@@ -485,12 +509,15 @@ void NOMAD::Slave::send_eval_result ( const NOMAD::Eval_Point * x          ,
     const NOMAD::Point & bbo  = x->get_bb_outputs();
     
     // bb_outputs (m values):
-    for ( int i = 0 ; i < m ; ++i ) {
-        if ( bbo[i].is_defined() ) {
+    for ( int i = 0 ; i < m ; ++i )
+    {
+        if ( bbo[i].is_defined() )
+        {
             dtab[i  ] = bbo[i].value();
             dtab[i+m] = 1.0;
         }
-        else {
+        else
+        {
             dtab[i  ] = NOMAD::INF;
             dtab[i+m] = -1.0;
         }
