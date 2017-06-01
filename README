@@ -3,6 +3,17 @@
 #                                    README                                    #
 #                                                                              #
 #------------------------------------------------------------------------------#
+#                                                                              #
+#                                  DISCLAIMER                                  #
+#                                                                              #
+#  This is a fork of NOMAD (see below) with a modified build system, i.e., we  #
+#  use autotools. I (miroslav.shaltev@shaltev.de) did this for my personal     #
+#  needs, in other words, use it on your own risk! For a successful build you  #
+#  also need the sgtelib library, see  https://github.com/cvscpp/sgtelib       #
+#  Finally, the license and copyright of the original authors apply.           #
+#                                                                              #
+#------------------------------------------------------------------------------#
+#                                                                              #
 #  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             #
 #          version 3.8.1                                                       #
 #                                                                              #
