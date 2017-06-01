@@ -1,3 +1,6 @@
+2017-03: NOMAD 3.8
+	-Surrogate library
+	-Granular variables
 2015-03: NOMAD 3.7
 	-Anisotropic scaling
 	-Block evaluations

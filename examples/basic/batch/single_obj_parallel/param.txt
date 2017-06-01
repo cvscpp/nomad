@@ -17,5 +17,5 @@ MAX_BB_EVAL    100            # the algorithm terminates when
                               # 100 black-box evaluations have
                               # been made
 
-TMP_DIR /tmp							  
+# TMP_DIR /tmp							  
 DISPLAY_DEGREE 2 

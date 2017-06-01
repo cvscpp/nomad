@@ -180,8 +180,6 @@ int main ( int argc , char ** argv ) {
   p.set_SPECULATIVE_SEARCH ( false );
 
   p.set_INITIAL_MESH_SIZE        ( 1.0 );
-  p.set_MESH_UPDATE_BASIS        ( 2.0 );
-  p.set_MESH_COARSENING_EXPONENT ( 0   );
 
   p.set_DISPLAY_DEGREE ( "0300" ); // display only the search step
 

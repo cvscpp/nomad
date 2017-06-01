@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   VNS_Search.cpp
  \brief  VNS search (implementation)
@@ -136,7 +138,7 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
             out.close_block ( "end of VNS search (no signature)" );
         return;
     }
-        
+    
     int n = signature->get_n();
     if ( n != x->size() )
     {
@@ -150,11 +152,10 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
     
     signature->get_one_direction ( dir , _k - 1);
     
+    // shaking: construct x':
     NOMAD::Point xp(n);
     for (int i = 0 ; i < n ; ++i )
         xp[i] = ( (_p.get_bb_input_type())[i]==NOMAD::BINARY && dir[i]==1.0 && (*x)[i]==1.0 ) ? 0.0 : xp[i] = (*x)[i] + dir[i];
-
-    
     
     // shaking: the perturbation is tried twice with dir and -dir
     //          (in case x == x + dir after snapping)
@@ -192,8 +193,6 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
     const NOMAD::Point            old_delta_min = signature->get_mesh()->get_min_mesh_size();
     // Current min poll size
     const NOMAD::Point            old_Delta_min = signature->get_mesh()->get_min_poll_size();
-
-    
     
     // stats:
     NOMAD::Stats & stats = mads.get_stats();
@@ -209,17 +208,17 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
     if ( display_degree == NOMAD::FULL_DISPLAY )
     {
         out << "        it = " << mads_iterations << std::endl
-            << "       bbe = " << bbe << std::endl
-            << "   blk_eva = " << blk_eva << std::endl;
+        << "       bbe = " << bbe << std::endl
+        << "   blk_eva = " << blk_eva << std::endl;
         if ( has_sgte )
             out << " sgte_eval = " << sgte_eval << std::endl;
         out << "mesh_indices = ( " << old_mesh_indices << " ) " << std::endl
-            << "         k = " << _k << std::endl
-            << "      kmax = " << _k_max << std::endl
-            << "         x = ( ";
+        << "         k = " << _k << std::endl
+        << "      kmax = " << _k_max << std::endl
+        << "         x = ( ";
         x->Point::display ( out , " " , 5 , _p.get_point_display_limit() );
         out << " ) f=" << x->get_f() << " h=" << x->get_h() << std::endl
-            << "       dir = ( ";
+        << "       dir = ( ";
         dir.Point::display ( out , " " , 5 , _p.get_point_display_limit() );
         out << " ) |dir|=";
         NOMAD::Double norm = dir.norm();
@@ -228,13 +227,14 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
         xp.display ( out , " " , 5 , _p.get_point_display_limit() );
         out << " )" << std::endl << std::endl;
         out << "bb_eval (before+VNS only) objective_value"
-            << std::endl << std::endl;
+        << std::endl << std::endl;
     }
     
     // save parameters that are going to be modified:
     // ----------------------------------------------
     std::string old_display_degree;
     _p.out().get_display_degree ( old_display_degree );
+    
     
     NOMAD::model_params_type old_mp;
     _p.get_model_parameters ( old_mp );
@@ -281,7 +281,7 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
         _p.set_DISPLAY_DEGREE ( NOMAD::NORMAL_DISPLAY );
     else if ( _p.get_display_degree() == NOMAD::NORMAL_DISPLAY )
         _p.set_DISPLAY_DEGREE ( NOMAD::MINIMAL_DISPLAY );
-
+    
     
     // modify parameters:
     // ------------------
@@ -305,17 +305,42 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
     _p.set_USER_CALLS_ENABLED    ( false );
     _p.set_EXTENDED_POLL_ENABLED ( false );
     
+    
+    std::string                            s_bbe = NOMAD::itos(bbe) + "+";
+    std::string                            s_blk = NOMAD::itos(blk_eva) + "+";
+    std::string                            s_sgte = NOMAD::itos(sgte_eval) + "+";
     // DISPLAY_STATS:
     {
+        std::list<std::string> ds    = old_ds;
+        std::list<std::string>::iterator       it    = ds.begin();
+        std::list<std::string>::const_iterator end   = ds.end();
+        
         if ( has_sgte )
-            _p.set_DISPLAY_STATS ( NOMAD::itos(sgte_eval) + "+SGTE OBJ (VNS--surrogate)" );
+        {
+            while ( it != ds.end() )
+            {
+                if ( *it == "BBE" )
+                {
+                    it = ds.erase ( it );
+                    ds.insert ( it , NOMAD::itos(bbe) );
+                }
+                if ( *it == "BLK_EVA" )
+                {
+                    it = ds.erase ( it );
+                    ds.insert ( it , NOMAD::itos(blk_eva) );
+                }
+                if ( *it == "SGTE" )
+                    ds.insert ( it , s_sgte );
+
+                ++it;
+            }
+            ds.push_back(" ");
+            ds.push_back ( "(VNS#" + NOMAD::itos(stats.get_nb_VNS_SEARCHES()) + "--surrogate_evals)" );
+            _p.set_DISPLAY_STATS ( ds );
+        }
         else
         {
-            std::list<std::string> ds    = old_ds;
-            std::list<std::string>::iterator       it    = ds.begin();
-            std::list<std::string>::const_iterator end   = ds.end();
-            std::string                            s_bbe = NOMAD::itos(bbe) + "+";
-            std::string                            s_blk = NOMAD::itos(blk_eva) + "+";
+
             while ( it != end )
             {
                 if ( *it == "BBE" )
@@ -324,7 +349,8 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
                     ds.insert ( it , s_blk );
                 ++it;
             }
-            ds.push_back ( " (VNS)" );
+            ds.push_back(" ");
+            ds.push_back ( "(VNS#" + NOMAD::itos(stats.get_nb_VNS_SEARCHES()) + ")" );
             _p.set_DISPLAY_STATS ( ds );
         }
     }
@@ -334,18 +360,44 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
         std::list<std::string>                 sf    = old_stats_file;
         std::list<std::string>::iterator       it    = sf.begin();
         std::list<std::string>::const_iterator end   = sf.end();
-        std::string                            s_bbe = NOMAD::itos(bbe) + "+";
-        std::string                            s_blk = NOMAD::itos(blk_eva) + "+";
-        while ( it != end )
+        if ( has_sgte )
         {
-            if ( *it == "BBE" )
-                sf.insert ( it , s_bbe );
-            if ( *it == "BLK_EVA" )
-                sf.insert ( it , s_blk );
-            ++it;
+            while ( it != sf.end() )
+            {
+                if ( *it == "BBE" )
+                {
+                    it = sf.erase ( it );
+                    sf.insert ( it , NOMAD::itos(bbe) );
+                }
+                if ( *it == "BLK_EVA" )
+                {
+                    it = sf.erase ( it );
+                    sf.insert ( it , NOMAD::itos(blk_eva) );
+                }
+                if ( *it == "SGTE" )
+                    sf.insert ( it , s_sgte );
+                
+                ++it;
+            }
+            sf.push_back(" ");
+            sf.push_back ( "(VNS#" + NOMAD::itos(stats.get_nb_VNS_SEARCHES()) + "--surrogate_evals)" );
+            _p.set_STATS_FILE ( old_stats_file_name , sf );
         }
-        sf.push_back ( " (VNS)" );
-        _p.set_STATS_FILE ( old_stats_file_name , sf );
+        else
+        {
+            
+            while ( it != end )
+            {
+                if ( *it == "BBE" )
+                    sf.insert ( it , s_bbe );
+                if ( *it == "BLK_EVA" )
+                    sf.insert ( it , s_blk );
+                ++it;
+            }
+            sf.push_back(" ");
+            sf.push_back ( "(VNS#" + NOMAD::itos(stats.get_nb_VNS_SEARCHES()) + ")" );
+            _p.set_STATS_FILE ( old_stats_file_name , sf );
+        }
     }
     
     // X0:
@@ -378,7 +430,13 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
     
     // STAT_SUM_TARGET:
     if ( old_sst.is_defined() )
-        _p.set_STAT_SUM_TARGET ( old_sst - stats.get_stat_sum() );
+    {
+        if ( ! stats.get_stat_sum().is_defined() )
+            stats.update_stat_sum( Double(0) );
+        _p.set_STAT_SUM_TARGET ( old_sst - stats.get_stat_sum()  );
+
+    }
+    
     
     // MAX_TIME:
     if ( old_max_time > 0 )
@@ -411,7 +469,7 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
     
     // Modified dimension after extern signature is set
     int modified_dimension = _p.get_dimension();
-
+    
     
     // Evaluator_Control:
     NOMAD::Evaluator_Control & ev_control = mads.get_evaluator_control();
@@ -518,7 +576,7 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
     
     // Needed because mesh reinitialized during p.check()
     signature->get_mesh()->set_min_mesh_sizes( old_delta_min );
-    signature->get_mesh()->set_min_poll_sizes( old_Delta_min ); 
+    signature->get_mesh()->set_min_poll_sizes( old_Delta_min );
     signature->get_mesh()->set_mesh_indices( old_mesh_indices );
     
     // surrogate evaluations: perform only one true evaluation:
@@ -605,7 +663,7 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
     }
     
     // true evaluations (or surrogate evaluations if opt_only_sgte==true):
-    else 
+    else
     {
         
         // for the update of new_feas_inc and new_infeas_inc (1/2):
@@ -650,7 +708,7 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
             nb_search_pts = VNS_mads.get_stats().get_sgte_eval();
             success       = sgte_succ;
         }
-        else 
+        else
         {
             nb_search_pts = VNS_mads.get_stats().get_eval();
             success       = true_succ;
@@ -665,7 +723,7 @@ void NOMAD::VNS_Search::search ( NOMAD::Mads              & mads           ,
         if ( new_feas_inc && display_degree > NOMAD::NO_DISPLAY && display_degree < NOMAD::FULL_DISPLAY )
         {
             std::list<std::string> ds    = old_ds;
-            ds.push_back ( " (VNS)" );
+            ds.push_back ( " (VNS#" + NOMAD::itos(stats.get_nb_VNS_SEARCHES()) + ")" );
             ev_control.display_stats(false, out, ds , new_feas_inc , true , NULL );
         }
     }

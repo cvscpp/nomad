@@ -1,44 +1,48 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*	               Charles Audet        - Ecole Polytechnique de Montreal              */
-/*	               Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*	               Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  MEX Interface Author: Jonathan Currie 2012 (I2C2) + modifs C. Tribes               */
-/*                                                                                     */
-/*  MEX Interface Contact information:                                                 */
-/*    jocurrie@aut.ac.nz                                                               */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
 
-#define NOMADMEX_VERSION "1.25_ct  [Sept 3rd, 2015]"
+
+#define NOMADMEX_VERSION "1.26_ct  [Feb. 10th, 2017]"
 //NOTE from Version 1.15 on this MEX file contains a dual interface:
 
 // 1) The default (GERAD) interface is:
@@ -929,7 +933,10 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     NOMAD::Eval_Point::reset_tags_and_bbes();
     
     // The seed will always be to its default value
-    NOMAD::RNG::reset_seed_to_default();
+    NOMAD::RNG::reset_private_seed_to_default(); 
+    
+    // The warning display parameter should be reset every run
+    NOMAD::Parameters::reset_display_warning ( );
     
     //Set User Options
     if( nrhs > eOPTS && !mxIsEmpty(pOPTS) )
@@ -1005,7 +1012,7 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 #ifdef OPTI_VERSION
         mexPrintf(" MEX Interface (OPTI) J. Currie 2012\n\n");
 #else
-        mexPrintf(" MEX Interface (GERAD) J. Currie 2012 and C. Tribes 2016 \n\n");
+        mexPrintf(" MEX Interface (GERAD) J. Currie 2012 and C. Tribes 2017 \n\n");
 #endif
         mexPrintf(" Problem Properties:\n");
         mexPrintf(" # Decision Variables:               %4d\n",ndec);
@@ -1432,8 +1439,9 @@ int checkInputs(const mxArray *prhs[], int nrhs, mxArray *plhs[], int nlhs)
             mexPrintf("The copyright of NOMAD - version %s is owned by {\n",NOMAD::VERSION.c_str());
             mexPrintf("      Sebastien Le Digabel - Ecole Polytechnique de Montreal\n");
             mexPrintf("      Christophe Tribes    - Ecole Polytechnique de Montreal\n}\n\n");
-            mexPrintf("NOMAD version 3 is a new version of Nomad v1 and v2, it has been funded by AFOSR and Exxon Mobil.\n");
-            mexPrintf("Nomad v1 and v2 were created and developed by Mark A. Abramson from The Boeing Company, Charles Audet and Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from Rice University, and were funded by AFOSR and Exxon Mobil.\n\n");
+            mexPrintf("NOMAD version 3 is a new version of Nomad v1 and v2, it has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto and \n IVADO.");
+            mexPrintf("Nomad v1 and v2 were created and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E. Dennis Jr.,\n");
+            mexPrintf(" and were funded by AFOSR and Exxon Mobil.\n\n");
             mexPrintf("Web       : www.gerad.ca/nomad\n");
             mexPrintf("License   : \'%s\'\n",NOMAD::LGPL_FILE.c_str());
             mexPrintf("User guide: \'%s\'\n",NOMAD::USER_GUIDE_FILE.c_str());
@@ -1749,6 +1757,6 @@ void printSolverInfo()
     mexPrintf("  - Released under the GNU Lesser General Public License: http://www.gnu.org/copyleft/lesser.html\n");
     mexPrintf("  - Source available from: https://www.gerad.ca/nomad/\n");
     
-    mexPrintf("\n MEX Interface J.Currie 2013 (www.i2c2.aut.ac.nz) and C. Tribes 2015  \n");
+    mexPrintf("\n MEX Interface J. Currie 2013 (www.i2c2.aut.ac.nz) and C. Tribes 2017  \n");
     mexPrintf("-----------------------------------------------------------\n");
 }

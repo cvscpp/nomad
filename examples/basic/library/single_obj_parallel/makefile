@@ -19,7 +19,7 @@ endif
 
 LDLIBS                 = -lm -lnomad -lpthread
 
-INCLUDE                = -I$(NOMAD_HOME)/src -I.
+INCLUDE                = -I$(NOMAD_HOME)/src -I$(NOMAD_HOME)/ext/sgtelib/src -I.
 
 COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
 

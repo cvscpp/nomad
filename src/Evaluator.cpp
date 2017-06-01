@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Evaluator.cpp
  \brief  Evaluation of blackbox functions (implementation)
@@ -63,9 +65,9 @@ bool NOMAD::Evaluator::_force_quit = false;
 /*    . _bb_exe includes the blackbox path                         */
 /*-----------------------------------------------------------------*/
 NOMAD::Evaluator::Evaluator ( const NOMAD::Parameters & p )
-: _p                    ( p     ) ,
-_is_multi_obj           ( false ) ,
-_is_model_evaluator     ( false )
+: _p               ( p     ) ,
+_is_multi_obj      ( false ) ,
+_is_model_evaluator( false )
 {
     NOMAD::Evaluator::_force_quit = false;
     
@@ -378,9 +380,9 @@ void NOMAD::Evaluator::compute_h ( NOMAD::Eval_Point & x ) const
 /*        (unless the output value CNT_EVAL is defined and set to 1  */
 /*         by the blackbox)                                          */
 /*-------------------------------------------------------------------*/
-bool NOMAD::Evaluator::eval_x ( NOMAD::Eval_Point    & x          ,
-                               const NOMAD::Double   & h_max      ,
-                               bool                  & count_eval   ) const
+bool NOMAD::Evaluator::eval_x ( NOMAD::Eval_Point & x          ,
+                               const NOMAD::Double & h_max      ,
+                               bool        & count_eval   ) const
 {
     count_eval = false;
     
@@ -511,7 +513,7 @@ bool NOMAD::Evaluator::eval_x ( NOMAD::Eval_Point    & x          ,
             failed          = false;
             bool is_defined = true;
             bool is_inf     = false;
-            
+
             // loop on the number of outputs for this blackbox:
             nbbok = _bb_nbo[k];
             for ( j = 0 ; j < nbbok ; ++j )
@@ -536,9 +538,10 @@ bool NOMAD::Evaluator::eval_x ( NOMAD::Eval_Point    & x          ,
                     is_inf = true;
                     break;
                 }
-                
+
                 x.set_bb_output ( ibbo++ , d );
             }
+            
             
             fin.close();
             
@@ -577,9 +580,9 @@ bool NOMAD::Evaluator::eval_x ( NOMAD::Eval_Point    & x          ,
 /*-------------------------------------------------------------------*/
 /*      . evaluate the black boxes at a list of given Eval_Points  */
 /*-------------------------------------------------------------------*/
-bool NOMAD::Evaluator::eval_x ( std::list<NOMAD::Eval_Point *>    & list_eval,
-                               const NOMAD::Double                & h_max ,
-                               std::list<bool>                    & list_count_eval) const
+bool NOMAD::Evaluator::eval_x ( std::list<NOMAD::Eval_Point *>  & list_eval,
+                               const NOMAD::Double              & h_max ,
+                               std::list<bool>                  & list_count_eval) const
 {
     
     std::list<NOMAD::Eval_Point *>::iterator it;
@@ -738,9 +741,9 @@ bool NOMAD::Evaluator::eval_x ( std::list<NOMAD::Eval_Point *>    & list_eval,
             it_count=list_count_eval.begin();
             for (it=it_begin;it!=it_end;++it,++it_count)
             {
-                failed        = false;
-                is_defined    = true;
-                is_inf        = false;
+                failed      = false;
+                is_defined  = true;
+                is_inf      = false;
                 
                 // loop on the number of outputs for this blackbox:
                 nbbok = _bb_nbo[k];

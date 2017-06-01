@@ -24,7 +24,7 @@ CXXFLAGS_MPI 	                = $(CXXFLAGS) -DUSE_MPI
 LDLIBS                          = -lm -lnomad
 LDLIBS_MPI                      = -lm -lmpi -lnomad.MPI
 
-INCLUDE                         = -I$(NOMAD_HOME)/src -I.
+INCLUDE                         = -I$(NOMAD_HOME)/src -I$(NOMAD_HOME)/ext/sgtelib/src -I.
 COMPILE                         = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
 COMPILE_MPI			= $(COMPILATOR_MPI) $(COMPILATOR_OPTIONS_MPI) $(INCLUDE) -c
 OBJS                            = restart.o

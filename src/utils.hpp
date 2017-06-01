@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   utils.hpp
  \brief  Utility functions (headers)
@@ -97,7 +99,7 @@ namespace NOMAD {
      \return    A boolean equal to \c true if the conversion was possible.
      */
     bool string_to_hnorm_type ( const std::string & s , NOMAD::hnorm_type & hn );
-        
+    
     /// Convert a string into a multi_formulation_type.
     /**
      \param  s   The string                        -- \b IN.
@@ -126,7 +128,7 @@ namespace NOMAD {
                                 int               * n           = NULL ,
                                 bool                check_order = true   );
     
-    /// Convert a string in {"QUADRATIC"} to a \c NOMAD::model_type.
+    /// Convert a string in {"QUADRATIC","SGTELIB"} to a \c NOMAD::model_type.
     /**
      \param  s  The string            -- \b IN.
      \param  mt The NOMAD::model_type -- \b OUT.
@@ -134,8 +136,7 @@ namespace NOMAD {
      */
     bool string_to_model_type ( const std::string & s , NOMAD::model_type & mt );
     
-
-    /// Convert a string in {"XMESH","SMESH"} to a \c NOMAD::mesh_type.
+    /// Convert a string in {"XMESH","GMESH","SMESH"} to a \c NOMAD::mesh_type.
     /**
      \param  s  The string            -- \b IN.
      \param  mt The NOMAD::mesh_type -- \b OUT.
@@ -301,14 +302,13 @@ namespace NOMAD {
      */
     std::string itos ( size_t i );
     
+    // SGTELIB
     /// Remove leading, trailing and double spaces in a string.
     /**
      \param s The string -- \b IN/OUT.
      */
     void deblank ( std::string & s );
-    
-    
-    
+
     
     /// Put a string into upper cases.
     /**
@@ -388,7 +388,7 @@ namespace NOMAD {
     // Get rank of a matrix  using SVD decomposition
     /**
      - The \c mxn \c M matrix is decomposed into \c M=U.W.V'. The rank equals the size of W
-     \param M         The input \c mxn matrix                             -- \b IN.
+     \param M         The input \c mxn matrix								-- \b IN.
      \param m         Number of rows in M                                 -- \b IN.
      \param n         Number of columns in M                              -- \b IN.
      \return The rank>0 if the decomposition worked else 0.
@@ -396,6 +396,46 @@ namespace NOMAD {
     int get_rank(double **M,
                  size_t m,
                  size_t n);
+    
+    
+    // SGTELIB
+    /// Convert a string into a sgtelib_model_formulation_type.
+    /**
+     \param  s   The string -- \b IN.
+     \param  dft The NOMAD::sgtelib_model_formulation_type -- \b OUT.
+     \return     A boolean equal to \c true if the conversion was possible.
+     */
+    bool string_to_sgtelib_model_formulation_type ( const std::string & s  ,
+                                                   NOMAD::sgtelib_model_formulation_type & dft  );
+    
+    // SGTELIB
+    /// Convert a string into a sgtelib_model_feasibility_type.
+    /**
+     \param  s    The string -- \b IN.
+     \param  dft  The NOMAD::sgtelib_model_feasibility_type -- \b OUT.
+     \return      A boolean equal to \c true if the conversion was possible.
+     */
+    bool string_to_sgtelib_model_feasibility_type ( const std::string & s  ,
+                                                   NOMAD::sgtelib_model_feasibility_type & dft  );
+    
+    // SGTELIB
+    /// Convert a sgtelib_model_feasibility_type into a string.
+    /**
+     \param  dft  The NOMAD::sgtelib_model_feasibility_type -- \b IN.
+     \return      A string.
+     */
+    std::string sgtelib_model_feasibility_type_to_string ( const NOMAD::sgtelib_model_feasibility_type dft );
+    
+    // SGTELIB
+    /// Convert a sgtelib_model_formulation_type into a string.
+    /**
+     \param  dft  The NOMAD::sgtelib_model_formulation_type -- \b IN.
+     \return      A string.
+     */
+    std::string sgtelib_model_formulation_type_to_string ( const NOMAD::sgtelib_model_formulation_type dft );
+    
+    
+    
     
 }
 

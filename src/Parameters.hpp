@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Parameters.hpp
  \brief  NOMAD Parameters (headers)
@@ -171,8 +173,6 @@ namespace NOMAD {
                                            const std::string & s_seed    ,
                                            std::string       & file_name   );
         
-        
-        
         /// Check if a specified direction type is set.
         /**
          \param dt The specified direction type -- \b IN.
@@ -252,8 +252,8 @@ namespace NOMAD {
         /// Display parameter help.
         /**
          For a list of parameters.
-         \param param_names_list    List of parameter names                         -- \b IN.
-         \param developer           Bool to request developer help (defaut=false)   -- \b IN.
+         \param param_names_list	List of parameter names              -- \b IN.
+         \param developer			Bool to request developer help (defaut=false) -- \b IN.
          */
         void help ( const std::list<std::string> & param_names_list , bool developer=false) const;
         
@@ -307,6 +307,13 @@ namespace NOMAD {
          */
         void display ( void ) const { display ( _out ); }
         
+        /// Reset the display for warning.
+        /**
+         \return void.
+         */
+        static void reset_display_warning ( ){ _warning_has_been_displayed = false ;}
+        
+        
         /*--------------------------------------------------------------*/
         /*           Attributes and methods listed by categories        */
         /*--------------------------------------------------------------*/
@@ -319,6 +326,21 @@ namespace NOMAD {
         int                    _seed;          ///< Seed.
         int                    _max_eval;      ///< Maximum number of evaluations.
         int                    _max_bb_eval;   ///< Maximum number of blackbox evaluations.
+
+        // Report blackbox evaluation number for sub-algos (VNS,ExtendedPoll) on display stat
+        // (if false the number of eval is not reported and a symbol "+" is displayed
+        bool                   _report_bbe_value; ///< Parameter \c REPORT_BBE_VALUE
+
+        // Report surrogate evaluation number for sub-algos (VNS,ExtendedPoll) on display stat
+        // (if false the number of eval is not reported and a symbol "+" is displayed
+        bool                   _report_sgte_value; ///< Parameter \c REPORT_SGTE_VALUE
+
+        
+        // Report block evaluation number for sub-algos (VNS, ExtendedPoll) on display stat
+        // (if false the number of eval is not reported and a symbol "+" is displayed
+        bool                   _report_blk_eva_value; ///< Parameter \c REPORT_BLK_EVA_VALUE
+        
+        int                    _max_block_eval;  ///< Maximum number of block evaluations.
         
         std::list<std::string> _display_stats;    ///< Stats keywords for \c DISPLAY_STATS.
         bool                   _display_all_eval; ///< Parameter \c DISPLAY_ALL_EVAL
@@ -419,6 +441,12 @@ namespace NOMAD {
          */
         int get_max_bb_eval ( void ) const;
         
+        /// Access to the \c MAX_BLOCk_EVAL parameter.
+        /**
+         \return The \c MAX_BLOCK_EVAL parameter.
+         */
+        int get_max_block_eval ( void ) const;        
+
         /// Access to the \c INTENSITIFICATION_TYPE parameter.
         /**
          \return The \c INTENSIFICATION_TYPE parameter.
@@ -430,7 +458,6 @@ namespace NOMAD {
          \return The \c MAX_EVAL_INTENSIFICATION parameter.
          */
         int get_max_eval_intensification ( void ) const { return _max_eval_intensification ; }
-        
         
         /// Access to the \c MAX_TIME parameter.
         /**
@@ -509,6 +536,27 @@ namespace NOMAD {
          \return The \c ASYNCHRONOUS parameter.
          */
         bool get_asynchronous ( void ) const;
+        
+        
+        /// Access to the \c REPORT_BBE_VALUE parameter.
+        /**
+         \return The \c REPORT_BBE_VALUE parameter.
+         */
+        bool get_report_bbe_value ( void ) const;
+        
+        /// Access to the \c REPORT_SGTE_VALUE parameter.
+        /**
+         \return The \c REPORT_SGTE_VALUE parameter.
+         */
+        bool get_report_sgte_value ( void ) const;
+        
+        
+        /// Access to the \c REPORT_BLK_EVA_VALUE parameter.
+        /**
+         \return The \c REPORT_BLK_EVA_VALUE parameter.
+         */
+        bool get_report_blk_eva_value ( void ) const;
+
         
         /// Set the \c POINT_DISPLAY_LIMIT parameter.
         /**
@@ -600,6 +648,12 @@ namespace NOMAD {
          */
         void set_MAX_BB_EVAL ( int bbe );
         
+        /// Set the \c MAX_BLOCK_EVAL parameter.
+        /**
+         \param blk The \c MAX_BLOCK__EVAL parameter -- \b IN.
+         */
+        void set_MAX_BLOCK_EVAL ( int blk );
+
         /// Set the \c MAX_EVAL_INTENSIFICATION parameter.
         /**
          \param bbe The \c MAX_EVAL_INTENSIFICATION parameter -- \b IN.
@@ -1167,14 +1221,13 @@ namespace NOMAD {
         // -----
     private:
         
-        NOMAD::mesh_type _mesh_type;            ///< The type of mesh used (xmesh [D], smesh [old] )
-        bool          _anisotropic_mesh;        ///< Anisotropic mesh (xmesh only)
+        NOMAD::mesh_type _mesh_type;            ///< The type of mesh used (xmesh [D], gmesh, smesh [old] )
+        bool		  _anisotropic_mesh;		///< Anisotropic mesh (gmesh, xmesh only)
         NOMAD::Double _mesh_update_basis;        ///< Mesh update basis (tau).
         NOMAD::Double _poll_update_basis;        ///< Poll update basis (beta).
         int           _mesh_coarsening_exponent; ///< Mesh coarsening exponent.
         int           _mesh_refining_exponent;   ///< Mesh refining exponent.
         int           _initial_mesh_index;       ///< Initial mesh index (ell_0).
-        int           _limit_mesh_index;         ///< Limit value of mesh index.
         NOMAD::Point  _initial_mesh_size; ///< Initial (absolute) mesh size (delta^0).
         NOMAD::Point  _min_mesh_size;     ///< Minimal (absolute) mesh size (delta_min).
         NOMAD::Point  _initial_poll_size; ///< Initial (absolute) poll size (delta^0).
@@ -1189,7 +1242,6 @@ namespace NOMAD {
          \return The \c ANISOTROPIC_MESH parameter -- \b IN.
          */
         bool get_anisotropic_mesh ( void ) const;
-        
         
         /// Access to the \c MESH_TYPE parameter.
         /**
@@ -1418,20 +1470,12 @@ namespace NOMAD {
          */
         void set_INITIAL_POLL_SIZE ( const NOMAD::Point & ims , bool relative = false );
         
-        
-        /// Set the \c LIMIT_MESH_INDEX parameter.
-        /**
-         \param lmi      Limit mesh index   -- \b IN.
-         */
-        void set_LIMIT_MESH_INDEX ( const int & lmi );
-        
-        
-        
+
         // Granular variables:
         // -------------------
     private:
         
-        NOMAD::Point _granularity; ///< Granularity.
+        NOMAD::Point _granularity;      ///< Granularity.
         
     public:
         
@@ -2654,6 +2698,206 @@ namespace NOMAD {
          */
         void set_OPPORTUNISTIC_LUCKY_EVAL ( bool opp_lucky_eval );
         
+        // RobustMads parameters
+        // ----------------------------------
+    private:
+        bool _robust_mads;                      ///< Run robust mads or regular mads
+        NOMAD::Double _robust_mads_standard_dev_factor;    ///< Parameter for smoothing in robust mads
+        
+    public:
+        /// Access to the \c _robust_mads parameter.
+        /**
+         \return The \c robust_mads parameter.
+         */
+        bool get_robust_mads ( void ) const
+        {
+            return _robust_mads;
+        }
+        
+        /// Set the \c ROBUST_MADS parameter.
+        /**
+         \param robust_mads The \c ROBUST_MADS parameter -- \b IN.
+         */
+        void set_ROBUST_MADS ( bool robust_mads )
+        {
+            _robust_mads = robust_mads;
+        }
+        
+        /// Access to the \c _robust_mads_variance parameter.
+        /**
+         \return The \c robust_mads_variance parameter.
+         */
+        NOMAD::Double get_robust_mads_standard_dev_factor ( void ) const
+        {
+            return _robust_mads_standard_dev_factor;
+        }
+        
+        /// Set the \c ROBUST_MADS_STANDARD_DEV_FACTOR parameter.
+        /**
+         \param beta The \c ROBUST_MADS_STANDARD_DEV_FACTOR parameter -- \b IN.
+         */
+        void set_ROBUST_MADS_STANDARD_DEV_FACTOR ( NOMAD::Double beta )
+        {
+            _robust_mads_standard_dev_factor = beta;
+        }
+        
+        
+        
+    // SGTELIB parameters
+    // ----------------------------------
+    private:
+        
+        /// Number of evaluation of the model during each sgtelib_model-search step.
+        int _sgtelib_model_eval_nb;
+        int _sgtelib_model_candidates_nb;
+        int _sgtelib_model_trials;
+        
+        std::string _sgtelib_model_definition;
+        
+        std::string _sgtelib_model_display;
+        std::string _sgtelib_model_filter;
+        
+        /// Coefficient of the diversification term in the surrogate problem.
+        NOMAD::Double _sgtelib_model_diversification;
+        
+        /// Coeff to avoid existing points
+        NOMAD::Double _sgtelib_model_exclusion_area;
+        
+        /// Formulation of the surrogate problem in the sgtelib_model search.
+        NOMAD::sgtelib_model_formulation_type _sgtelib_model_formulation;
+        
+        /// Method to compute the probability of feasibility with sgtelib_model.
+        NOMAD::sgtelib_model_feasibility_type _sgtelib_model_feasibility;
+        
+        
+    public:
+        /// Set the \c SGTELIB_MODEL_EVAL_NB parameter.
+        /**
+         \param me The \c SGTELIB_MODEL_EVAL_NB parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_EVAL_NB ( const int me );
+        
+        /// Access to the \c SGTELIB_MODEL_EVAL_NB parameter.
+        /**
+         \return The \c SGTELIB_MODEL_EVAL_NB parameter.
+         */
+        int	get_SGTELIB_MODEL_EVAL_NB ( void ) const;
+        
+        
+        /// Set the \c SGTELIB_MODEL_TRIALS parameter.
+        /**
+         \param cn The \c SGTELIB_MODEL_TRIALS parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_TRIALS ( const int cn );
+        
+        /// Access to the \c SGTELIB_MODEL_TRIALS parameter.
+        /**
+         \return The \c SGTELIB_MODEL_TRIALS parameter.
+         */
+        int	get_SGTELIB_MODEL_TRIALS ( void ) const;
+
+        
+        /// Set the \c SGTELIB_MODEL_CANDIDATES_NB parameter.
+        /**
+         \param me The \c SGTELIB_MODEL_CANDIDATES_NB parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_CANDIDATES_NB ( const int me );
+        
+        /// Access to the \c SGTELIB_MODEL_CANDIDATES_NB parameter.
+        /**
+         \return The \c SGTELIB_MODEL_CANDIDATES_NB parameter.
+         */
+        int	get_SGTELIB_MODEL_CANDIDATES_NB ( void ) const;
+
+
+        /// Set the \c SGTELIB_MODEL_DEFINITION parameter.
+        /**
+         \param s The \c SGTELIB_MODEL_DEFINITION parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_DEFINITION( const std::string & s );
+        
+        /// Access to the \c SGTELIB_MODEL_DEFINITION parameter.
+        /**
+         \return The \c SGTELIB_MODEL_DEFINITION parameter.
+         */
+        std::string	get_SGTELIB_MODEL_DEFINITION ( void ) const;
+        
+        
+        /// Set the \c SGTELIB_MODEL_DISPLAY parameter.
+        /**
+         \param s The \c SGTELIB_MODEL_DISPLAY parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_DISPLAY( const std::string & s );
+        
+        /// Access to the \c SGTELIB_MODEL_DISPLAY parameter.
+        /**
+         \return The \c SGTELIB_MODEL_DISPLAY parameter.
+         */
+        std::string	get_SGTELIB_MODEL_DISPLAY ( void ) const;
+        
+        
+        /// Set the \c SGTELIB_MODEL_FILTER parameter.
+        /**
+         \param s The \c SGTELIB_MODEL_FILTER parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_FILTER( const std::string & s );
+        
+        /// Access to the \c SGTELIB_MODEL_FILTER parameter.
+        /**
+         \return The \c SGTELIB_MODEL_FILTER parameter.
+         */
+        std::string	get_SGTELIB_MODEL_FILTER ( void ) const;
+        
+
+        /// Set the \c SGTELIB_MODEL_DIVERSIFICATION parameter.
+        /**
+         \param dsw The \c SGTELIB_MODEL_DIVERSIFICATION parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_DIVERSIFICATION ( const NOMAD::Double dsw );
+        
+        /// Access to the \c SGTELIB_MODEL_DIVERSIFICATION parameter.
+        /**
+         \return The \c SGTELIB_MODEL_DIVERSIFICATION parameter.
+         */
+        NOMAD::Double get_SGTELIB_MODEL_DIVERSIFICATION ( void ) const;
+        
+        /// Set the \c SGTELIB_MODEL_EXCLUSION_AREA parameter.
+        /**
+         \param tc The \c SGTELIB_MODEL_EXCLUSION_AREA parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_EXCLUSION_AREA ( const NOMAD::Double tc );
+        
+        /// Access to the \c SGTELIB_MODEL_EXCLUSION_AREA parameter.
+        /**
+         \return The \c SGTELIB_MODEL_EXCLUSION_AREA parameter.
+         */
+        NOMAD::Double get_SGTELIB_MODEL_EXCLUSION_AREA ( void ) const;
+        
+        
+        /// Set the \c SGTELIB_MODEL_FORMULATION parameter.
+        /**
+         \param dft The \c SGTELIB_MODEL_FORMULATION parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_FORMULATION ( const NOMAD::sgtelib_model_formulation_type dft );
+        
+        /// Access to the \c SGTELIB_MODEL_FORMULATION parameter.
+        /**
+         \return The \c SGTELIB_MODEL_FORMULATION parameter.
+         */
+        NOMAD::sgtelib_model_formulation_type get_SGTELIB_MODEL_FORMULATION (void) const;
+        
+        /// Set the \c SGTELIB_MODEL_FEASIBILITY parameter.
+        /**
+         \param dft The \c SGTELIB_MODEL_FEASIBILITY parameter -- \b IN.
+         */
+        void set_SGTELIB_MODEL_FEASIBILITY ( const NOMAD::sgtelib_model_feasibility_type dft  );
+        
+        /// Access to the \c SGTELIB_MODEL_FEASIBILITY parameter.
+        /**
+         \return The \c SGTELIB_MODEL_FEASIBILITY parameter.
+         */
+        NOMAD::sgtelib_model_feasibility_type get_SGTELIB_MODEL_FEASIBILITY (void) const;
+        
         
         
     };
@@ -2673,5 +2917,14 @@ namespace NOMAD {
         return out;
     }
 }
+
+typedef NOMAD::Parameters * Params;
+
+extern "C" Params NewParameters(void);
+typedef Params (* Params_creator)(void);
+
+extern "C" void DeleteParameters(Params p);
+typedef void (* Params_disposer)(Params);
+
 
 #endif

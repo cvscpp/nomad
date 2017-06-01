@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Parameters.cpp
  \brief  NOMAD parameters (implementation)
@@ -50,9 +52,11 @@
 #include "Parameters.hpp"
 #include "Slave.hpp"
 #include "XMesh.hpp"
+#include "GMesh.hpp"
 #include "SMesh.hpp"
 
 bool NOMAD::Parameters::_warning_has_been_displayed=false;
+
 
 
 /*----------------------------------------*/
@@ -76,6 +80,7 @@ void NOMAD::Parameters::init ( void )
     _max_eval           = -1;
     _max_sim_bb_eval    = -1;
     _max_bb_eval        = -1;
+    _max_block_eval     = -1;
     _max_bbe_decided    = false;
     _max_time           = -1;
     _max_iterations     = -1;
@@ -86,6 +91,9 @@ void NOMAD::Parameters::init ( void )
     _stop_if_feasible   = false;
     _user_calls_enabled = true;
     _asynchronous       = true;
+    _report_bbe_value   = true;
+    _report_blk_eva_value= true;
+    _report_sgte_value  = true;
     _stat_sum_target.clear();
     _L_curve_target.clear();
     _cache_file.clear();
@@ -106,16 +114,14 @@ void NOMAD::Parameters::init ( void )
     set_INF_STR   ( NOMAD::DEFAULT_INF_STR   );
     
     // Mesh:
-    _anisotropic_mesh           = true;
-    _mesh_type                  = NOMAD::XMESH;
-    
+    _anisotropic_mesh          = true;
+    _mesh_type                = NOMAD::GMESH;
     _mesh_update_basis          = 4;
     _poll_update_basis          = 2;
-    _mesh_coarsening_exponent   = 1;
-    _mesh_refining_exponent     =-1;
-    _initial_mesh_index         = 0;
-    _limit_mesh_index           = NOMAD::XL_LIMITS;
-    _min_poll_size_defined      = false;
+    _mesh_coarsening_exponent = 1;
+    _mesh_refining_exponent   =-1;
+    _initial_mesh_index       = 0;
+    _min_poll_size_defined    = false;
     _initial_mesh_size.clear();
     _initial_poll_size.clear();
     _min_mesh_size.clear();
@@ -226,12 +232,12 @@ void NOMAD::Parameters::init ( void )
     _opp_CS_is_defined          = false;
     
     // opportunistic strategy:
-    _bb_max_block_size              = 1;
+    _bb_max_block_size                = 1;
     _eval_points_as_block           = false;
-    _opportunistic_eval             = true;
-    _opportunistic_min_nb_success   = -1;
-    _opportunistic_min_eval         = -1;
-    _opportunistic_lucky_eval       = false;
+    _opportunistic_eval                = true;
+    _opportunistic_min_nb_success    = -1;
+    _opportunistic_min_eval            = -1;
+    _opportunistic_lucky_eval        = false;
     _opportunistic_min_f_imprvmt.clear();
     
     // display:
@@ -249,6 +255,30 @@ void NOMAD::Parameters::init ( void )
     reset_stats_file();
     
     _display_all_eval = false;
+    
+    
+    // SGTELIB
+    // Nb of model evaluation in the solving of the surrogate problem
+    _sgtelib_model_eval_nb = 10000;
+    // Nb of candidates returned at each search.
+    // If -1, then the nb will be the block size.
+    _sgtelib_model_candidates_nb = -1;
+    
+    
+    _sgtelib_model_trials = 1;
+
+    _sgtelib_model_diversification = 0.0;
+    _sgtelib_model_exclusion_area = 0.0;
+    _sgtelib_model_definition = "TYPE LOWESS DEGREE 1 KERNEL_SHAPE OPTIM KERNEL_COEF OPTIM RIDGE 0 METRIC AOECV";
+    _sgtelib_model_formulation = NOMAD::SGTELIB_MODEL_FORMULATION_FS;
+    _sgtelib_model_feasibility = NOMAD::SGTELIB_MODEL_FEASIBILITY_C;
+    _sgtelib_model_display = "";
+    _sgtelib_model_filter = "2345"; // Use step 2345
+    
+    // RobustMads
+    _robust_mads = false;
+    _robust_mads_standard_dev_factor = 1.0;
+    
     
 }
 
@@ -2321,6 +2351,24 @@ void NOMAD::Parameters::read ( const NOMAD::Parameter_Entries & entries )
             set_MAX_BB_EVAL (i);
         }
     }
+
+
+    // MAX_BLOCK_EVAL:
+    // ------------
+    {
+        pe = entries.find ( "MAX_BLOCK_EVAL" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: MAX_BLOCK_EVAL not unique" );
+            if ( pe->get_nb_values() != 1 || !NOMAD::atoi (*(pe->get_values().begin()) , i) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: MAX_BLOCK_EVAL" );
+            pe->set_has_been_interpreted();
+            set_MAX_BLOCK_EVAL (i);
+        }
+    }
     
     // MAX_SIM_BB_EVAL:
     // ----------------
@@ -2845,9 +2893,9 @@ void NOMAD::Parameters::read ( const NOMAD::Parameter_Entries & entries )
     interpret_mesh_sizes ( entries , "MIN_POLL_SIZE"     );
     
     
-    // GRANULARITY  ---> for the next release!
+    // GRANULARITY
     //--------------------
-    // interpret_granularity( entries , "GRANULARITY");
+    interpret_granularity( entries , "GRANULARITY");
     
     
     // BB_OUTPUT_TYPE:
@@ -3129,6 +3177,55 @@ void NOMAD::Parameters::read ( const NOMAD::Parameter_Entries & entries )
         }
     }
     
+
+    // ROBUST_MADS:
+    // -----
+    {
+        pe = entries.find ( "ROBUST_MADS" );
+        
+        if ( pe )
+        {
+            
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: ROBUST_MADS not unique" );
+            
+            i = NOMAD::string_to_bool ( *(pe->get_values().begin() ) );
+            if ( pe->get_nb_values() != 1 ||  i == -1 )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: ROBUST_MADS" );
+            set_ROBUST_MADS ( i == 1 );
+            pe->set_has_been_interpreted();
+        }
+        
+        pe = entries.find ( "ROBUST_MADS_STANDARD_DEV_FACTOR" );
+        
+        if ( pe )
+        {
+            
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: ROBUST_MADS_STANDARD_DEV_FACTOR not unique" );
+            
+            if ( pe->get_nb_values() != 1 )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: ROBUST_MADS_STANDARD_DEV_FACTOR" );
+        
+            NOMAD::Double v;
+            
+            if ( !v.atof ( *pe->get_values().begin() ) )
+            {
+                err = "invalid parameter: ROBUST_MADS_STANDARD_DEV_FACTOR";
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ , err );
+            }
+            set_ROBUST_MADS_STANDARD_DEV_FACTOR(v);
+            pe->set_has_been_interpreted();
+            
+        }
+        
+    }
+
+    
     // SEED:
     // -----
     {
@@ -3156,6 +3253,231 @@ void NOMAD::Parameters::read ( const NOMAD::Parameter_Entries & entries )
             set_SEED(i);
             pe->set_has_been_interpreted();
             
+        }
+    }
+
+
+    
+    // SGTELIB_MODEL_DEFINITION:
+    // --------------------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_DEFINITION" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_DEFINITION not unique" );
+            
+            string md = "";
+            std::list<std::string>::const_iterator it;
+            for ( it=pe->get_values().begin() ; it!=pe->get_values().end() ; ++it)
+            {
+                md = md + " " + *it;
+            }
+            md.erase(0, 1);
+            //toupper(md); // modified to handle extern sgte
+            set_SGTELIB_MODEL_DEFINITION ( md );
+            pe->set_has_been_interpreted();
+        }
+    }
+    
+    // SGTELIB_MODEL_DISPLAY:
+    // --------------------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_DISPLAY" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_DISPLAY not unique" );
+            
+            string md = "";
+            std::list<std::string>::const_iterator it;
+            for ( it=pe->get_values().begin() ; it!=pe->get_values().end() ; ++it)
+            {
+                md = md + " " + *it;
+            }
+            md.erase(0, 1);
+            toupper(md);
+            set_SGTELIB_MODEL_DISPLAY ( md );
+            pe->set_has_been_interpreted();
+        }
+    }
+
+    // SGTELIB_MODEL_EVAL_NB:
+    // -----------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_EVAL_NB" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_EVAL_NB not unique" );
+            if ( pe->get_nb_values() != 1 || !NOMAD::atoi (*(pe->get_values().begin()) , i) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_EVAL_NB" );
+            pe->set_has_been_interpreted();
+            set_SGTELIB_MODEL_EVAL_NB (i);
+        }
+    }
+    
+    
+    // SGTELIB_MODEL_DIVERSIFICATION:
+    // ----------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_DIVERSIFICATION" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_DIVERSIFICATION not unique" );
+            NOMAD::Double v;
+            if ( pe->get_nb_values() != 1 || !v.atof (*(pe->get_values().begin()) ) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_DIVERSIFICATION" );
+            pe->set_has_been_interpreted();
+            set_SGTELIB_MODEL_DIVERSIFICATION (v);
+        }
+    }
+    
+    // SGTELIB_MODEL_EXCLUSION_AREA:
+    // --------------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_EXCLUSION_AREA" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_EXCLUSION_AREA not unique" );
+            NOMAD::Double v;
+            if ( pe->get_nb_values() != 1 || !v.atof (*(pe->get_values().begin()) ) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_EXCLUSION_AREA" );
+            if ( (v>1) || (v<0) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_EXCLUSION_AREA (must be in [0 ; 1])" );
+            pe->set_has_been_interpreted();
+            set_SGTELIB_MODEL_EXCLUSION_AREA (v);
+        }
+    }
+    
+    // SGTELIB_MODEL_CANDIDATES:
+    // -----------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_CANDIDATES_NB" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_CANDIDATES_NB not unique" );
+            if ( pe->get_nb_values() != 1 || !NOMAD::atoi (*(pe->get_values().begin()) , i) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_CANDIDATES_NB" );
+            pe->set_has_been_interpreted();
+            set_SGTELIB_MODEL_CANDIDATES_NB (i);
+        }
+    }
+    
+
+    
+    // SGTELIB_MODEL_TRIALS:
+    // -----------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_TRIALS" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_TRIALS not unique" );
+            if ( pe->get_nb_values() != 1 )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_TRIALS" );
+            string str_trials = *(pe->get_values().begin());
+            NOMAD::toupper(str_trials);
+            if (str_trials=="N")
+                i = _dimension;
+            else if (str_trials=="S")
+                i = _dimension+1;
+            else if ( !NOMAD::atoi (*(pe->get_values().begin()) , i) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_TRIALS" );
+            pe->set_has_been_interpreted();
+            set_SGTELIB_MODEL_TRIALS (i);
+        }
+    }
+
+   
+   // SGTELIB_MODEL_FILTER:
+    // --------------------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_FILTER" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_FILTER not unique" );
+            
+            string md = "";
+            std::list<std::string>::const_iterator it;
+            for ( it=pe->get_values().begin() ; it!=pe->get_values().end() ; ++it)
+            {
+                md = md + " " + *it;
+            }
+            md.erase(0, 1);
+            toupper(md);
+            set_SGTELIB_MODEL_FILTER ( md );
+            pe->set_has_been_interpreted();
+        }
+    }
+
+    
+    // SGTELIB_MODEL_FORMULATION:
+    // ---------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_FORMULATION" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_FORMULATION not unique" );
+            if ( pe->get_nb_values() != 1 )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_FORMULATION" );
+            
+            NOMAD::sgtelib_model_formulation_type dft;
+            std::string       sdf = *(pe->get_values().begin());
+            
+            if ( !NOMAD::string_to_sgtelib_model_formulation_type ( sdf , dft ) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_FORMULATION" );
+            set_SGTELIB_MODEL_FORMULATION ( dft );
+            
+            pe->set_has_been_interpreted();
+        }
+    }
+    
+    // SGTELIB_MODEL_FEASIBILITY:
+    // ----------------------------
+    {
+        pe = entries.find ( "SGTELIB_MODEL_FEASIBILITY" );
+        if ( pe )
+        {
+            if ( !pe->is_unique() )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_FEASIBILITY not unique" );
+            if ( pe->get_nb_values() != 1 )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_FEASIBILITY" );
+            
+            NOMAD::sgtelib_model_feasibility_type dft ;
+            std::string       sdfm = *(pe->get_values().begin());
+            
+            if ( !NOMAD::string_to_sgtelib_model_feasibility_type ( sdfm , dft  ) )
+                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
+                                         "invalid parameter: SGTELIB_MODEL_FEASIBILITY" );
+            set_SGTELIB_MODEL_FEASIBILITY ( dft  );
+            
+            pe->set_has_been_interpreted();
         }
     }
     
@@ -3556,6 +3878,14 @@ void NOMAD::Parameters::display ( const NOMAD::Display & out ) const
                 out << NOMAD::open_block ( "xmesh (isotropic)" );
             out << "poll update basis      : " << std::setw(3) << _poll_update_basis << std::endl;
         }
+        else if ( _mesh_type == NOMAD::GMESH )
+        {
+            if ( get_anisotropic_mesh() )
+                out << NOMAD::open_block ( "gmesh (anisotropic)" );
+            else
+                out << NOMAD::open_block ( "gmesh (isotropic)" );
+            out << "granularity      : " << std::setw(3) << _granularity << std::endl;
+        }
         
         out << "coarsening exponent    : " << std::setw(3) << _mesh_coarsening_exponent
         << std::endl
@@ -3703,6 +4033,7 @@ void NOMAD::Parameters::display ( const NOMAD::Display & out ) const
                 << "max Y size   : " << _model_params.quad_max_Y_size
                 << std::endl << NOMAD::close_block();
             }
+            
             out.close_block();
         }
         else
@@ -3878,6 +4209,29 @@ void NOMAD::Parameters::display ( const NOMAD::Display & out ) const
         out << std::endl;
     }
     
+    
+    // SGTELIB
+    if ( _model_params.eval_sort == NOMAD::SGTELIB_MODEL ||
+        _model_params.search1   == NOMAD::SGTELIB_MODEL ||
+        _model_params.search2   == NOMAD::SGTELIB_MODEL    )
+    {
+        out << NOMAD::open_block ( "sgtelib_model" );
+        out << "Formulation: "
+        << sgtelib_model_formulation_type_to_string( _sgtelib_model_formulation )
+        << std::endl;
+        
+        out << "Feasibility: "
+        << sgtelib_model_feasibility_type_to_string( _sgtelib_model_feasibility )
+        << std::endl;
+        
+        out << "eval nb: "    << _sgtelib_model_eval_nb << std::endl;
+        out << "diversification: "     << _sgtelib_model_diversification << std::endl;
+        out << "exclusion_area: "      << _sgtelib_model_exclusion_area << std::endl;
+        out << "definition: " << _sgtelib_model_definition << std::endl;
+        out << "display: " << _sgtelib_model_display << std::endl;
+        out << "filter: " << _sgtelib_model_filter << std::endl;
+        out << NOMAD::close_block();
+    }
 }
 
 /*---------------------------------------*/
@@ -4018,7 +4372,11 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
                                      "invalid parameter: UPPER_BOUND" );
         if ( _ub.size() < _dimension )
             _ub.resize ( _dimension );
-        
+     
+        bool warning_once_lb_var_type = false;
+        bool warning_once_ub_var_type = false;
+        bool warning_once_lb_gran = false;
+        bool warning_once_ub_gran = false;
         for ( i = 0 ; i < _dimension ; ++i )
         {
             if ( _lb[i].is_defined() && _ub[i].is_defined() )
@@ -4030,22 +4388,23 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
                     set_FIXED_VARIABLE ( i , _lb[i] );
                 
             }
+            
             // Check that x0s are within bounds when defined
-            if(_lb[i].is_defined())
+            if( _lb[i].is_defined() )
             {
                 std::vector<NOMAD::Point *>::iterator it;
-                for(it=_x0s.begin();it<_x0s.end();it++)
+                for( it = _x0s.begin() ; it < _x0s.end() ; it++ )
                 {
                     // Compare values only if dimension is the same
-                    if ( (*it)->size()==_lb.size() && (**it)[i] < _lb[i] )
+                    if ( (*it)->size() == _lb.size() && (**it)[i] < _lb[i] )
                         throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
                                                  "invalid parameter: x0 < LOWER_BOUND " );
                 }
             }
-            if(_ub[i].is_defined())
+            if( _ub[i].is_defined() )
             {
                 std::vector<NOMAD::Point *>::iterator it;
-                for(it=_x0s.begin();it<_x0s.end();it++)
+                for( it = _x0s.begin() ; it < _x0s.end() ; it++ )
                 {
                     // Compare values only if dimension is the same
                     if ( (*it)->size()==_ub.size() && (**it)[i] > _ub[i] )
@@ -4067,9 +4426,69 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
                 else
                 {
                     if ( _lb[i].is_defined() )
-                        _lb[i] = ceil(_lb[i].value());
+                    {
+                        // _lb[i] = ceil( _lb[i].value() );
+                        NOMAD::Double lb = ceil( _lb[i].value() );
+                        if ( lb != _lb[i] )
+                        {
+                            _lb[i] = lb;
+                            if ( _out.get_gen_dd() >= NOMAD::NORMAL_DISPLAY && !_warning_has_been_displayed && ! warning_once_lb_var_type )
+                            {
+                                _out << NOMAD::open_block("Warning:")
+                                << "A lower bound has been ajusted according to variable type." << std::endl
+                                << NOMAD::close_block();
+                                warning_once_lb_var_type = true;
+                            }
+                        }
+                    }
                     if ( _ub[i].is_defined() )
-                        _ub[i] = floor(_ub[i].value());
+                    {
+                        // _ub[i] = floor( _ub[i].value() );
+                        NOMAD::Double ub = floor( _ub[i].value() );
+                        if ( ub != _ub[i] )
+                        {
+                            _ub[i] = ub;
+                            if ( _out.get_gen_dd() >= NOMAD::NORMAL_DISPLAY && !_warning_has_been_displayed && ! warning_once_ub_var_type )
+                            {
+                                _out << NOMAD::open_block("Warning:")
+                                << "A upper bound has been ajusted according to variable type." << std::endl
+                                << NOMAD::close_block();
+                                warning_once_ub_var_type = true;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if ( _granularity.is_defined() )
+            {
+                if ( _lb[i].is_defined() && _granularity[i] > 0.0 )
+                {
+                    NOMAD::Double lb = ceil( _lb[i].value() / _granularity[i].value() ) * _granularity[i];
+                    if ( lb != _lb[i] )
+                    {
+                        if ( _out.get_gen_dd() >= NOMAD::NORMAL_DISPLAY && !_warning_has_been_displayed && ! warning_once_lb_gran )
+                        {
+                            _out << NOMAD::open_block("Warning:")
+                            << "A lower bound has been ajusted according to granularity." << std::endl
+                            << NOMAD::close_block();
+                            warning_once_lb_gran = true;
+                        }
+                    }
+                }
+                if ( _ub[i].is_defined() && _granularity[i] > 0.0 )
+                {
+                    NOMAD::Double ub = floor( _ub[i].value() / _granularity[i].value() ) * _granularity[i];
+                    if ( ub != _ub[i] )
+                    {
+                        if ( _out.get_gen_dd() >= NOMAD::NORMAL_DISPLAY && !_warning_has_been_displayed && ! warning_once_ub_gran )
+                        {
+                            _out << NOMAD::open_block("Warning:")
+                            << "An upper bound has been ajusted according to granularity." << std::endl
+                            << NOMAD::close_block();
+                            warning_once_ub_gran = true ;
+                        }
+                    }
                 }
             }
         }
@@ -4143,36 +4562,6 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
         }
         
         
-        // limit mesh index:
-        // --------------------------------
-        {
-            if ( _mesh_type == NOMAD::SMESH && _limit_mesh_index > NOMAD::L_LIMITS )
-                if ( !_warning_has_been_displayed )
-                    _out << NOMAD::open_block("Warning:")
-                    << "A limit mesh index that is greater than the defaut limit of " << NOMAD::L_LIMITS << " is provided. This convergence criterion can be difficult to meet due to nomad precision" << std::endl
-                    << NOMAD::close_block();
-            
-            if ( _mesh_type == NOMAD::SMESH && _limit_mesh_index == NOMAD::XL_LIMITS )
-                _limit_mesh_index = NOMAD::L_LIMITS;
-            
-            if ( ( _mesh_type == NOMAD::XMESH ) && _limit_mesh_index < NOMAD::XL_LIMITS )
-                if ( !_warning_has_been_displayed )
-                    _out << NOMAD::open_block("Warning:")
-                    << "A limit mesh index that is smaller than the defaut limit of " << NOMAD::L_LIMITS << " is provided. This convergence criterion can be difficult to meet due to nomad precision" << std::endl
-                    << NOMAD::close_block();
-            
-            if ( _mesh_type == NOMAD::SMESH && _limit_mesh_index <= _initial_mesh_index  )
-                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
-                                         "invalid parameter: LIMIT_MESH_INDEX must be larger than INITIAL_MESH_INDEX (SMESH)" );
-            
-            if ( ( _mesh_type == NOMAD::XMESH ) && _limit_mesh_index >= _initial_mesh_index  )
-                throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
-                                         "invalid parameter: LIMIT_MESH_INDEX must be smaller than INITIAL_MESH_INDEX (XMESH)" );
-            
-            
-        }
-        
-        
         // initial mesh size or poll size:
         // --------------------------------
         bool use_x0 = !_x0s.empty() && _x0s[0]->size() == _dimension;
@@ -4183,10 +4572,8 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
             // ---------------------
             if ( _bb_input_type[i] == NOMAD::CONTINUOUS )
             {
-                
                 if ( _initial_mesh_size[i].is_defined() )
-                    _initial_poll_size[i]=_initial_mesh_size[i]*pow(_dimension,0.5);
-                
+                    _initial_poll_size[i]=_initial_mesh_size[i]*pow(_nb_free_variables,0.5);
                 
                 // default value for initial mesh size
                 if ( !_initial_poll_size[i].is_defined() )
@@ -4224,16 +4611,15 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
                         }
                     }
                 }
-                
+
                 else if ( !_fixed_variables[i].is_defined() &&
-                         ( _initial_poll_size[i].value() <  NOMAD::Double::get_epsilon() ||
-                          _initial_poll_size[i].value() <= 0.0                             ) )
+                          _initial_poll_size[i].value() <= 0.0                             )
                     throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
                                              "invalid parameter: INITIAL_MESH_SIZE" );
                 
                 // Determine _initial_mesh_size from _initial_poll_size (this will disappear in future version)
                 if ( !_initial_mesh_size[i].is_defined() )
-                    _initial_mesh_size[i]=_initial_poll_size[i]*pow(_dimension,-0.5);
+                    _initial_mesh_size[i] = _initial_poll_size[i] * pow( _nb_free_variables , -0.5 );
                 
             }
             
@@ -4254,7 +4640,7 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
             {
                 // Determine mesh size from poll size
                 if ( _initial_poll_size[i].is_defined() )
-                    _initial_mesh_size[i]=_initial_poll_size[i]*pow(_dimension,-0.5);
+                    _initial_mesh_size[i]=_initial_poll_size[i]*pow(_nb_free_variables,-0.5);
                 
                 
                 if ( _initial_mesh_size[i].is_defined() )
@@ -4280,8 +4666,7 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
                         
                     }
                 }
-                // Determine the initial poll size from mesh size
-                _initial_poll_size[i] = _initial_mesh_size[i] * pow(_dimension,0.5);
+                _initial_poll_size[i] = _initial_mesh_size[i] * pow(_nb_free_variables,0.5);
                 
             }
         }
@@ -4346,19 +4731,40 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
     
     
     {
-        // Granularity --> this will be used in the next version in which granular variabtesles will be handled
+        // Granularity
         //-------------------
         if ( _granularity.is_defined () && _granularity.size () != _dimension )
             throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
                                      "invalid parameters: granularity (size must be equal to dimension)" );
         
+
         if ( ! _granularity.is_defined() )
+        {
             _granularity = NOMAD::Point ( _dimension ,0 );
+            
+            // For GMesh, the granularity must be set according to bb_input_type
+            if ( _mesh_type == NOMAD::GMESH )
+            {
+                for ( i = 0 ; i < _dimension ; ++i )
+                {
+                    if ( _bb_input_type[i] == NOMAD::INTEGER || _bb_input_type[i] == NOMAD::BINARY )
+                        _granularity[i] = 1.0;
+                }
+                
+            }
+        }
         else
         {
             double inpart;
+            bool has_categorical = false;
+            bool force_change_to_gmesh = false;
+            bool warning_once_int_bin_gran = false;
             for ( i = 0 ; i < _dimension ; ++i )
             {
+                if ( !_fixed_variables[i].is_defined() && _bb_input_type[i] == NOMAD::CATEGORICAL )
+                {
+                    has_categorical=true;
+                }
                 
                 if ( _granularity[i].is_defined() && _granularity[i] < 0 )
                     throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
@@ -4368,35 +4774,38 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
                     throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
                                              "invalid parameters: granular variables are not supported when mesh_type = smesh " );
                 
-                // Exception if a granularity is not supported by xmesh is given
-                if ( _granularity[i].is_defined() && _granularity[i] != 0.0 && _granularity[i] != 1.0 )
-                    throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
-                                             "invalid parameters: granularity must be 0 (continuous) or 1 (integer). " );
-                
-                //from  bb_input_type --> _granularity. No granularity is required for categorical variables (different variable group + no mesh )
-                if ( _bb_input_type[i] == NOMAD::CONTINUOUS )
-                {
-                    if ( _granularity[i].is_defined() && _granularity[i] != 0.0 && _out.get_gen_dd()>=NOMAD::NORMAL_DISPLAY && !_warning_has_been_displayed )
-                        _out << NOMAD::open_block("Warning:")
-                        << " The granularity of the continuous variable " << i << " is changed to 0." << std::endl
-                        << NOMAD::close_block();
-                    _granularity[i] = 0.0;
-                }
+                // Force to use gmesh if a granularity not supported by xmesh or gmesh is given
+                if ( _granularity[i].is_defined() && _granularity[i] != 0.0 && _granularity[i] != 1.0 && _mesh_type != NOMAD::GMESH )
+                    force_change_to_gmesh = true;
                 
                 if ( _bb_input_type[i] == NOMAD::INTEGER || _bb_input_type[i] == NOMAD::BINARY )
                 {
                     
-                    if ( _granularity[i].is_defined() && _granularity[i] != 1.0 && _out.get_gen_dd() >= NOMAD::NORMAL_DISPLAY && !_warning_has_been_displayed )
+                    if ( _granularity[i].is_defined() && _granularity[i] != 1.0 && _out.get_gen_dd() >= NOMAD::NORMAL_DISPLAY && !_warning_has_been_displayed && ! warning_once_int_bin_gran )
+                    {
                         _out << NOMAD::open_block("Warning:")
-                        << " The granularity of the integer/binary variable " << i << " is changed to 1." << std::endl
+                        << " The granularity of an integer/binary variable has been changed to 1." << std::endl
                         << NOMAD::close_block();
+                        warning_once_int_bin_gran = true;
+                    }
                     _granularity[i] = 1.0;
                 }
                 
-                if ( !_x0s.empty() && _granularity[i].is_defined() && _granularity[i] > 0.0
-                    && std::modf ( (*_x0s[0])[i].value() / _granularity[i].value() , &inpart ) != 0 )
-                    throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
-                                             "NOMAD::Parameters::check : invalid granularity of variables vs initial value" );
+                if ( !_x0s.empty() && _granularity[i].is_defined() && _granularity[i] > 0.0 )
+                    for ( int j = 0 ; j < static_cast<int>(_x0s.size()) ; j++ )
+                        if ( std::modf ( (*_x0s[j])[i].value() / _granularity[i].value() , &inpart ) != 0 )
+                            throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ , " invalid granularity of variables vs initial value" );
+                
+            }
+            
+            
+            if ( !has_categorical && force_change_to_gmesh )
+            {
+                _mesh_type = NOMAD::GMESH;
+                if ( _out.get_gen_dd()>=NOMAD::NORMAL_DISPLAY && !_warning_has_been_displayed )
+                    _out << NOMAD::open_block("Warning:")
+                    << " The mesh type is changed to gmesh to support the granularity of at least one variable." << std::endl
+                    << NOMAD::close_block();
             }
             
         }
@@ -4677,9 +5086,11 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
     /*      intensification       */
     /*----------------------------*/
     if ( _max_eval_intensification > 0 )
-        _intensification_type = NOMAD::POLL_AND_SEARCH;
+        _intensification_type = NOMAD::POLL_ONLY;
     else
         _intensification_type = NOMAD::NO_INTENSIFICATION;
+    
+    
     
     /*----------------------------*/
     /*      periodic variables    */
@@ -4712,16 +5123,16 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
     {
         
         // disable models upon request
-        if ( _disable_models)
+        if ( _disable_models )
         {
             _model_params.search1 = _model_params.search2 = _model_params.eval_sort    = NOMAD::NO_MODEL;
-            if (_out.get_gen_dd()>NOMAD::MINIMAL_DISPLAY && !_warning_has_been_displayed)
+            if ( _out.get_gen_dd() > NOMAD::MINIMAL_DISPLAY && !_warning_has_been_displayed )
             {
                 _out << NOMAD::open_block("Warning:")
                 << "Model use is forcefully disabled." << std::endl
                 << NOMAD::close_block();
                 
-                if (has_direction_type(NOMAD::ORTHO_NP1_QUAD))
+                if ( has_direction_type ( NOMAD::ORTHO_NP1_QUAD ) )
                 {
                     _out << NOMAD::open_block("Warning:")
                     << "Model use is disabled for direction type. Direction types ORTHO N+1 QUAD are changed to ORTHO N+1 NEG." << std::endl
@@ -4808,16 +5219,16 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
 #ifdef USE_MPI
         _model_params.search1 = _model_params.search2 = _model_params.eval_sort = NOMAD::NO_MODEL;
         set_DIRECTION_TYPE_NO_MODEL();
-        if (_out.get_gen_dd()>NOMAD::MINIMAL_DISPLAY && !_warning_has_been_displayed)
+        if ( _out.get_gen_dd() > NOMAD::MINIMAL_DISPLAY && !_warning_has_been_displayed )
             _out << NOMAD::open_block("Warning:")
             << "Model use is disabled in parallel mode (MPI)." << std::endl
             << NOMAD::close_block();
         
         
-        if ((has_direction_type(NOMAD::ORTHO_NP1_QUAD) || has_direction_type(NOMAD::ORTHO_NP1_NEG)) && _asynchronous)
+        if ( ( has_direction_type ( NOMAD::ORTHO_NP1_QUAD ) || has_direction_type ( NOMAD::ORTHO_NP1_NEG ) ) && _asynchronous )
         {
             set_ASYNCHRONOUS(false);
-            if (_out.get_gen_dd()>NOMAD::MINIMAL_DISPLAY && !_warning_has_been_displayed)
+            if ( _out.get_gen_dd() > NOMAD::MINIMAL_DISPLAY && !_warning_has_been_displayed )
                 _out << NOMAD::open_block("Warning:")
                 << "Asynchronous mode is disabled in parallel mode (MPI) when dynamic directions (ortho n+1) are used." << std::endl
                 << NOMAD::close_block();
@@ -4853,6 +5264,8 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
             throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
                                      "invalid parameter: MODEL_SEARCH_MAX_TRIAL_PTS (must be >= 1)" );
         
+        if ( _sgtelib_model_formulation == NOMAD::SGTELIB_MODEL_FORMULATION_FS || _sgtelib_model_formulation == NOMAD::SGTELIB_MODEL_FORMULATION_EIS )
+            _sgtelib_model_feasibility = NOMAD::SGTELIB_MODEL_FEASIBILITY_C;
         
     }
     
@@ -5031,18 +5444,18 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
     if ( !_opp_CS_is_defined )
         _opportunistic_cache_search = false;
     
-    if (_bb_max_block_size<=0)
+    if ( _bb_max_block_size <= 0 )
         throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
                                  "Parameters::check(): invalid block size for list evaluation (>0)" );
     
-    if (_out.get_gen_dd()>NOMAD::MINIMAL_DISPLAY && !_warning_has_been_displayed && _bb_max_block_size > 1 && (_max_bb_eval>0 || _max_sim_bb_eval>0 || _max_eval>0))
+    if ( _out.get_gen_dd () > NOMAD::MINIMAL_DISPLAY && !_warning_has_been_displayed && _bb_max_block_size > 1 && ( _max_bb_eval > 0 || _max_sim_bb_eval > 0 || _max_eval > 0 ) )
         _out << NOMAD::open_block("Warning:")
         << "The maximum number of evaluations may be exceeded when BB_MAX_BLOCK_SIZE>1." << std::endl
         << NOMAD::close_block();
     
     
 #ifdef USE_MPI
-    if (_bb_max_block_size >1)
+    if ( _bb_max_block_size > 1 )
         throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
                                  "Parameters::check(): List evaluation by block of size > 1 are not allowed when using MPI." );
 #endif
@@ -5090,26 +5503,25 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
     /*----------------------------------*/
     /*  signature (standard or extern)  */
     /*----------------------------------*/
-    NOMAD::Signature * new_s = new NOMAD::Signature ( _dimension         ,
-                                                     _bb_input_type      ,
-                                                     _lb                 ,
-                                                     _ub                 ,
-                                                     _mesh_type          ,
-                                                     _anisotropic_mesh   ,
-                                                     _granularity ,
-                                                     _initial_poll_size  ,
-                                                     _min_poll_size      ,
-                                                     _min_mesh_size      ,
-                                                     _mesh_update_basis  ,
-                                                     _poll_update_basis  ,
+    NOMAD::Signature * new_s = new NOMAD::Signature ( _dimension              ,
+                                                     _bb_input_type           ,
+                                                     _lb                      ,
+                                                     _ub                      ,
+                                                     _mesh_type               ,
+                                                     _anisotropic_mesh        ,
+                                                     _granularity             ,
+                                                     _initial_poll_size       ,
+                                                     _min_poll_size           ,
+                                                     _min_mesh_size           ,
+                                                     _mesh_update_basis       ,
+                                                     _poll_update_basis       ,
                                                      _mesh_coarsening_exponent,
-                                                     _mesh_refining_exponent,
-                                                     _initial_mesh_index ,
-                                                     _limit_mesh_index   ,
-                                                     _scaling            ,
-                                                     _fixed_variables    ,
-                                                     _periodic_variables ,
-                                                     _var_groups           );
+                                                     _mesh_refining_exponent  ,
+                                                     _initial_mesh_index      ,
+                                                     _scaling                 ,
+                                                     _fixed_variables         ,
+                                                     _periodic_variables      ,
+                                                     _var_groups              );
     
     // extern signature:
     if ( _extern_signature )
@@ -5190,6 +5602,32 @@ void NOMAD::Parameters::check ( bool remove_history_file  ,
             _x0_cache_file == _sgte_cache_file    )
             throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ ,
                                      "invalid parameter: x0 and sgte cache file are the same" );
+    }
+    
+    /*----------------------------*/
+    /*       Robust mads          */
+    /*----------------------------*/
+    {
+        
+        if ( _robust_mads && ( _has_constraints || nb_obj > 1 ))
+           throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ , "NOMAD::Parameters::check : the algorithm RobustMads can be used only when the blackbox returns a single objective without constraints" );
+        
+        if ( _robust_mads && _anisotropic_mesh )
+            throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ , "NOMAD::Parameters::check : the algorithm RobustMads cannot be used when the mesh is anisotropic" );
+            
+        
+        if ( _robust_mads && has_categorical )
+            throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ , "NOMAD::Parameters::check : the algorithm RobustMads cannot be used with categorical variables" );
+        
+        if ( _robust_mads && _VNS_search )
+            throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ , "NOMAD::Parameters::check : the algorithm RobustMads cannot be used vns search" );
+        
+        if ( _robust_mads && ! _robust_mads_standard_dev_factor.is_defined() )
+            throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ , "NOMAD::Parameters::check : a robust mads standard dev factor (beta) > 0 must be provided" );
+        
+        
+        if ( _robust_mads && _robust_mads_standard_dev_factor.is_defined() && _robust_mads_standard_dev_factor < 0 )
+            throw Invalid_Parameter ( "Parameters.cpp" , __LINE__ , "NOMAD::Parameters::check : robust mads standard dev factor (beta) must be > 0" );
     }
     
     
@@ -5522,7 +5960,7 @@ bool NOMAD::Parameters::get_anisotropic_mesh ( void ) const
     return _anisotropic_mesh;
 }
 
-// mesh_type:
+
 const NOMAD::mesh_type & NOMAD::Parameters::get_mesh_type ( void ) const
 {
     if ( _to_be_checked )
@@ -5676,6 +6114,34 @@ bool NOMAD::Parameters::get_asynchronous ( void ) const
         throw Bad_Access ( "Parameters.cpp" , __LINE__ ,
                           "Parameters::get_asynchronous(), Parameters::check() must be invoked" );
     return _asynchronous;
+}
+
+// get_report_bbe_value:
+bool NOMAD::Parameters::get_report_bbe_value ( void ) const
+{
+    if ( _to_be_checked )
+        throw Bad_Access ( "Parameters.cpp" , __LINE__ ,
+                          "Parameters::get_report_bbe_value(), Parameters::check() must be invoked" );
+    return _report_bbe_value;
+}
+
+// get_report_sgte_value:
+bool NOMAD::Parameters::get_report_sgte_value ( void ) const
+{
+    if ( _to_be_checked )
+        throw Bad_Access ( "Parameters.cpp" , __LINE__ ,
+                          "Parameters::get_report_sgte_value(), Parameters::check() must be invoked" );
+    return _report_sgte_value;
+}
+
+
+// get_report_blk_eva_value:
+bool NOMAD::Parameters::get_report_blk_eva_value ( void ) const
+{
+    if ( _to_be_checked )
+        throw Bad_Access ( "Parameters.cpp" , __LINE__ ,
+                          "Parameters::get_report_blk_eva_value(), Parameters::check() must be invoked" );
+    return _report_blk_eva_value;
 }
 
 // get_x0s:
@@ -5983,6 +6449,16 @@ int NOMAD::Parameters::get_max_bb_eval ( void ) const
                           "Parameters::get_max_bb_eval(), Parameters::check() must be invoked" );
     return _max_bb_eval;
 }
+
+// get_max_block_eval:
+int NOMAD::Parameters::get_max_block_eval ( void ) const
+{
+    if ( _to_be_checked )
+        throw Bad_Access ( "Parameters.cpp" , __LINE__ ,
+                          "Parameters::get_max_block_eval(), Parameters::check() must be invoked" );
+    return _max_block_eval;
+}
+
 
 // get_max_sim_bb_eval:
 int NOMAD::Parameters::get_max_sim_bb_eval ( void ) const
@@ -6652,6 +7128,7 @@ void NOMAD::Parameters::set_MODEL_NP1_QUAD_EPSILON ( const NOMAD::Double & d )
     _model_params.model_np1_quad_epsilon = d;
 }
 
+
 // set_MODEL_SEARCH_MAX_TRIAL_PTS:
 void NOMAD::Parameters::set_MODEL_SEARCH_MAX_TRIAL_PTS ( int s )
 {
@@ -6727,8 +7204,8 @@ void NOMAD::Parameters::set_DIRECTION_TYPE_NO_MODEL ( void )
     while (it != end)
     {
         _direction_types.erase(it);
-        _direction_types.insert(NOMAD::ORTHO_NP1_NEG);
-        it=_direction_types.find(NOMAD::ORTHO_NP1_QUAD);
+        _direction_types.insert( NOMAD::ORTHO_NP1_NEG );
+        it=_direction_types.find( NOMAD::ORTHO_NP1_QUAD );
     }
 }
 
@@ -7510,8 +7987,17 @@ void NOMAD::Parameters::set_MAX_BB_EVAL ( int bbe )
     _max_bb_eval     = ( bbe < 0 ) ? -1 : bbe;
 }
 
+// set_MAX_BLOCK_EVAL:
+void NOMAD::Parameters::set_MAX_BLOCK_EVAL ( int blk )
+{
+    _to_be_checked   = true;
+    _max_bbe_decided = true;
+    _max_block_eval  = ( blk <= 0 ) ? -1 : blk;
+}
 
-// set_MAX_BB_EVAL:
+
+
+// set_MAX_EVAL_INTENSIFICATION:
 void NOMAD::Parameters::set_MAX_EVAL_INTENSIFICATION ( int bbe )
 {
     _to_be_checked   = true;
@@ -7606,7 +8092,7 @@ void NOMAD::Parameters::set_L_CURVE_TARGET ( const NOMAD::Double & lct )
 // set_ANISOTROPIC_MESH:
 void NOMAD::Parameters::set_ANISOTROPIC_MESH ( bool anis )
 {
-    _to_be_checked       = true;
+    _to_be_checked        = true;
     _anisotropic_mesh    = anis;
 }
 
@@ -7913,12 +8399,6 @@ void NOMAD::Parameters::set_MIN_POLL_SIZE ( const NOMAD::Double & d , bool relat
         _min_poll_size = NOMAD::Point ( _dimension , d );
 }
 
-void NOMAD::Parameters::set_LIMIT_MESH_INDEX ( const int & lmi )
-{
-    _to_be_checked = true;
-    _limit_mesh_index = lmi;
-}
-
 // set_NEIGHBORS_EXE:
 void NOMAD::Parameters::set_NEIGHBORS_EXE ( const std::string & ne )
 {
@@ -8166,6 +8646,124 @@ void NOMAD::Parameters::set_VARIABLE_GROUP
 }
 
 
+// SGTELIB
+// set & get DIVERSIFICATION
+void NOMAD::Parameters::set_SGTELIB_MODEL_DIVERSIFICATION( const NOMAD::Double diversification )
+{
+    _sgtelib_model_diversification = diversification;
+}
+
+NOMAD::Double NOMAD::Parameters::get_SGTELIB_MODEL_DIVERSIFICATION( void ) const
+{
+    return _sgtelib_model_diversification;
+}
+
+// set & get EXCLUSION_AREA
+void NOMAD::Parameters::set_SGTELIB_MODEL_EXCLUSION_AREA( const NOMAD::Double tc )
+{
+    _sgtelib_model_exclusion_area = tc;
+}
+
+NOMAD::Double NOMAD::Parameters::get_SGTELIB_MODEL_EXCLUSION_AREA( void ) const
+{
+    return _sgtelib_model_exclusion_area;
+}
+
+// set & get SGTELIB_MODEL_EVAL_NB
+void NOMAD::Parameters::set_SGTELIB_MODEL_EVAL_NB( const int me )
+{
+    _sgtelib_model_eval_nb = me;
+}
+
+int NOMAD::Parameters::get_SGTELIB_MODEL_EVAL_NB( void ) const
+{
+    return _sgtelib_model_eval_nb;
+}
+
+// set & get SGTELIB_MODEL_CANDIDATES
+void NOMAD::Parameters::set_SGTELIB_MODEL_CANDIDATES_NB( const int cn )
+{
+    _sgtelib_model_candidates_nb = cn;
+}
+
+int NOMAD::Parameters::get_SGTELIB_MODEL_CANDIDATES_NB( void ) const
+{
+    return _sgtelib_model_candidates_nb;
+}
+
+
+// set & get SGTELIB_MODEL_TRIALS
+void NOMAD::Parameters::set_SGTELIB_MODEL_TRIALS( const int me )
+{
+    if (me==-1)
+        _sgtelib_model_trials = _dimension;
+    else if (me==-2)
+        _sgtelib_model_trials = _dimension+1;
+    else
+        _sgtelib_model_trials = me;
+}
+
+int NOMAD::Parameters::get_SGTELIB_MODEL_TRIALS( void ) const
+{
+    return _sgtelib_model_trials;
+}
+
+// set & get SGTELIB_MODEL_DEFINITION
+void NOMAD::Parameters::set_SGTELIB_MODEL_DEFINITION( const std::string & md )
+{
+    _sgtelib_model_definition = md;
+}
+
+std::string NOMAD::Parameters::get_SGTELIB_MODEL_DEFINITION( void ) const
+{
+    return _sgtelib_model_definition;
+}
+
+// set & get SGTELIB_MODEL_DISPLAY
+void NOMAD::Parameters::set_SGTELIB_MODEL_DISPLAY( const std::string & md )
+{
+    _sgtelib_model_display = md;
+}
+
+std::string NOMAD::Parameters::get_SGTELIB_MODEL_DISPLAY( void ) const
+{
+    return _sgtelib_model_display;
+}
+
+// set & get SGTELIB_MODEL_FILTER
+void NOMAD::Parameters::set_SGTELIB_MODEL_FILTER( const std::string & mf )
+{
+    _sgtelib_model_filter = mf;
+}
+
+std::string NOMAD::Parameters::get_SGTELIB_MODEL_FILTER( void ) const
+{
+    return _sgtelib_model_filter;
+}
+
+// set & get SGTELIB_MODEL_FORMULATION
+void NOMAD::Parameters::set_SGTELIB_MODEL_FORMULATION( const NOMAD::sgtelib_model_formulation_type dft )
+{
+    _sgtelib_model_formulation = dft;
+}
+
+NOMAD::sgtelib_model_formulation_type NOMAD::Parameters::get_SGTELIB_MODEL_FORMULATION (void) const
+{
+    return _sgtelib_model_formulation;
+}
+
+// set & get SGTELIB_MODEL_FEASIBILITY
+void NOMAD::Parameters::set_SGTELIB_MODEL_FEASIBILITY( const NOMAD::sgtelib_model_feasibility_type dft  )
+{
+    _sgtelib_model_feasibility = dft ;
+}
+
+NOMAD::sgtelib_model_feasibility_type NOMAD::Parameters::get_SGTELIB_MODEL_FEASIBILITY (void) const
+{
+    return _sgtelib_model_feasibility;
+}
+
+
 void NOMAD::Parameters::reset_granulary ( void )
 {
     _to_be_checked = true;
@@ -8290,8 +8888,8 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     
     
     const char registered_key_basic[]="2N ANGLES AVG BARRIER BASIC BASIC BB_EXE BB_INPUT_TYPE BB_OUTPUT_TYPE BI-MADS BI-OBJECTIVES BIMADS \
-    BINARY BIOBJECTIVES BLACK-BOXES BLACKBOXES BOUNDS CACHE BBEVAL CACHE_FILE CNT_EVAL CONSTRAINTS CONTINUOUS COUNT DEBUG DELTA_0 DIMENSION \
-    DIRECTION_TYPE DIRECTION_TYPES DIRECTIONS DIRECTIONS_TYPES DIRECTORY DISPLAY_ALL_EVAL DISPLAY_DEGREES DISPLAY_STATS EVALUATIONS \
+    BINARY BIOBJECTIVES BLACK-BOXES    BLACKBOXES BOUNDS CACHE BBEVAL CACHE_FILE CNT_EVAL CONSTRAINTS CONTINUOUS COUNT DEBUG DELTA_0 DIMENSION \
+    DIRECTION_TYPE DIRECTION_TYPES DIRECTIONS DIRECTIONS_TYPES DIRECTORY DISPLAY_ALL_EVAL DISPLAY_DEGREES DISPLAY_STATS    EVALUATIONS \
     EXECUTABLE F_TARGET FILES FILTER FORMAT GPS h(x) HISTORY_FILE INITIAL_MESH_SIZE INTEGER LATEX LATIN-HYPERCUBE LB LH_SEARCH LOWER_BOUND \
     LT LT-MADS LTMADS MADS MAX_BB_EVAL MAX_TIME MAXIMUM MINIMIZE MODEL MODELS MULTI-OBJECTIVE MULTIOBJECTIVES N+1 NUMBER OPTIMIZE ORTHO \
     ORTHO-MADS ORTHOMADS OUTPUTS PATH PB PEB POINT POLL PROGRESSIVE-BARRIER RANDOM SAMPLING SCREEN SCREEN SOLUTION_FILE STARTING STATIC \
@@ -8312,7 +8910,8 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     POLL POLL_UPDATE_BASIS PRECISION PROGRESSIVE-BARRIER PROJECTION PSD-MADS PSDMADS QUAD QUADRATIC RAM RANDOM REALS REGRESSION RHO SAMPLING SCALE SCALING \
     SEARCH SEED SGTE_CACHE_FILE SGTE_COST SGTE_EVAL_SORT SGTE_EXE SGTE_ORDERING SGTES SIMULATED SNAP_TO_BOUNDS SPECULATIVE_SEARCH \
     STAT_SUM_TARGET STATS STOP_IF_FEASIBLE SUCCESSES SURF SURROGATES TABULATIONS TAU TERMINATES TERMINATION TRIGGER \
-    UB UNDEF_STR UNDEFINED USER_CALLS_DISABLED USER_CALLS_ENABLED VARIABLE_GROUP VARIABLES VNS_SEARCH W- W+ ";
+    UB UNDEF_STR UNDEFINED USER_CALLS_DISABLED USER_CALLS_ENABLED VARIABLE_GROUP VARIABLES VNS_SEARCH W- W+ \
+    SGTELIB SGTELIB_MODEL_DEFINITION SGTELIB_MODEL_DIVERSIFICATION SGTELIB_MODEL_SEARCH SGTELIB_MODEL_DISPLAY SGTELIB_MODEL_EVAL_NB SGTELIB_MODEL_CANDIDATES_NB";
     
     const char registered_key_developer[]="BI-MADS BI-OBJECTIVES BIMADS BIOBJECTIVES BLACK-BOXES BLACK-BOXES COMPARISONS DEVELOPER \
     DIRECTIONS EPSILON EVALUATIONS FROBENIUS INITIAL_MESH_INDEX IMPROVEMENT INTERPOLATION L_CURVE_TARGET MADS MFN MODEL MODEL_EVAL_SORT_CAUTIOUS MODEL_ORDERING \
@@ -8320,8 +8919,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     MODEL_SEARCH_PROJ_TO_MESH MODELS MULTI_FORMULATION MULTI_USE_DELTA_CRITERION MULTI-OBJECTIVES \
     MULTIOBJECTIVES N+1 NP1 OBJECTIVE OPPORTUNISTIC_LUCKY_EVAL OPPORTUNISTIC_MIN_F_IMPRVMT OPPORTUNISTIC_MIN_NB_SUCCESSES OPT_ONLY_SGTES \
     ORTHO PARETO PB PEB POLL PRECISION PROGRESSIVE-BARRIER PROJECTION QUAD QUADRATIC REALS REGRESSION SEC_POLL_DIR_TYPES SGTES STOPPING \
-    SUCCESSES SURROGATES TERMINATES TERMINATION MESH_TYPE WELL-POISEDNESS " ;
-    
+    SUCCESSES SURROGATES TERMINATES TERMINATION MESH_TYPE WELL-POISEDNESS SGTELIB SGTELIB_MODEL_FORMULATION SGTELIB_MODEL_FILTER SGTELIB_MODEL_CANDIDATES_NB SGTELIB_MODEL_TRIALS SGTELIB_MODEL_EXCLUSION_AREA SGTELIB_MODEL_FEASIBILITY ";
     
     
     if ( display_all || NOMAD::string_find ( registered_key_basic, param_names ) )
@@ -8485,7 +9083,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
                                             param_names ) )
     {
         _out << std::endl
-        << NOMAD::open_block ( "DIRECTION_TYPE (basic)" )              << std::endl
+        << NOMAD::open_block ( "DIRECTION_TYPE (basic)" )                << std::endl
         << ". types of directions used in the poll step"               << std::endl
         << ". arguments: direction types (see user"                    << std::endl
         << "             guide for available types)"                   << std::endl
@@ -8493,10 +9091,14 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
         << " (n+1)th dir)."                                            << std::endl
         << ". several direction types can be defined"                  << std::endl
         << "    at the same time (one direction per line)"             << std::endl
-        << ". " << NOMAD::open_block ( "examples" )                    << std::endl
+        << ". in the examples below the directions with "              << std::endl
+        << "   the (*) are available only when using a parameter "     << std::endl
+        << "   file but not when using the set_DIRECTION_TYPE   "      << std::endl
+        << "   command in library mode "                               << std::endl
+        << ". " << NOMAD::open_block ( "examples" )                      << std::endl
         << "DIRECTION_TYPE ORTHO 1                  #  OrthoMADS, 1"   << std::endl
         << "DIRECTION_TYPE ORTHO 2                  #  OrthoMADS, 2"   << std::endl
-        << "DIRECTION_TYPE ORTHO N+1                #  OrthoMADS, n+1" << std::endl
+        << "DIRECTION_TYPE ORTHO N+1                #(*) OrthoMADS, n+1" << std::endl
         << "                                        # (QUAD model used"<< std::endl
         << "                                        # for (n+1)th dir)"<< std::endl
         << "DIRECTION_TYPE ORTHO N+1 QUAD           #  OrthoMADS, n+1" << std::endl
@@ -8510,15 +9112,15 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
         << "                                        # uniform "        << std::endl
         << "                                        # distribution of" << std::endl
         << "                                        # dirs)"           << std::endl
-        << "DIRECTION_TYPE ORTHO                    #  OrthoMADS, n+1 QUAD "  << std::endl
+        << "DIRECTION_TYPE ORTHO                    #(*) OrthoMADS, n+1 QUAD "  << std::endl
         << "DIRECTION_TYPE ORTHO 2N                 #  OrthoMADS, 2n"  << std::endl
         << "DIRECTION_TYPE LT    1                  #  LT-MADS, 1"     << std::endl
         << "DIRECTION_TYPE LT    2                  #  LT-MADS, 2"     << std::endl
         << "DIRECTION_TYPE LT    N+1                #  LT-MADS, n+1"   << std::endl
-        << "DIRECTION_TYPE LT                       #  LT-MADS, 2n"    << std::endl
+        << "DIRECTION_TYPE LT                       #(*) LT-MADS, 2n"    << std::endl
         << "DIRECTION_TYPE LT    2N                 #  LT-MADS, 2n"    << std::endl
         << "DIRECTION_TYPE GPS   BINARY or BIN      #  GPS, bin var"   << std::endl
-        << "DIRECTION_TYPE GPS   N+1                #  GPS, n+1,"      << std::endl
+        << "DIRECTION_TYPE GPS   N+1                #(*) GPS, n+1,"      << std::endl
         << "                                        #  static"         << std::endl
         << "DIRECTION_TYPE GPS   N+1 STATIC         #  GPS, n+1,"      << std::endl
         << "                                        #  static"         << std::endl
@@ -8528,7 +9130,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
         << "                                        #  rand"           << std::endl
         << "DIRECTION_TYPE GPS   N+1 RAND   UNIFORM #  GPS, n+1,"      << std::endl
         << "                                        #  rand, unif"     << std::endl
-        << "DIRECTION_TYPE GPS                      #  GPS, 2n,"       << std::endl
+        << "DIRECTION_TYPE GPS                      #(*) GPS, 2n,"       << std::endl
         << "                                        #  static"         << std::endl
         << "DIRECTION_TYPE GPS   2N                 #  GPS, 2n,"       << std::endl
         << "                                        #  static"         << std::endl
@@ -9120,7 +9722,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     if ( display_all || NOMAD::string_find ( "MODEL DISABLE MODELS DISABLE_MODELS \
                                             MODEL_EVAL_SORT ADVANCED \
                                             EVAL_SORT \
-                                            ORTHO N+1 QUAD QUADRATIC MODEL_SEARCH" ,
+                                            ORTHO N+1 QUAD QUADRATIC MODEL_SEARCH SGTELIB" ,
                                             param_names ) )
     {
         _out << std::endl
@@ -9145,6 +9747,230 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     }
     
     
+    
+    // SGTELIB_MODEL_DIVERSIFICATION:
+    // -----------------
+    if ( display_all || NOMAD::string_find ( "SGTELIB_MODEL_DIVERSIFICATION DIVERSIFICATION LAMBDA MODEL SGTELIB MODEL_SEARCH ADVANCED" , param_names ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_DIVERSIFICATION (advanced)" ) << std::endl
+        << ". coefficient of the exploration term in the "     << std::endl
+        << "    surrogate problem."                            << std::endl
+        << ". argument: one positive real"                     << std::endl
+        << ". default: 0.01"                                 << std::endl
+        << ". example: SGTELIB_MODEL_DIVERSIFICATION 0    # no exploration" << std::endl
+        << "           SGTELIB_MODEL_DIVERSIFICATION 0.01 # light exploration" << std::endl
+        << "           SGTELIB_MODEL_DIVERSIFICATION 0.1  # medium exploration" << std::endl
+        << "           SGTELIB_MODEL_DIVERSIFICATION 1    # strong exploration" << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+    
+    // SGTELIB_MODEL_TRIALS:
+    // -----------------------
+    if ( display_all || NOMAD::string_find ( "SGTELIB_MODEL_TRIALS MODEL SGTELIB MODEL_SEARCH ADVANCED" , param_names ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_TRIALS (advanced)" ) << std::endl
+        << ". max number of sgtelib model trials for each search." << std::endl
+        << ". argument: one integer > 0"                           << std::endl
+        << ". default: 1"                                          << std::endl
+        << ". example: SGTELIB_MODEL_TRIALS 5000 " << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+
+    // SGTELIB_MODEL_DEFINITION:
+    // --------------------------------
+    if ( display_all || NOMAD::string_find ( "SGTELIB_MODEL_DEFINITION SGTELIB SEARCH MODEL_SEARCH MODEL MODELS INTERPOLATION REGRESSION ADVANCED" , param_names ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_DEFINITION (advanced)" ) << std::endl
+        << ". definition of the surrogate model."     << std::endl
+        << ". argument: Sgtelib model definition. See sgtelib manual."                     << std::endl
+        << ". default: TYPE LOWESS DEGREE 1 KERNEL_SHAPE OPTIM KERNEL_COEF OPTIM RIDGE 0 METRIC AOECV" << std::endl
+        << ". example: TYPE PRS DEGREE 1 # builds a linear model" << std::endl
+        << ".          TYPE PRS DEGREE 2 # builds a quadratic model" << std::endl
+        << ".          TYPE RBF          # builds an RBF model" << std::endl
+        << ".          TYPE ENSEMBLE     # builds an ensemble of models " << std::endl
+        << ".          TYPE LOWESS DEGREE 1 KERNEL_COEF OPTIM # builds a lowess model with  " << std::endl
+        << "                                                    local linear regression " << std::endl
+        << "                                                    and optimized kernel shape" << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+    
+    // SGTELIB_MODEL_DISPLAY:
+    // --------------------------------
+    if ( display_all || NOMAD::string_find ( "SGTELIB_MODEL_DISPLAY ADVANCED SGTELIB DISPLAY SEARCH MODEL_SEARCH" , param_names ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_DISPLAY (advanced)" ) << std::endl
+        << ". control the display of the sgtelib model search" << std::endl
+        << ". arguments: a string containing one or several of the following letters " << std::endl
+        << ". \"S\": General information on the sgtelib model search"                  << std::endl
+        << ". \"F\": Details of the filter step"                                       << std::endl
+        << ". \"O\": Details of the models optimization"                               << std::endl
+        << ". \"P\": Details of the projection"                                        << std::endl
+        << ". \"U\": Details of the model update"                                      << std::endl
+        << ". \"I\": Advancement of the model optimization"                            << std::endl
+        << ". \"X\": Display of all of the model evaluations"                          << std::endl
+        << ". default: empty string (no display)" << std::endl
+        << ". example: SGTELIB_MODEL_DISPLAY SPF # display the general information on the search " << std::endl
+        << "                                       and on the filter and projection steps        " << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+
+
+
+
+
+
+    
+
+    // SGTELIB_MODEL_CANDIDATES_NB:
+    // -----------------------
+    if ( developer && (display_all || NOMAD::string_find ( "SGTELIB_MODEL_CANDIDATES_NB MODEL SGTELIB MODEL_SEARCH DEVELOPER" , param_names ) ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_CANDIDATES_NB (advanced)" ) << std::endl
+        << ". number of candidates returned by the sgtelib model search." << std::endl
+        << ". argument: one integer"                                      << std::endl
+        << ". if smaller or equal to 0, then the number of candidates"    << std::endl
+        << "    will be the MAX_BLOCK_SIZE "                              << std::endl
+        << ". default: -1"                                                << std::endl
+        << ". example: SGTELIB_MODEL_CANDIDATES_NB 8"                     << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+    
+    
+    // SGTELIB_MODEL_TRIALS:
+    // -----------------------
+    if ( developer && (display_all || NOMAD::string_find ( "SGTELIB_MODEL_TRIALS TRIALS DEVELOPER SGTELIB MODEL SEARCH" , param_names ) ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_TRIALS (advanced)" ) << std::endl
+        << ". max number of sgtelib model search failures before going to the poll step."   << std::endl
+        << ". argument: one integer > 0 or 'N' (==> dim trials) or 'S' (==> dim+1 trials"          << std::endl
+        << ". default: 1"                         << std::endl
+        << ". example: SGTELIB_MODEL_TRIALS 5 " << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+
+
+    // SGTELIB_MODEL_FORMULATION:
+    // ---------------
+    if ( developer && (display_all || NOMAD::string_find ( "SGTELIB_MODEL_FORMULATION SURROGATE_PROBLEM PROBLEM EXPECTED_IMPROVEMENT EXPECTED IMPROVEMENT FS EI EFI LAMBDA DIVERSIFICATION MODEL SGTELIB MODEL_SEARCH DEVELOPER" , param_names ) ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_FORMULATION (advanced)" ) << std::endl
+        << ". formulation of the surrogate problem. "     << std::endl
+        << ". argument: one string in {\'FS\', \'EIS\', \'FSP\'," << std::endl
+        << "                           \'EFI\', \'EFIS\',\'EFIM\',\'EFIC\'," << std::endl
+        << "                           \'PFI\'," << std::endl
+        << "                           \'D\'," << std::endl
+        << "                           \'EXTERN\'}" << std::endl
+        << ". description of the surrogate problem formulations : " << std::endl
+        << "    (FS)   min f    -d.sigma_f               " << std::endl
+        << "           st  c_j  -d.sigma_j <= 0          " << std::endl
+        << "                                             " << std::endl
+        << "    (EIS)  min -EI  -d.sigma_f               " << std::endl
+        << "           st  c_j  -d.sigma_j <= 0          " << std::endl
+        << "                                             " << std::endl
+        << "    (FSP)  min f    -d.sigma_f               " << std::endl
+        << "           st  P >= 1/2                      " << std::endl
+        << "                                             " << std::endl
+        << "    (EFI)  min -EFI                          " << std::endl
+        << "                                             " << std::endl
+        << "    (EFIS) min -EFI -d.sigma_f               " << std::endl
+        << "                                             " << std::endl
+        << "    (EFIM) min -EFI -d.sigma_f.mu            " << std::endl
+        << "                                             " << std::endl
+        << "    (EFIM) min -EFI -d.(EI.mu+P.sigma_f)     " << std::endl
+        << "                                             " << std::endl
+        << "    (PFI)  min -PFI                          " << std::endl
+        << "                                             " << std::endl
+        << "    (D)    min -distance_to_closest          " << std::endl
+        << "                                             " << std::endl
+        << ". default: FS                                " << std::endl
+        << ". example: SGTELIB_MODEL_FORMULATION EFI" << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+
+
+    // SGTELIB_MODEL_FILTER:
+    // --------------------------------
+    if ( developer && (display_all || NOMAD::string_find ( "SGTELIB_MODEL_FILTER DEVELOPER SGTELIB FILTER SEARCH MODEL_SEARCH" , param_names ) ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_FILTER (advanced)" ) << std::endl
+        << ". methods used in the sgtelib search filter to return several" << std::endl
+        << "    search candidates"                                         << std::endl
+        << ". arguments: a string containing several integers from 0 to 5" << std::endl
+        << ". default: 2345"                                               << std::endl
+        << ". method 0: Select the best candidate"                         << std::endl
+        << ". method 1: Select the most remote candidate"                  << std::endl
+        << ". method 2: Select the best candidate, "                       << std::endl
+        << "            with minimal distance to the cache"                << std::endl
+        << ". method 3: Select the best candidate, "                       << std::endl
+        << "            with minimal margin in feasibility"                << std::endl
+        << ". method 4: Select the candidate with the best"                << std::endl
+        << "            isolation number"                                  << std::endl
+        << ". method 5: Select the candidate with the best"                << std::endl
+        << "            density number"                                    << std::endl
+        << ". example: SGTELIB_MODEL_FILTER 0    # Only method 0 will be used" << std::endl
+        << "           SGTELIB_MODEL_FILTER 01   # Alternate between method 0 and 1" << std::endl
+        << "           SGTELIB_MODEL_FILTER 2345 # Cycle through methods 2, 3, 4 and 5" << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    } 
+    
+
+
+    // SGTELIB_MODEL_EXCLUSION_AREA:
+    // --------------------------------
+    if ( developer && (display_all || NOMAD::string_find ( "SGTELIB_MODEL_FILTER DEVELOPER SGTELIB EXCLUSION SEARCH MODEL_SEARCH" , param_names ) ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_EXCLUSION_AREA (advanced)" ) << std::endl
+        << ". defines an exclusion area for the sgtelib model search"      << std::endl
+        << "    around points of the cache"                                << std::endl
+        << ". arguments: one real number in [0;1/2]"                       << std::endl
+        << ". default: 0"                                                  << std::endl
+        << ". example: SGTELIB_MODEL_EXCLUSION_AREA 0 # no exclusion area" << std::endl
+        << "           SGTELIB_MODEL_EXCLUSION_AREA 0.1 # small exclusion area" << std::endl
+        << "           SGTELIB_MODEL_EXCLUSION_AREA 0.5 # large exclusion area" << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    } 
+
+
+    
+    // SGTELIB_MODEL_FEASIBILITY:
+    // ---------------------------
+    if ( developer && (display_all || NOMAD::string_find ( "SGTELIB_MODEL_FEASIBILITY FEASIBILITY CONSTRAINTS \
+                                                          SGTELIB_MODEL_SEARCH DT SGTELIB MODEL_SEARCH \
+                                                          MODEL MODELS \
+                                                          INTERPOLATION REGRESSION DEVELOPER" , param_names ) ) )
+    {
+        _out << std::endl
+        << NOMAD::open_block ( "SGTELIB_MODEL_FEASIBILITY (advanced)" )     << std::endl
+        << ". method used to model the feasibility of a points."            << std::endl
+        << ". arguments: one character in {\'C\', \'H\', \'M\', \'P\'}"     << std::endl
+        << ". default: C"                                                   << std::endl
+        << ". example: SGTELIB_MODEL_FEASIBILITY C  # 1 model per constraint" << std::endl
+        << "           SGTELIB_MODEL_FEASIBILITY H  # 1 model of the aggregate constraint" << std::endl
+        << "           SGTELIB_MODEL_FEASIBILITY M  # 1 model of the max of the constraints" << std::endl
+        << "           SGTELIB_MODEL_FEASIBILITY B  # 1 binary model of the feasibility" << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+    
+    
     // BB_MAX_BLOCK_SIZE
     //-----------
     if ( display_all || NOMAD::string_find ( "EVAL LIST MAX BLOCK SIZE BB BLACKBOX \
@@ -9152,20 +9978,20 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
                                             param_names ) )
     {
         _out << std::endl
-        << NOMAD::open_block ( "BB_MAX_BLOCK_SIZE (advanced)" )                 << std::endl
-        << ". maximum size of a block of evaluations send to the blackbox"      << std::endl
-        << " executable at once. Blackbox executable can manage parallel"       << std::endl
-        << " evaluations on its own. Opportunistic strategies may apply after"  << std::endl
+        << NOMAD::open_block ( "BB_MAX_BLOCK_SIZE (advanced)" )                    << std::endl
+        << ". maximum size of a block of evaluations send to the blackbox"        << std::endl
+        << " executable at once. Blackbox executable can manage parallel"        << std::endl
+        << " evaluations on its own. Opportunistic strategies may apply after"    << std::endl
         << " each block of evaluations."                                        << std::endl
         << " Depending on the algorithm phase, the blackbox executable will"    << std::endl
-        << " receive at most BB_MAX_BLOCK_SIZE points to evaluate."             << std::endl
+        << " receive at most BB_MAX_BLOCK_SIZE points to evaluate."                << std::endl
         << " When this parameter is greater than one, the number of evaluations"<< std::endl
         << " may exceed the MAX_BB_EVAL stopping criterion."                    << std::endl
         << ". argument: integer > 0"                                            << std::endl
         << ". example: BB_MAX_BLOCK_SIZE 3,"                                    << std::endl
         << "             The blackbox executable receives blocks of"            << std::endl
-        << "             at most 3 points for evaluation."                      << std::endl
-        << ". default: 1"                                                       << std::endl
+        << "             at most 3 points for evaluation."                        << std::endl
+        << ". default: 1"                                                        << std::endl
         << NOMAD::close_block();
         chk = true;
     }
@@ -9306,7 +10132,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     // HAS_SGTE:
     // ---------
     if ( display_all || NOMAD::string_find ( "HAS_SGTE SGTE_EXE ADVANCED SURROGATES \
-                                            BLACK-BOXES BLACKBOXES \
+                                            BLACK-BOXES    BLACKBOXES \
                                             SGTES" , param_names ) )
     {
         _out << std::endl
@@ -9362,7 +10188,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     // MAX_CONSECUTIVE_FAILED_ITERATIONS:
     // ----------------------------------
     if ( display_all || NOMAD::string_find ( "MAX_CONSECUTIVE_FAILED_ITERATIONS ADVANCED \
-                                            TERMINATION STOPPING TERMINATES" , param_names ) )
+                                            TERMINATION    STOPPING TERMINATES" , param_names ) )
     {
         _out << std::endl
         << NOMAD::open_block ( "MAX_CONSECUTIVE_FAILED_ITERATIONS (advanced)" ) << std::endl
@@ -9459,8 +10285,8 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     {
         _out << std::endl
         << NOMAD::open_block ( "MESH_COARSENING_EXPONENT (advanced)" )  << std::endl
-        << ". mesh coarsening exponent w^+ used to update the mesh"     << std::endl
-        << "  after successes (\\Delta^m_{k+1}=\\tau^{w^+}\\Delta^m_k)" << std::endl
+        << ". mesh coarsening exponent w^+ used to update the xmesh or gmesh"     << std::endl
+        << "  after successes (\\delta_{k+1}=\\tau^{w^+}\\delta_k)" << std::endl
         << ". argument: one nonnegative integer"                        << std::endl
         << ". default: 1"                                               << std::endl
         << ". example: MESH_COARSENING_EXPONENT 0 # the mesh size is"   << std::endl
@@ -9477,14 +10303,31 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     {
         _out << std::endl
         << NOMAD::open_block ( "MESH_REFINING_EXPONENT (advanced)" )       << std::endl
-        << ". mesh refining exponent w^- used to update the mesh"          << std::endl
-        << "    after failures (\\Delta^m_{k+1} = \\tau^{w^-}\\Delta^m_k)" << std::endl
+        << ". mesh refining exponent w^- used to update the xmesh or smesh"          << std::endl
+        << "    after failures (\\delta_{k+1} = \\tau^{w^-}\\delta_k)" << std::endl
         << ". argument: one negative"                                      << std::endl
         << ". default: -1"                                                 << std::endl
         << ". example: MESH_REFINING_EXPONENT -2"                          << std::endl
         << NOMAD::close_block();
         chk = true;
     }
+    
+    // MESH_TYPE:
+    // -------------------
+    if ( display_all || NOMAD::string_find ( "MESH_TYPE XMESH GMESH SMESH MESH ADVANCED \
+                                              ANISO" , param_names ) )
+    {
+        
+        _out << std::endl
+        << NOMAD::open_block ( "MESH_TYPE (advanced)" )                         << std::endl
+        << ". forces the use of a specific type of mesh (xmesh, gmesh, smesh))"  << std::endl
+        << ". arguments: XMESH, GMESH or SMESH"                                              << std::endl
+        << ". default: GMESH"                                                        << std::endl
+        << ". example: MESH_TYPE GMESH "                                             << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+
     
     // MESH_UPDATE_BASIS:
     // ------------------
@@ -9542,18 +10385,19 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     // ----------------
     if ( display_all || NOMAD::string_find ( "MODEL_ORDERING MODEL_EVAL_SORT ADVANCED \
                                             MODELS INTERPOLATION REGRESSION \
-                                            MFN FROBENIUS QUADRATIC" , param_names ) )
+                                            MFN FROBENIUS QUADRATIC SGTELIB" , param_names ) )
     {
         _out << std::endl
-        << NOMAD::open_block ( "MODEL_EVAL_SORT (advanced)" )   << std::endl
+        << NOMAD::open_block ( "MODEL_EVAL_SORT (advanced)" )      << std::endl
         << ". if models are used to sort the trial points"      << std::endl
         << ". disabled for more than 50 variables"              << std::endl
         << ". disabled with categorical variables"              << std::endl
         << ". argument: one boolean (\'yes\' or \'no\')"        << std::endl
-        << "         or one string in {\'QUADRATIC\'}"          << std::endl
+        << "         or one string in {\'QUADRATIC\', \'SGTELIB\'}" << std::endl
         << ". default: \'QUADRATIC\'"                           << std::endl
         << ". examples: MODEL_EVAL_SORT quadratic"              << std::endl
-        << "        MODEL_EVAL_SORT yes # quadratic is used"    << std::endl
+        << "        MODEL_EVAL_SORT yes # quadratic is used"      << std::endl
+        << "            MODEL_EVAL_SORT SGTELIB"                << std::endl
         << "            MODEL_EVAL_SORT no  # no MES"           << std::endl
         << NOMAD::close_block();
         chk = true;
@@ -9564,7 +10408,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     // -------------
     if ( display_all || NOMAD::string_find ( "MODEL_SEARCH ADVANCED CATEGORICAL \
                                             MODELS INTERPOLATION REGRESSION \
-                                            MFN FROBENIUS QUADRATIC PARALLEL" , param_names ) )
+                                            MFN FROBENIUS QUADRATIC PARALLEL SGTELIB" , param_names ) )
     {
         _out << std::endl
         << NOMAD::open_block ( "MODEL_SEARCH (advanced)" )             << std::endl
@@ -9574,9 +10418,10 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
         << ". disabled with categorical variables"                  << std::endl
         << ". disabled in parallel mode"                            << std::endl
         << ". argument: one boolean (\'yes\' or \'no\')"            << std::endl
-        << "    or one string in {\'QUADRATIC\'}"                   << std::endl
+        << "    or one string in {\'QUADRATIC\', \'SGTELIB\'}"          << std::endl
         << ". default: \'QUADRATIC\'"                               << std::endl
         << ". example: MODEL_SEARCH QUADRATIC"                      << std::endl
+        << "           MODEL_SEARCH SGTELIB"                        << std::endl
         << NOMAD::close_block();
         chk = true;
     }
@@ -9587,8 +10432,8 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     // ------------------------
     if ( display_all || NOMAD::string_find ( "MODEL_SEARCH_OPTIMISTIC ADVANCED \
                                             MODELS INTERPOLATION REGRESSION \
-                                            MFN FROBENIUS QUADRATIC "
-                                            , param_names ) )
+                                            MFN FROBENIUS QUADRATIC \
+                                            SGTELIB" , param_names ) )
     {
         _out << std::endl
         << NOMAD::open_block ( "MODEL_SEARCH_OPTIMISTIC (advanced)" ) << std::endl
@@ -9837,7 +10682,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     // RHO:
     // ----
     if ( display_all || NOMAD::string_find ( "RHO ADVANCED MADS CONSTRAINTS \
-                                            PROGRESSIVE-BARRIER PB PEB \
+                                            PROGRESSIVE-BARRIER PB PEB    \
                                             FILTER TRIGGER" , param_names ) )
     {
         _out << std::endl
@@ -10315,8 +11160,8 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     // --------------------------
     if ( developer && ( display_all || NOMAD::string_find ( "MODEL_SEARCH_PROJ_TO_MESH DEVELOPER \
                                                            MODELS INTERPOLATION REGRESSION \
-                                                           MFN FROBENIUS QUADRATIC PROJECTION " ,
-                                                           param_names ) ) )
+                                                           MFN FROBENIUS QUADRATIC PROJECTION \
+                                                           SGTELIB" , param_names ) ) )
     {
         _out << std::endl
         << NOMAD::open_block ( "MODEL_SEARCH_PROJ_TO_MESH (developer)" ) << std::endl
@@ -10360,7 +11205,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
         << "   (n+1)-th direction is determined within a truncated "             << std::endl
         << "   unit hypercube ]epsilon;1[^n defined by the first "               << std::endl
         << "   n-th directions. The truncation is on lower limit "               << std::endl
-        << "   and is defined with a single argument (epsilon)."                 << std::endl
+        << "   and is defined with a single argument (epsilon)."                  << std::endl
         << ". argument: real in ]0;1["                                           << std::endl
         << ". default: 0.01"                                                     << std::endl
         << NOMAD::close_block();
@@ -10467,7 +11312,7 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
     // OPT_ONLY_SGTE:
     // --------------
     if (developer && ( display_all || NOMAD::string_find ( "OPT_ONLY_SGTES DEVELOPER SURROGATES \
-                                                          BLACK-BOXES BLACKBOXES \
+                                                          BLACK-BOXES    BLACKBOXES \
                                                           SGTES" , param_names ) ) )
     {
         
@@ -10498,23 +11343,38 @@ void NOMAD::Parameters::help ( const std::list<std::string> & pnames,bool develo
         << NOMAD::close_block();
         chk = true;
     }
-    
-    // MESH_TYPE:
+      
+    // ROBUST_MADS
     // -------------------
-    if ( developer && ( display_all || NOMAD::string_find ( "MESH_TYPE XMESH SMESH MESH \
-                                                           ANISO" , param_names ) ) )
+    if ( developer && ( display_all || NOMAD::string_find ( "ROBUST_MADS ROBUST SMOOTHING" , param_names ) ) )
     {
         
         _out << std::endl
-        << NOMAD::open_block ( "MESH_TYPE (developer)" )                         << std::endl
-        << ". forces the use of a specific type of mesh (xmesh, smesh))"         << std::endl
-        << ". arguments: X or S"                                                 << std::endl
-        << ". default: X"                                                        << std::endl
-        << ". example: MESH_TYPE X "                                             << std::endl
+        << NOMAD::open_block ( "ROBUST_MADS (developer)" )                         << std::endl
+        << ". use the robust mads algorithm for smoothing the objective function"  << std::endl
+        << ". on new evaluated points and cache points."                           << std::endl
+        << ". the algorihtm works only on single objective w/o constraints"        << std::endl
+        << ". default: false"                                                      << std::endl
+        << ". example: ROBUST_MADS true "                                          << std::endl
         << NOMAD::close_block();
         chk = true;
     }
     
+    // ROBUST_MADS_STANDARD_DEV_FACTOR
+    // -------------------
+    if ( developer && ( display_all || NOMAD::string_find ( "ROBUST_MADS_STANDARD_DEV_FACTOR STANDARD_DEV SMOOTHING ROBUST" , param_names ) ) )
+    {
+        
+        _out << std::endl
+        << NOMAD::open_block ( "ROBUST_MADS_STANDARD_DEV_FACTOR (developer)" )        << std::endl
+        << ". the standard deviation factor in the robust mads algorithm "            << std::endl
+        << ". controls the weight of the points in the objective function smoothing." << std::endl
+        << ". default: 2"                                                             << std::endl
+        << ". example: ROBUST_MADS_STANDARD_DEV_FACTOR 2 "                            << std::endl
+        << NOMAD::close_block();
+        chk = true;
+    }
+
     
     // last display:
     if ( !chk && developer)

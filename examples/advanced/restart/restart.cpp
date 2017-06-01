@@ -70,7 +70,7 @@ void My_Evaluator::update_iteration ( success_type              success      ,
                                      bool                    & stop           )
 {
     
-    if ( success == UNSUCCESSFUL )
+    if ( success == UNSUCCESSFUL  && stats.get_bb_eval() > 10 )
         stop = true;
 }
 
@@ -169,7 +169,7 @@ int main ( int argc , char ** argv )
                 p.check();
                 
                 // reset the Mads object:
-                mads.reset ( false , false );
+                mads.reset ( );
                 
             }
             

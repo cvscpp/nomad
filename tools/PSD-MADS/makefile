@@ -14,10 +14,13 @@ CXXFLAGS              += -Wl,-rpath,'$(LIB_DIR)'
 CXXFLAGS              += -ansi
 endif
 
+ifeq ($(UNAME), Darwin)
+CXXFLAGS              += -headerpad_max_install_names
+endif
 
 LDLIBS                 = -lm -lnomad -lmpi
 
-INCLUDE                = -I$(NOMAD_HOME)/src -I.
+INCLUDE                = -I$(NOMAD_HOME)/ext/sgtelib/src -I$(NOMAD_HOME)/src -I.
 COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
 OBJS                   = main.o Cache_Server.o Master_Slaves.o
 

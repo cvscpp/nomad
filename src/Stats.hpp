@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Stats.hpp
  \brief  Algorithm stats (headers)
@@ -76,7 +78,7 @@ namespace NOMAD {
         int           _sgte_eval;        ///< Number of surrogate evaluations.
         int           _sgte_cost;        ///< Surrogate cost.
         int           _bb_eval;          ///< Number of blackbox evaluations.
-        int           _block_eval;    ///< Number of block of evaluations.
+        int           _block_eval;       ///< Number of block of evaluations.
         int           _failed_eval;      ///< Number of failed evaluations.
         int           _cache_hits;       ///< Number of cache hits.
         int           _interrupted_eval; ///< Number of interrupted sequence of evaluations.
@@ -137,7 +139,7 @@ namespace NOMAD {
         int           _usr_srch_success;  ///< Number of user search successes.
         
         // Dynamic management of poll directions
-        int           _nb_success_dyn_dir;  ///< Number of successfull polling in the direction added dynamically
+        int				_nb_success_dyn_dir;  ///< Number of successfull polling in the direction added dynamically
         
         
     public:
@@ -158,7 +160,7 @@ namespace NOMAD {
         _sgte_eval            ( s._sgte_eval            ) ,
         _sgte_cost            ( s._sgte_cost            ) ,
         _bb_eval              ( s._bb_eval              ) ,
-        _block_eval        ( s._block_eval        ) ,
+        _block_eval           ( s._block_eval        ) ,
         _failed_eval          ( s._failed_eval          ) ,
         _cache_hits           ( s._cache_hits           ) ,
         _interrupted_eval     ( s._interrupted_eval     ) ,
@@ -472,6 +474,12 @@ namespace NOMAD {
          */
         int get_VNS_bb_eval ( void ) const { return _VNS_bb_eval; }
         
+        /// Access to the stat \c _nb_VNS_SEARCHES.
+        /**
+         \return The stat \c _nb_VNS_SEARCHES.
+         */
+        int get_nb_VNS_SEARCHES ( void ) const { return _nb_VNS_searches; }
+        
         /// Access to the stat \c _VNS_sgte_eval.
         /**
          \return The stat \c _VNS_sgte_eval.
@@ -507,7 +515,10 @@ namespace NOMAD {
         /**
          \return The \c sum stat.
          */
-        NOMAD::Double get_stat_sum ( void ) const { return _stat_sum; }
+        NOMAD::Double get_stat_sum ( void ) const
+        {
+            return _stat_sum;
+        }
         
         /// Access to the \c avg stat.
         /**
@@ -516,6 +527,15 @@ namespace NOMAD {
         NOMAD::Double get_stat_avg ( void ) const
         {
             return ( _cnt_avg > 0 ) ? _stat_avg/_cnt_avg : NOMAD::Double();
+        }
+        
+        /// Access to the stat \c _nb_ext_polls.
+        /**
+         \return The stat \c _nb_ext_polls.
+         */
+        int get_nb_ext_poll ( void ) const
+        {
+            return _nb_ext_polls;
         }
         
         /// Access to the model stats.

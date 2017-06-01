@@ -9,7 +9,10 @@ libnomad_a_SOURCES = Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.cpp\
 	Phase_One_Search.cpp Point.cpp Priority_Eval_Point.cpp Quad_Model.cpp\
 	Quad_Model_Evaluator.cpp Quad_Model_Search.cpp Random_Pickup.cpp\
 	RNG.cpp Signature.cpp Slave.cpp Speculative_Search.cpp Stats.cpp\
-	utils.cpp Variable_Group.cpp VNS_Search.cpp OrthogonalMesh.cpp
+	utils.cpp Variable_Group.cpp VNS_Search.cpp OrthogonalMesh.cpp \
+	GMesh.cpp Sgtelib_Model_Evaluator.cpp Sgtelib_Model_Manager.cpp \
+	Sgtelib_Model_Search.cpp
+
 
 libnomadmpi_a_SOURCES = Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.cpp\
 	Cache_Search.cpp Clock.cpp Direction.cpp Directions.cpp Display.cpp\
@@ -21,8 +24,10 @@ libnomadmpi_a_SOURCES = Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.c
 	Phase_One_Search.cpp Point.cpp Priority_Eval_Point.cpp Quad_Model.cpp\
 	Quad_Model_Evaluator.cpp Quad_Model_Search.cpp Random_Pickup.cpp\
 	RNG.cpp Signature.cpp Slave.cpp Speculative_Search.cpp Stats.cpp\
-	utils.cpp Variable_Group.cpp VNS_Search.cpp OrthogonalMesh.cpp
-	
+	utils.cpp Variable_Group.cpp VNS_Search.cpp OrthogonalMesh.cpp \
+	GMesh.cpp Sgtelib_Model_Evaluator.cpp Sgtelib_Model_Manager.cpp \
+	Sgtelib_Model_Search.cpp
+
 pkginclude_HEADERS = Cache_File_Point.hpp Cache.hpp Cache_Point.hpp\
 	Cache_Search.hpp Clock.hpp defines.hpp Direction.hpp Directions.hpp\
 	Display.hpp Double.hpp Eval_Point.hpp Evaluator_Control.hpp\
@@ -37,7 +42,9 @@ pkginclude_HEADERS = Cache_File_Point.hpp Cache.hpp Cache_Point.hpp\
 	Set_Element.hpp Signature_Element.hpp Signature.hpp\
 	Single_Obj_Quad_Model_Evaluator.hpp Slave.hpp Speculative_Search.hpp\
 	Stats.hpp Uncopyable.hpp utils.hpp Variable_Group.hpp\
-	VNS_Search.hpp Barrier.hpp OrthogonalMesh.hpp
+	VNS_Search.hpp Barrier.hpp OrthogonalMesh.hpp \
+	GMesh.hpp Sgtelib_Model_Evaluator.hpp Sgtelib_Model_Manager.hpp \
+	Sgtelib_Model_Search.hpp
 
 bin_PROGRAMS = nomad
 nomad_SOURCES = nomad.cpp

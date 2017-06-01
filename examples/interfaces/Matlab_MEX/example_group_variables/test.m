@@ -10,10 +10,10 @@ lb = [0;0;0;0];
 x0 = [0;0;0;0];
 
 opts = []; %not no nomadset just to keep user options
-opts.display_degree = 3;
+opts.display_degree = 2;
 opts.bb_output_type = 'OBJ PB PB PB';
 opts.model_search = 'false';
 opts.param_file='param.txt';
-opts.max_bb_eval = 20;
+opts.max_bb_eval = 50;
 
 [xr,fval,ef,iter] = nomad(fun,x0,lb,ub,opts)

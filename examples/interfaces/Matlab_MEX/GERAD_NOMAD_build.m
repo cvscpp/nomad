@@ -23,7 +23,7 @@ clear nomad
 cdir = cd;
 
 % Check and set nomad_home and create variables for path
-clear nomad_home nomad_src;
+clear nomad_home nomad_src nomad_src_sgtelib;
 
 % Default values
 nameLibNomad = '';
@@ -56,28 +56,35 @@ if ( strcmp(computer,'PCWIN64') == 1 || strcmp(computer,'PCWIN32') == 1 )
     end
       
     nomad_src=[nomad_home filesep 'src' filesep];
+    nomad_src_sgtelib=[nomad_home filesep 'src_sgtelib' filesep];
     nomad_bin=[nomad_home filesep 'bin' filesep];
     nomad_lib='';
 
-    %Compile & Move (Windows) ---> recompile Nomad
-    post = [' -I.  -I' nomad_src ' -lut -output ' nomad_bin filesep 'nomad.' mexext];
+    %Compile & Move (Windows) ---> recompile Nomad and sgtelib
+    post = [' -I.  -I' nomad_src ' -I' nomad_src_sgtelib ' -lut -output ' nomad_bin filesep 'nomad.' mexext];
     pre = ['mex -v -largeArrayDims nomadmex.cpp ' nomad_src 'Parameters.cpp ' nomad_src 'Barrier.cpp ' nomad_src 'Cache.cpp '...
     nomad_src 'Cache_File_Point.cpp ' nomad_src 'Cache_Point.cpp ' nomad_src 'Cache_Search.cpp ' nomad_src 'Clock.cpp '...
     nomad_src 'Direction.cpp ' nomad_src 'Directions.cpp ' nomad_src 'Display.cpp '...
     nomad_src 'Double.cpp ' nomad_src 'Eval_Point.cpp ' nomad_src 'Evaluator.cpp ' nomad_src 'Evaluator_Control.cpp ' nomad_src 'Exception.cpp '...
-    nomad_src 'Extended_Poll.cpp ' nomad_src 'L_Curve.cpp ' nomad_src 'LH_Search.cpp ' nomad_src 'OrthogonalMesh.cpp ' nomad_src 'Mads.cpp ' nomad_src 'Model_Sorted_Point.cpp '...
+    nomad_src 'Extended_Poll.cpp ' nomad_src 'GMesh.cpp ' nomad_src 'L_Curve.cpp ' nomad_src 'LH_Search.cpp ' nomad_src 'OrthogonalMesh.cpp ' nomad_src 'Mads.cpp ' nomad_src 'Model_Sorted_Point.cpp '...
     nomad_src 'Model_Stats.cpp ' nomad_src 'Multi_Obj_Evaluator.cpp ' nomad_src 'Parameter_Entries.cpp '...
     nomad_src 'Parameter_Entry.cpp ' nomad_src 'Pareto_Front.cpp ' nomad_src 'Pareto_Point.cpp ' nomad_src 'Phase_One_Evaluator.cpp '...
     nomad_src 'Phase_One_Search.cpp ' nomad_src 'Point.cpp ' nomad_src 'Priority_Eval_Point.cpp ' nomad_src 'Quad_Model.cpp '...
+    nomad_src 'Sgtelib_Model_Evaluator.cpp ' nomad_src 'Sgtelib_Model_Search.cpp ' nomad_src 'Sgtelib_Model_Manager.cpp ' ...
     nomad_src 'Quad_Model_Evaluator.cpp ' nomad_src 'Quad_Model_Search.cpp ' nomad_src 'Random_Pickup.cpp ' nomad_src 'RNG.cpp '...
     nomad_src 'Signature.cpp ' nomad_src 'Slave.cpp ' nomad_src 'SMesh.cpp ' nomad_src 'Speculative_Search.cpp ' nomad_src 'Stats.cpp ' nomad_src 'utils.cpp '...
-    nomad_src 'Variable_Group.cpp ' nomad_src 'VNS_Search.cpp ' nomad_src 'XMesh.cpp'];
-
+    nomad_src 'Variable_Group.cpp ' nomad_src 'VNS_Search.cpp ' nomad_src 'XMesh.cpp ' ...
+    nomad_src_sgtelib 'Kernel.cpp ' nomad_src_sgtelib 'Surrogate_Ensemble.cpp ' nomad_src_sgtelib 'Surrogate_LOWESS.cpp	'...
+    nomad_src_sgtelib 'Surrogate_Parameters.cpp	' nomad_src_sgtelib 'TrainingSet.cpp ' nomad_src_sgtelib 'Matrix.cpp '...
+    nomad_src_sgtelib 'Surrogate_Factory.cpp ' nomad_src_sgtelib 'Surrogate_PRS.cpp ' nomad_src_sgtelib 'Surrogate_RBF.cpp '...
+    nomad_src_sgtelib 'sgtelib.cpp ' nomad_src_sgtelib 'Surrogate.cpp ' nomad_src_sgtelib 'Surrogate_KS.cpp ' nomad_src_sgtelib 'Surrogate_PRS_CAT.cpp '...
+    nomad_src_sgtelib 'Surrogate_Utils.cpp ' nomad_src_sgtelib 'sgtelib_help.cpp '  nomad_src_sgtelib 'Surrogate_CN.cpp ' ...
+    nomad_src_sgtelib 'Surrogate_Kriging.cpp '  nomad_src_sgtelib 'Surrogate_PRS_EDGE.cpp ' nomad_src_sgtelib 'Tests.cpp ' ];
 
 else
-    %%%%%%%%%%%%%%%%%%%%%%%
-    % LINUX AND OSX
-    %%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % LINUX AND OSX  ---> use dynamic libraries
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % Default library names
     nameLibNomad = 'libnomad.so';
@@ -107,20 +114,21 @@ else
     end
       
     nomad_src=[nomad_home filesep 'src' filesep];
+    sgtelib_src=[nomad_home filesep 'ext' filesep 'sgtelib' filesep 'src'];
     nomad_lib=[nomad_home filesep 'lib' filesep];
     nomad_bin=[nomad_home filesep 'bin' filesep]; 
     
     switch(computer)
         case 'GLNX86'
-            updateLDFLAGS = 'LDFLAGS=''$LDFLAGS -Wl,-rpath,''''$ORIGIN/../lib/'''' '' ';
+            updateLDFLAGS = 'LDFLAGS=''$LDFLAGS -Wl,-rpath,''''$ORIGIN/../lib/'''' -Wl,-rpath-link,''''../lib/'''' '' ';
         case 'GLNXA64'
-            updateLDFLAGS = 'LDFLAGS=''$LDFLAGS -Wl,-rpath,''''$ORIGIN/../lib/'''' '' ';
+            updateLDFLAGS = 'LDFLAGS=''$LDFLAGS -Wl,-rpath,''''$ORIGIN/../lib/'''' -Wl,-rpath-link,''''../lib/'''' '' ';
         case 'MACI64'
             install_name_tool=['install_name_tool -change ' nameLibNomad ' @loader_path/../lib/' nameLibNomad ' ' nomad_bin filesep 'nomad.' mexext];
     end
    
     %Compile & Move (Default) --> use shared object library
-    post = [' -I.  -I' nomad_src ' -lut -lnomad -L' nomad_lib ' -output ' nomad_bin filesep 'nomad.' mexext ];
+    post = [' -I.  -I' nomad_src ' -I' sgtelib_src ' -lut -lnomad -L' nomad_lib ' -output ' nomad_bin filesep 'nomad.' mexext ];
     pre =[ 'mex -v -largeArrayDims nomadmex.cpp ' updateLDFLAGS ];
     
     if ( ~ exist([nomad_lib filesep nameLibNomad],'file') )
@@ -162,6 +170,6 @@ try
     clear nomad_home nomad_lib nomad_bin nomad_src cdir post pre updateLDFLAGS qstring choice install_name_tool nameLibNomad;
 catch ME
     cd(cdir);
-	clear nomad_home nomad_lib noamd_bin nomad_src cdir post pre updateLDFLAGS qstring choice install_name_tool nameLibNomad;
+	clear nomad_home nomad_lib nomad_bin nomad_src cdir post pre updateLDFLAGS qstring choice install_name_tool nameLibNomad;
     error('Error Compiling NOMAD!\n%s',ME.message);
 end

@@ -6,7 +6,7 @@ fun = @(x) (1-x(1))^2 + 100 *(x(2)-x(1)^2)^2;
 x0 = [-2 1]';
 lb = [-Inf;-1.5];
 ub = [100;100];
-opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size','10'); 
+opts = nomadset('min_mesh_size','1e-004','initial_mesh_size','10'); 
 
 % Start optimization
 [x,fval] = nomad(fun,x0,lb,ub,opts);
@@ -33,7 +33,7 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 % 
 % 
 % 
-% %% PROBLEM 3
+%% PROBLEM 3
 % %clc
 % % Blackbox Function
 % bb = @(x) (1-x(1))^2 + 100 *(x(2)-x(1)^2)^2;
@@ -42,11 +42,11 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 % opts = []; %not no nomadset just to keep user options
 % opts.display_degree = 2;
 % opts.direction_type = 'ortho n+1';
-% opts.max_bb_eval = 2;
+% opts.max_bb_eval = 200;
 % % Solve
 % [x,fval,ef,iter] = nomad(bb,x0,[],[],opts)
 % 
-% %% PROBLEM 4 [fval = -2.5]
+%% PROBLEM 4 [fval = -2.5]
 % %clc
 % fun = @(x)   [-x(1) - x(2) - x(3);
 %               (x(2) - 1./2.)*(x(2) - 1./2.) + (x(3) - 1./2.)*(x(3) - 1./2.) - 1/4;
@@ -61,6 +61,7 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 % opts.bb_output_type = 'OBJ PB PB PB';
 % opts.bb_input_type = '[B R R I]';
 % opts.model_search = 'false';
+% opts.max_bb_eval=50;
 % opts.model_eval_sort = 'false';
 % 
 % [xr,fval,ef,iter] = nomad(fun,x0,lb,ub,opts)
@@ -125,11 +126,11 @@ opts = nomadset('display_degree',2,'min_mesh_size','1e-004','initial_mesh_size',
 % [x,fval,ef,iter] = nomad(bb,x0,lb,ub,opts)
 % 
 % %% MINLP 1 [fval = -5]
-% %clc
+%clc
 % fun = @(x) [ (x(1) - 5)^2 + x(2)^2 - 25;
 %               x(1)^2 - x(2) + 0.5 ];
 % x0 = [0;0];
-% opts = nomadset('display_degree',2,'bb_input_type','[I I]','bb_output_type','OBJ PB');
+% opts = nomadset('display_degree',2,'bb_input_type','[I I]','bb_output_type','OBJ PB','max_bb_eval',20);
 % [xr,fval,ef,iter] = nomad(fun,x0,[],[],opts)
 % 
 % %% Bi-Objective (NOMAD Example)

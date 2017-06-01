@@ -48,14 +48,17 @@ end
 nomad_src=[nomad_home filesep 'src' filesep];
 nomad_lib=[nomad_home filesep 'lib' filesep];
 nomad_bin=[nomad_home filesep 'bin' filesep];
+nomad_sgtelib_src=[nomad_home filesep 'ext' filesep 'sgtelib' filesep 'src'];
 
 switch(computer)
 case 'PCWIN'
-libdir = ' -Lwin32\';
-nameLibNomad = 'nomad.dll';
+%libdir = ' -Lwin32\';
+%nameLibNomad = 'nomad.dll';
+error('The installation script for Windows is not yet available.');
 case 'PCWIN64'
-libdir = ' -Lwin64\';
-nameLibNomad = 'nomad.dll';
+%libdir = ' -Lwin64\';
+%nameLibNomad = 'nomad.dll';
+error('The installation script for Windows is not yet available.');
 case 'GLNX86'
 libdir = 'glnx86/';
 updateLDFLAGS = 'LDFLAGS=''$LDFLAGS -Wl,-rpath,''''$ORIGIN/../lib/'''' '' ';
@@ -67,7 +70,7 @@ libdir = 'maci64/';
 end
 
 %Get NOMAD Libraries
-post = [' -I.  -I' nomad_src ' -lm -lut -lnomad -L ' nomad_lib ' -output mergeM'];
+post = [' -I.  -I' nomad_src ' -I' nomad_sgtelib_src ' -lm -lut -lnomad -L ' nomad_lib ' -output mergeM'];
 
 %Compile & Move
 pre = ['mex -v -largeArrayDims ' updateLDFLAGS ' mergeM.cpp ' ];
@@ -78,10 +81,10 @@ try
         install_cmd = ['install_name_tool -change libnomad.so ' nomad_lib 'libnomad.so mergeM.mexmaci64' ]; 
         system(install_cmd);
     end
-    clear nomad_home nomad_src cdir post pre libdir;
+    clear nomad_home nomad_src nomad_sgtelib_src cdir post pre libdir;
     fprintf('Done!\n');
 catch ME
-	clear nomad_home nomad_src cdir post pre libdir;
+	clear nomad_home nomad_src nomad_sgtelib_src cdir post pre libdir;
     error('opti:nomad','Error Compiling NOMAD!\n%s',ME.message);
 end
 fprintf('------------------------------------------------\n');

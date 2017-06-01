@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Eval_Point.hpp
  \brief  Evaluation point (headers)
@@ -71,16 +73,16 @@ namespace NOMAD {
         
     private:
         
-        static int         _current_tag;        ///< Current tag for all NOMAD::Eval_Point objects.
-        int                _tag;                ///< Unique tag.
+        static int         _current_tag; ///< Current tag for all NOMAD::Eval_Point objects.
+        int                _tag;         ///< Unique tag.
         
-        static int         _current_bbe;        ///< Current bbe for all NOMAD::Eval_Point objects
-        static int         _current_sgte_bbe;   ///< Current sgte_bbe for all NOMAD::Eval_Point objects  .
-        int                _bbe;                /// Recorded bbe for current NOMAD::Eval_Point object
-        int                _sgte_bbe;           /// Recorded sgte_bbe for current NOMAD::Eval_Point object
-        int                _real_time;           /// Recorded time for current NOMAD::Eval_Point object
+        static int			_current_bbe;		///< Current bbe for all NOMAD::Eval_Point objects
+        static int			_current_sgte_bbe;  ///< Current sgte_bbe for all NOMAD::Eval_Point objects  .
+        int					_bbe;				/// Recorded bbe for current NOMAD::Eval_Point object
+        int					_sgte_bbe;		    /// Recorded sgte_bbe for current NOMAD::Eval_Point object
+        int					_real_time;			/// Recorded time for current NOMAD::Eval_Point object
         
-        NOMAD::Signature * _signature;          ///< Signature of the point.
+        NOMAD::Signature * _signature;   ///< Signature of the point.
         
         /**
          \c f is explicitely computed by a NOMAD::Evaluator object
@@ -93,6 +95,11 @@ namespace NOMAD {
          and is not saved in the cache file.
          */
         NOMAD::Double _h;
+        
+        NOMAD::Double _P;
+        NOMAD::Double _fsmooth;
+        NOMAD::Double _smoothing_variance;
+        
         
         /// Flag equal to \c true if this eval point is in the cache.
         mutable bool _in_cache;
@@ -131,6 +138,13 @@ namespace NOMAD {
          or is in progress.
          */
         NOMAD::eval_status_type _eval_status;
+        
+        /// Smoothing status.
+        /**
+         Indicates if the smoothing failed, succeeded,
+         or is undefined (default).
+         */
+        NOMAD::smoothing_status_type _smoothing_status;
         
         /// Flag equal to \c true if all EB constraints have been satisfied.
         bool _EB_ok;
@@ -225,6 +239,12 @@ namespace NOMAD {
          */
         NOMAD::Signature * get_signature ( void ) const;
         
+        /// Access to the i-th coordinate of a point
+        /** 
+         \return A constant reference to the value (double) of the coordinate of a point
+         */
+        const double & value (int i) const {return (*this)[i].value();}
+        
         /// Access to the number of blackbox outputs.
         /**
          \return Number of blackbox outputs.
@@ -288,6 +308,25 @@ namespace NOMAD {
          */
         const NOMAD::Double & get_h ( void ) const { return _h; }
         
+        /// Access to the smoothed objective value \c f.
+        /**
+         \return The smoothed objective value.
+         */
+        const NOMAD::Double & get_fsmooth ( void ) const { return _fsmooth; }
+        
+        /// Access to the objective weight value \c f.
+        /**
+         \return The objective weight value.
+         */
+        const NOMAD::Double & get_P ( void ) const { return _P; }
+        
+        /// Access to the variance for RobustMads kernel smoothing \c f.
+        /**
+         \return The smoothing variance associated to the eval_point.
+         */
+        const NOMAD::Double & get_smoothing_variance ( void ) const { return _smoothing_variance; }
+
+        
         /// Access to the blackbox outputs.
         /**
          \return The \c m blackblack outputs.
@@ -349,6 +388,14 @@ namespace NOMAD {
          */
         NOMAD::eval_status_type get_eval_status ( void ) const { return _eval_status; }
         
+        
+        /// Access to the smoothing status.
+        /**
+         \return The smoothing status
+         (smoothing failed, succeeded, or undefined(default)).
+         */
+        NOMAD::smoothing_status_type get_smoothing_status ( void ) const { return _smoothing_status; }
+        
         /// Access to the user evaluation priority.
         /**
          \return The user evaluation priority.
@@ -367,6 +414,7 @@ namespace NOMAD {
             return _rand_eval_priority;
         }
         
+
         /// Check the point feasibility.
         /**
          The point is feasible if \c h \c <= \c h_min.
@@ -464,6 +512,24 @@ namespace NOMAD {
          */
         void set_h ( const NOMAD::Double & h ) { _h = h; }
         
+        /// Set the smooth objective value \c f.
+        /**
+         \param f objective function value -- \b IN.
+         */
+        void set_fsmooth ( const NOMAD::Double & f ) { _fsmooth = f; }
+
+        /// Set the objective weight value \c f.
+        /**
+         \param p objective weight value -- \b IN.
+         */
+        void set_P ( const NOMAD::Double & p ) { _P = p; }
+        
+        /// Set the variance for RobustMads kernel smoothing \c f.
+        /**
+         \param v variance for RobustMads kernel smoothing-- \b IN.
+         */
+        void set_smoothing_variance ( const NOMAD::Double & v ) { _smoothing_variance = v; }
+        
         /// Set the user evaluation priority.
         /**
          \param u User evaluation priority -- \b IN.
@@ -496,6 +562,13 @@ namespace NOMAD {
          */
         void set_eval_status ( const NOMAD::eval_status_type & e ) { _eval_status = e; }
         
+        /// Set the smoothing status.
+        /**
+         \param e Smoothing status (failed, succeeded, or undefined (default))
+         -- \b IN.
+         */
+        void set_smoothing_status ( const NOMAD::smoothing_status_type & e ) { _smoothing_status = e; }
+
         /// Set if the point respects the EB constraints.
         /**
          \param e A boolean equal to \c true if the point
@@ -558,7 +631,7 @@ namespace NOMAD {
         
         /// Reset the tags and bbes
         /**
-         */        
+         */		
         static void reset_tags_and_bbes ( void ) {_current_tag = 0;_current_bbe = 0;_current_sgte_bbe = 0;}
         
 #ifdef MODEL_STATS

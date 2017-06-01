@@ -3,8 +3,7 @@ Instructions to use AMPL models with NOMAD:
 1. Install the AMPL interface library.
 
    This interface can be downloaded at
-   ftp://www.netlib.org/ampl/solvers.tar.gz
-   or at http://www.gerad.ca/~orban/LibAmpl/
+   http://www.netlib.org/ampl/solvers
    (for a simple installation and the generation of dynamic libraries).
 
    The example given in the NOMAD package uses the dynamic library version.

@@ -7,13 +7,21 @@ use Data::Dumper;
 use threads;
 use threads::shared;
 use Thread::Semaphore;
+use Config;
  
-
-# quelques variables partagées
-my $BBdotEXE:shared="./bb.exe";  ## The blackbox executable
 
 my $numberParallelJobs:shared=4;
 my $semaphoreBBEval = Thread::Semaphore->new($numberParallelJobs);
+
+## The blackbox executable
+my $OSname:shared = "$Config{osname}";
+my $BBdotEXE:shared="./bb.exe";
+if ( $OSname eq "MSWin32" ) {
+    $BBdotEXE="bb.exe"; 
+}
+
+
+
 
 
 if ( ! exists $ARGV[0]) {

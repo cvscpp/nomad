@@ -34,7 +34,7 @@ if ( grep(/MINGW/,<aComRes>) ){
 	$MPIcommand="mpirun -n";    # version OSX and linux
 }
 
-my $keySearch=" Erreur | Error | error | error: | Exception | NOMAD::Exception | Failed | Arrêt | Stop";
+my $keySearch=" Erreur | Error | error | error: | Erreur | erreur | Exception | NOMAD::Exception | Failed | Arrêt | Stop";
 
 my $nombre_de_jobs_en_parallele:shared;
 if ( ! exists $ARGV[0]) {
@@ -61,7 +61,8 @@ my @list = (
 	["cd $ENV{NOMAD_HOME}/examples/basic/library/single_obj ; if [ -e basic_lib_MPI.exe  ] ; then rm -f basic_lib_MPI.exe   ; fi  ; make clean 2>&1 ; make mpi 2>&1; $MPIcommand 3 ./basic_lib_MPI.exe  2>&1"],
 	["cd $ENV{NOMAD_HOME}/examples/basic/library/bi_obj ; if [ -e basic_lib_MPI.exe  ] ; then rm -f basic_lib_MPI.exe  ; fi  ; make clean 2>&1 ; make mpi 2>&1; $MPIcommand 3 ./basic_lib_MPI.exe  2>&1"],	
 	["cd $ENV{NOMAD_HOME}/examples/basic/library/single_obj_parallel ; if [ -e basic_lib.exe  ] ; then rm -f basic_lib.exe  ; fi  ; make clean 2>&1 ; make 2>&1; ./basic_lib.exe  2>&1"],
-	["cd $ENV{NOMAD_HOME}/examples/advanced/categorical/batch ; if [ ! -e bb.exe  -o ! -e neighbors.exe  ] ; then g++ -o bb.exe  bb.cpp 2>&1 ; g++ -o neighbors.exe  neighbors.cpp ; fi ; echo ; $ENV{NOMAD_HOME}/bin/$nomadEXE param.txt 2>&1"],
+    ["cd $ENV{NOMAD_HOME}/examples/advanced/categorical/batch ; if [ ! -e bb.exe  -o ! -e neighbors.exe  ] ; then g++ -o bb.exe  bb.cpp 2>&1 ; g++ -o neighbors.exe  neighbors.cpp ; fi ; echo ; $ENV{NOMAD_HOME}/bin/$nomadEXE param.txt 2>&1"],
+    ["cd $ENV{NOMAD_HOME}/tools/PSD-MADS ; if [ -e psdmads.exe  ] ; then rm -f *.exe  *.o ; fi ; make 2>&1 ; cd problems/G2_20 ; g++ -o bb.exe  bb.cpp 2>&1; $MPIcommand 6 ../../psdmads.exe  param.txt 50 5 2>&1"],
 	["cd $ENV{NOMAD_HOME}/examples/advanced/categorical/batch ; if [ ! -e bb.exe  -o ! -e neighbors.exe  ] ; then g++ -o bb.exe  bb.cpp 2>&1 ; g++ -o neighbors.exe  neighbors.cpp ; fi ; echo ; $MPIcommand 3 $ENV{NOMAD_HOME}/bin/$nomadMPI_EXE param.txt 2>&1"],
 	["cd $ENV{NOMAD_HOME}/examples/advanced/categorical/single_obj ; if [ -e categorical.exe  ] ; then rm -f categorical.exe  ; echo ; fi ; make clean 2>&1 ; make 2>&1; ./categorical.exe  2>&1 "],
 	["cd $ENV{NOMAD_HOME}/examples/advanced/categorical/single_obj ; if [ -e categorical_MPI.exe  ] ; then rm -f categorical_MPI.exe  ; echo ; fi ; make clean 2>&1 ; make mpi 2>&1; $MPIcommand 3 ./categorical_MPI.exe  2>&1 "],
@@ -86,8 +87,9 @@ my @list = (
 	); 
  
 my @NOMADcompilations = (
-    ["cd $ENV{NOMAD_HOME}/src ; make clean ; make all -j $nombre_de_jobs_en_parallele 2>&1"],
-    ["cd $ENV{NOMAD_HOME}/src ; make clean ; make mpi -j $nombre_de_jobs_en_parallele 2>&1"]
+    ["cd $ENV{NOMAD_HOME}/src ; make del "],
+    ["cd $ENV{NOMAD_HOME}/src ; make all -j $nombre_de_jobs_en_parallele 2>&1"],
+    ["cd $ENV{NOMAD_HOME}/src ; make mpi -j $nombre_de_jobs_en_parallele 2>&1"]
         );
 
  
@@ -169,10 +171,10 @@ sub RunProblem($$$$$){
 #############################
 # Sub pour les compilations
 #############################
-sub CompileNOMAD($$$){
+sub CompileNOMAD($$){
 	my $aRef = shift;
 	my $index = shift;
-	my $failed = shift; 
+	my $failed = 0; 
 	
  	open(WRITE_LOG,"> logNOMADCompile$index.txt"); 	
  	for my $command (@{$aRef}){
@@ -182,16 +184,17 @@ sub CompileNOMAD($$$){
 
  	    print WRITE_LOG "Path: $Path[1] \n Command: $Problem[1] ; Managed as process $index \n";
  	    open(LOG,"$command |") or die "Can't run program: $!\n";
+        my $errSearch="Erreur|Error|error|erreur|commande introuvable|compilation failed";
 		if ($? != 0) {
 	        print "Failed compilation of NOMAD: command $! process $index \n";
-			$$failed=0;
+			$failed=1;
     	}
     	else {
 			while (<LOG>){
-				if (my @foo = grep(/error/, $_) ) {
+				if (my @foo = grep(/$errSearch/, $_) ) {
 					print "??????? Problem encountered when compiling NOMAD in process $index:\n     ----->     @foo\n";
  	      			print WRITE_LOG "     ----->   @foo \n ";
-					$$failed=0;
+					$failed=1;
  	      			last;   			
  	      		}
  	      		if (my @foo = grep(/warning/, $_) ) {
@@ -199,52 +202,60 @@ sub CompileNOMAD($$$){
  	      		}
  	      	}
  	    }
- 	    if ($$failed==1){
+ 	    if ($failed==0){
  	    	print WRITE_LOG "++++++++++ OK! \n";
  	    }
  	    close (LOG);
  	}
   	close (WRITE_LOG);
-	return;
+	return $failed;
 }
 
 #####################################
 ##### Debut du programme principal
 #####################################
+
 # nettoie les fichiers de log
 print "########################################################\n";
 print "Cleaning old log files\n";
 system ("rm -f log*.txt");
-
-
-# démarre la compilation de nomad 
-my $failedCompileNOMAD=1;
-my $thrNOMAD = threads->create("CompileNOMAD",($NOMADcompilations[0],1,\$failedCompileNOMAD));    ### Version parallele
 print "########################################################\n";
-print "NOMAD compilation (not mpi) started \n";
 
+# Fait clean
+print "NOMAD clean started";
+my $thrCleanNOMAD = threads->create("CompileNOMAD",($NOMADcompilations[0],1));
+$failedCleanNOMAD = $thrCleanNOMAD->join();
 
-# démarre la compilation de nomad_mpi 
-my $failedCompileNOMAD_MPI=1;
-my $thrNOMAD_MPI = threads->create("CompileNOMAD",($NOMADcompilations[1],2,\$failedCompileNOMAD_MPI));  ### Version parallele
-print "NOMAD compilation (mpi) started\n";
-
-$thrNOMAD->join();
-$thrNOMAD_MPI->join();
-
-if ($failedCompileNOMAD==0){
-	print "NOMAD compilation (not mpi) failed. Stopping here! \n";
+if ($failedCleanNOMAD!=0){
+    print "\n NOMAD clean failed. Stopping here! \n";
+    exit 0;
 }
+print " ---> success. \n";
+print "########################################################\n";
 
-if ($failedCompileNOMAD_MPI==0){
-	print "NOMAD compilation (mpi) failed. Stoppinf here! \n";
+
+# démarre la compilation de nomad
+print "NOMAD compilation (not mpi) started";
+my $thrNOMAD = threads->create("CompileNOMAD",($NOMADcompilations[1],2));
+my $failedCompileNOMAD = $thrNOMAD->join();
+
+if ($failedCompileNOMAD!=0){
+    print "\n NOMAD compilation (not mpi) failed. Stopping here! \n";
+    exit 0;
 }
+print " ---> success. \n";
+print "########################################################\n";
 
-if ($failedCompileNOMAD==0 or $failedCompileNOMAD_MPI==0){
-	exit 0;
+# démarre la compilation de nomad_mpi
+print "NOMAD compilation (mpi) started";
+my $thrNOMAD_MPI = threads->create("CompileNOMAD",($NOMADcompilations[2],3));
+my $failedCompileNOMAD_MPI = $thrNOMAD_MPI->join();
+
+if ($failedCompileNOMAD_MPI!=0){
+	print "\n NOMAD compilation (mpi) failed. Stopping here! \n";
+    exit 0;
 }
-
-print "NOMAD compilation(s) success\n";
+print " ---> success. \n";
 print "########################################################\n\n";
 
 print "########################################################\n";

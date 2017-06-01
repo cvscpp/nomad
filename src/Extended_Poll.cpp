@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Extended_Poll.cpp
  \brief  Extended poll for categorical variables (implementation)
@@ -133,8 +135,8 @@ void NOMAD::Extended_Poll::add_extended_poll_point ( NOMAD::Point     & ep ,
     // new eval point:
     // ---------------
     NOMAD::Eval_Point * pt  = new NOMAD::Eval_Point;
-    pt->set ( ep , _p.get_bb_nb_outputs() );
-    pt->set_signature ( new_s );
+    pt->set                 ( ep , _p.get_bb_nb_outputs() );
+    pt->set_signature     ( new_s                       );
     
     
     for ( int i = 0 ; i < pt->get_n() ; ++i )
@@ -313,7 +315,7 @@ void NOMAD::Extended_Poll::descent ( const NOMAD::Eval_Point  * y               
         l2 = static_cast<int>((old_bi->get_signature()->get_mesh()->get_min_mesh_indices())[0].value());
     
     
-    descent_p.get_signature()->get_mesh()->set_limit_mesh_index( std::min( l1, l2) );    
+    descent_p.get_signature()->get_mesh()->set_limit_mesh_index( std::min( l1, l2) );  
     
     
     // Evaluator_Control object:
@@ -539,7 +541,7 @@ void NOMAD::Extended_Poll::set_descent_parameters ( const NOMAD::Eval_Point * y 
     descent_p.set_PERIODIC_VARIABLE ( epc_signature->get_periodic_variables() );
     descent_p.set_VARIABLE_GROUP    ( epc_signature->get_var_groups()         );
     descent_p.set_BB_OUTPUT_TYPE    ( _p.get_bb_output_type() );
-    descent_p.set_DIRECTION_TYPE ( _p.get_direction_types() );
+    descent_p.set_DIRECTION_TYPE    ( _p.get_direction_types() );
     descent_p.set_SEC_POLL_DIR_TYPE ( _p.get_sec_poll_dir_types() );
     
     
@@ -574,6 +576,7 @@ void NOMAD::Extended_Poll::set_descent_parameters ( const NOMAD::Eval_Point * y 
         descent_p.set_MODEL_EVAL_SORT ( _p.get_model_eval_sort());
         descent_p.set_MODEL_SEARCH (_p.has_model_search());
         
+        
     }
     
     
@@ -581,6 +584,7 @@ void NOMAD::Extended_Poll::set_descent_parameters ( const NOMAD::Eval_Point * y 
     
     int bbe       = stats.get_bb_eval();
     int sgte_eval = stats.get_sgte_eval();
+    int blk_eva   = stats.get_block_eval();
     
     {
         int p_max_bbe = _p.get_max_bb_eval();
@@ -629,7 +633,7 @@ void NOMAD::Extended_Poll::set_descent_parameters ( const NOMAD::Eval_Point * y 
     descent_p.set_OPPORTUNISTIC_MIN_NB_SUCCESS ( _p.get_opportunistic_min_nb_success() );
     
     if ( _p.eval_points_as_block() )
-        descent_p.set_BB_MAX_BLOCK_SIZE( _p.get_bb_max_block_size() );
+        descent_p.set_BB_MAX_BLOCK_SIZE(    _p.get_bb_max_block_size()        );
     
     
     descent_p.set_CACHE_FILE        ( _p.get_cache_file()        );
@@ -646,42 +650,101 @@ void NOMAD::Extended_Poll::set_descent_parameters ( const NOMAD::Eval_Point * y 
     else
         descent_p.set_DISPLAY_DEGREE ( _p.out().get_poll_dd());
     
-    // Stats style modified
-    if ( has_sgte )
-        descent_p.set_DISPLAY_STATS ( NOMAD::itos(sgte_eval) + "+SGTE OBJ (ExtendedPoll---surrogate)" );
-    else
+    std::string s_bbe = NOMAD::itos(bbe) + "+";
+    std::string s_blk = NOMAD::itos(blk_eva) + "+";
+    std::string s_sgte = NOMAD::itos(sgte_eval) + "+";
+
+    // Display stats
     {
         std::list<std::string> ds = _p.get_display_stats();
-        std::list<std::string>::iterator       it    = ds.begin();
-        std::list<std::string>::const_iterator end   = ds.end();
-        std::string  s_bbe = NOMAD::itos(bbe) + "+";
-        while ( it != end )
+        std::list<std::string>::iterator it    = ds.begin();
+        std::list<std::string>::iterator end   = ds.end();
+        
+        if ( has_sgte )
         {
-            if (*it == "BBE")
-                ds.insert ( it , s_bbe );
-            ++it;
+            while ( it != ds.end() )
+            {
+                if ( *it == "BBE" )
+                {
+                    it = ds.erase ( it );
+                    ds.insert ( it , NOMAD::itos(bbe) );
+                }
+                if ( *it == "BLK_EVA" )
+                {
+                    it = ds.erase ( it );
+                    ds.insert ( it , NOMAD::itos(blk_eva) );
+                }
+                if ( *it == "SGTE" )
+                    ds.insert ( it , s_sgte );
+                
+                ++it;
+            }
+            ds.push_back(" ");
+            ds.push_back ( "(ExtendedPoll#" + NOMAD::itos(stats.get_nb_ext_poll()) + "--surrogate_evals)" );
+            descent_p.set_DISPLAY_STATS ( ds );
+            
         }
-        ds.push_back ( " (ExtendedPoll)" );
-        descent_p.set_DISPLAY_STATS ( ds );
+        else
+        {
+            
+            while ( it != end )
+            {
+                if ( *it == "BBE" )
+                    ds.insert ( it , s_bbe );
+                if ( *it == "BLK_EVA" )
+                    ds.insert ( it , s_blk );
+                ++it;
+            }
+            ds.push_back(" ");
+            ds.push_back ( "(ExtendedPoll#" + NOMAD::itos(stats.get_nb_ext_poll()) + ")" );
+            
+            descent_p.set_DISPLAY_STATS ( ds );
+        }
     }
     
     // STATS_FILE:
-    if ( has_sgte )
-        descent_p.set_STATS_FILE ( _p.get_stats_file_name() , NOMAD::itos(sgte_eval) + "+SGTE OBJ (ExtendedPoll---surrogate)" );
-    else
     {
         std::list<std::string>                 sf    = _p.get_stats_file();
         std::list<std::string>::iterator       it    = sf.begin();
         std::list<std::string>::const_iterator end   = sf.end();
-        std::string                            s_bbe = NOMAD::itos(bbe) + "+";
-        while ( it != end )
+        if ( has_sgte )
         {
-            if ( *it == "BBE" )
-                sf.insert ( it , s_bbe );
-            ++it;
+            while ( it != sf.end() )
+            {
+                if ( *it == "BBE" )
+                {
+                    it = sf.erase ( it );
+                    sf.insert ( it , NOMAD::itos(bbe) );
+                }
+                if ( *it == "BLK_EVA" )
+                {
+                    it = sf.erase ( it );
+                    sf.insert ( it , NOMAD::itos(blk_eva) );
+                }
+                if ( *it == "SGTE" )
+                    sf.insert ( it , s_sgte );
+                
+                ++it;
+            }
+            sf.push_back(" ");
+            sf.push_back ( "(ExtendedPoll#" + NOMAD::itos(stats.get_nb_ext_poll()) + "--surrogate_evals)" );
+            descent_p.set_STATS_FILE ( _p.get_stats_file_name() , sf );
         }
-        sf.push_back ( " (ExtendedPoll)" );
-        descent_p.set_STATS_FILE ( _p.get_stats_file_name() , sf );
+        else
+        {
+            
+            while ( it != end )
+            {
+                if ( *it == "BBE" )
+                    sf.insert ( it , s_bbe );
+                if ( *it == "BLK_EVA" )
+                    sf.insert ( it , s_blk );
+                ++it;
+            }
+            sf.push_back(" ");
+            sf.push_back ( "(ExtendedPoll#" + NOMAD::itos(stats.get_nb_ext_poll()) + ")" );
+            descent_p.set_STATS_FILE ( _p.get_stats_file_name() , sf );
+        }
     }
     
     // Mesh:
@@ -689,7 +752,8 @@ void NOMAD::Extended_Poll::set_descent_parameters ( const NOMAD::Eval_Point * y 
         const OrthogonalMesh * mesh = epc_signature->get_mesh();
         descent_p.set_MIN_MESH_SIZE ( mesh->get_min_mesh_size() );
         descent_p.set_MIN_POLL_SIZE ( mesh->get_min_poll_size() );
-        descent_p.set_INITIAL_POLL_SIZE ( mesh->get_initial_poll_size() , false );        
+        descent_p.set_INITIAL_POLL_SIZE ( mesh->get_initial_poll_size() , false );
+        
     }
     
     // check the parameters:

@@ -32,9 +32,6 @@ public:
 
     count_eval = true; // count a black-box evaluation
 
-    //if ( c1-25 < 0 && 25-c2 < 0 && x[4] < -3.2 ) 
-        // NOMAD::Evaluator::force_quit();
-
     return true;       // the evaluation succeeded
 }
 	
@@ -78,8 +75,7 @@ int main ( int argc , char ** argv ) {
     ub[2] = 7.0;                              // x_3 <= 7
     p.set_UPPER_BOUND ( ub );
 
-    p.set_LIMIT_MESH_INDEX( -1 );
-    //p.set_MAX_BB_EVAL (10000);     // the algorithm terminates after
+    p.set_MAX_BB_EVAL (100);     // the algorithm terminates after
                                  // 100 black-box evaluations
     p.set_DISPLAY_DEGREE(2);
     p.set_SOLUTION_FILE("sol.txt");

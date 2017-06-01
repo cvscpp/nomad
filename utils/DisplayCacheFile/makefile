@@ -10,13 +10,13 @@ LIB_NOMAD              = libnomad.so
 
 CXXFLAGS               =           
 ifeq ($(UNAME), Linux)
-CXXFLAGS              += -Wl,-rpath,’$(LIB_DIR)’
+CXXFLAGS              += -Wl,-rpath,'$(LIB_DIR)'
 CXXFLAGS              += -ansi
 endif
 
 LDLIBS                 = -lm -lnomad
 
-INCLUDE                = -I$(NOMAD_HOME)/src -I.
+INCLUDE                = -I$(NOMAD_HOME)/src -I$(NOMAD_HOME)/ext/sgtelib/src -I.
 COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
 
 OBJS                   = displayCache.o

@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Phase_One_Search.cpp
  \brief  NOMAD::Search subclass for the phase one (implementation)
@@ -92,16 +94,17 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
     // save and modify parameters:
     std::string old_display_degree;
     _p.out().get_display_degree ( old_display_degree );
-    const std::list<std::string>              old_ds = _p.get_display_stats();
-    const std::string           old_stats_file_name = _p.get_stats_file_name();
-    const std::string                  old_sol_file = _p.get_solution_file();
-    const std::list<std::string>      old_stats_file = _p.get_stats_file();
-    const NOMAD::Point                 old_f_target = _p.get_f_target();
-    NOMAD::Double                           old_lct = _p.get_L_curve_target();
-    bool                                  old_sif = _p.get_stop_if_feasible();
+    const std::list<std::string>         old_ds = _p.get_display_stats();
+    NOMAD::Double                     old_VNS_trigger = _p.get_VNS_trigger();
+    const std::string             old_stats_file_name = _p.get_stats_file_name();
+    const std::string                    old_sol_file = _p.get_solution_file();
+    const std::list<std::string>       old_stats_file = _p.get_stats_file();
+    const NOMAD::Point                   old_f_target = _p.get_f_target();
+    NOMAD::Double                             old_lct = _p.get_L_curve_target();
+    bool                                      old_sif = _p.get_stop_if_feasible();
     const std::vector<NOMAD::bb_output_type> old_bbot = _p.get_bb_output_type();
     std::vector<NOMAD::bb_output_type>        p1_bbot = old_bbot;
-    
+
     NOMAD::multi_formulation_type old_multi_formulation = _p.get_multi_formulation() ;
     int                    old_multi_nb_mads_runs = _p.get_multi_nb_mads_runs();
     
@@ -133,13 +136,12 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
         return;
     }
     
-
     if ( cnt > 1 )
     {
-        // _p.set_LH_SEARCH(100, 0);
         _p.set_MULTI_FORMULATION( NOMAD::DIST_LINF );
         _p.set_MULTI_NB_MADS_RUNS( 1 );
     }
+
     
     _p.set_F_TARGET         ( NOMAD::Point ( cnt , 0.0 ) );
     _p.set_L_CURVE_TARGET   ( NOMAD::Double()            );
@@ -190,7 +192,7 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
     NOMAD::Mads::set_flag_reset_mesh     ( false );
     NOMAD::Mads::set_flag_p1_active      ( true  );
     NOMAD::Mads::set_flag_reset_barriers ( true  );
-
+       
     // run:
     stop_reason = mads.run();
     
@@ -245,6 +247,7 @@ void NOMAD::Phase_One_Search::search ( NOMAD::Mads              & mads          
     
     _p.set_MULTI_NB_MADS_RUNS( old_multi_nb_mads_runs );
     _p.set_MULTI_FORMULATION( old_multi_formulation );
+
     
     _p.check ( false ,    // remove_history_file  = false
               true  ,    // remove_solution_file = true

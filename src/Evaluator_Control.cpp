@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Evaluator_Control.cpp
  \brief  Control of the blackbox evaluations (implementation)
@@ -50,6 +52,10 @@
 #include "Evaluator_Control.hpp"
 #include "Multi_Obj_Quad_Model_Evaluator.hpp"
 #include "Single_Obj_Quad_Model_Evaluator.hpp"
+#include "Sgtelib_Model_Manager.hpp"
+
+
+const double PI = 3.141592654;
 
 /*-----------------------------------*/
 /*   static members initialization   */
@@ -61,30 +67,32 @@ bool NOMAD::Evaluator_Control::_force_evaluation_failure = false;
 /*---------------------------------------------------------*/
 /*                       constructor                       */
 /*---------------------------------------------------------*/
-NOMAD::Evaluator_Control::Evaluator_Control ( const NOMAD::Parameters & p          ,
+NOMAD::Evaluator_Control::Evaluator_Control ( const NOMAD::Parameters & p         ,
                                              NOMAD::Stats            & stats      ,
                                              NOMAD::Evaluator        * ev         ,   // can be NULL
                                              NOMAD::Cache            * cache      ,   // can be NULL
-                                             NOMAD::Cache            * sgte_cache   ) // can be NULL
-: _p                ( p          ) ,
-_ev               ( ev         ) ,
-_cache            ( cache      ) ,
-_sgte_cache       ( sgte_cache ) ,
-_model_eval_sort  ( true       ) ,
-_del_ev           ( false      ) ,
-_del_cache        ( false      ) ,
-_del_sgte_cache   ( false      ) ,
+                                             NOMAD::Cache            * sgte_cache  ) // can be NULL
+: _p                  ( p          ) ,
+_ev                   ( ev         ) ,
+_cache                ( cache      ) ,
+_sgte_cache           ( sgte_cache ) ,
+_best_smooth_feas_inc ( NULL   ) ,
+_model_eval_sort      ( true       ) ,
+_del_ev               ( false      ) ,
+_del_cache            ( false      ) ,
+_del_sgte_cache       ( false      ) ,
 #ifdef USE_MPI
-_eval_in_progress ( NULL       ) ,
-_nb_in_progress   ( 0          ) ,
-_elop_tag         ( 0          ) ,
-_slaves_elop_tags ( NULL       ) ,
-_slave            ( NULL       ) ,
+_eval_in_progress     ( NULL       ) ,
+_nb_in_progress       ( 0          ) ,
+_elop_tag             ( 0          ) ,
+_slaves_elop_tags     ( NULL       ) ,
+_slave                ( NULL       ) ,
 #endif
-_stats            ( stats      ) ,
-_last_stats_tag   ( -1         ) ,
-_last_stats_bbe   ( -1         ) ,
-_last_history_bbe ( -1         )
+_sgtelib_model_manager ( NULL       ) ,
+_stats                 ( stats      ) ,
+_last_stats_tag        ( -1         ) ,
+_last_stats_bbe        ( -1         ) ,
+_last_history_bbe      ( -1         )
 {
     NOMAD::Evaluator_Control::_force_quit = false;
     
@@ -299,9 +307,9 @@ NOMAD::success_type NOMAD::Evaluator_Control::process_barrier_points ( NOMAD::Ba
     b1.reset_success();
     
     NOMAD::Eval_Point                       *    modifiable_x;
-    NOMAD::success_type                          one_eval_succ;
+    NOMAD::success_type                            one_eval_succ;
     const NOMAD::Eval_Point                 *    last_success  = NULL;
-    const std::list<const NOMAD::Eval_Point *> & all_inserted  = b2.get_all_inserted();
+    const std::list<const NOMAD::Eval_Point *>    & all_inserted  = b2.get_all_inserted();
     std::list<const NOMAD::Eval_Point *>::const_iterator it , end = all_inserted.end();
     for ( it = all_inserted.begin() ; it != end ; ++it )
     {
@@ -412,22 +420,29 @@ void NOMAD::Evaluator_Control::display_stats ( bool                           he
 #endif
     }
     
-    NOMAD::Double            f;
+    NOMAD::Double            f,f_smooth,h;
     const NOMAD::Point     * sol        = NULL;
     const NOMAD::Point     * bbo        = NULL;
     const NOMAD::Signature * signature  = NULL;
     int                      bbe        = _stats.get_bb_eval();
+    int                      sgte_eval  = _stats.get_sgte_eval();
+    int                      reported_bbe_value = 0;
+    int                      reported_blk_eva_value = 0;
+    int                      reported_sgte_value = 0;
     int                      real_time  = _stats.get_real_time();
     int                      blk_bbe    = _stats.get_block_eval();
     int                      i;
+    bool                     valid_smooth = false;
     
     // this integer is used for the default width display
     // of the various stats on the number of evaluations:
     int max_bbe = _p.get_max_bb_eval();
     if ( _p.get_max_sgte_eval() > max_bbe )
         max_bbe = _p.get_max_sgte_eval();
+    
     if ( _p.get_max_sim_bb_eval() > max_bbe )
         max_bbe = _p.get_max_sim_bb_eval();
+    
     if ( _p.get_max_eval() > max_bbe )
         max_bbe = _p.get_max_eval();
     
@@ -435,8 +450,14 @@ void NOMAD::Evaluator_Control::display_stats ( bool                           he
     {
         signature       = x->get_signature();
         f               = (feasible) ? x->get_f() : NOMAD::INF;
+        if ( _p.get_robust_mads() )
+        {
+            f_smooth = x->get_fsmooth();
+            valid_smooth = ( x->get_smoothing_status() == NOMAD::SMOOTHING_OK );
+        }
         sol             = x;
         bbo             = &(x->get_bb_outputs());
+        h               = x->get_h();
         
         if (bbe < _last_stats_bbe && ! multi_obj)
             return;
@@ -447,7 +468,7 @@ void NOMAD::Evaluator_Control::display_stats ( bool                           he
     
     
     std::string s1 , format;
-    std::list<std::string>::const_iterator it , end = stats.end();
+    std::list<std::string>::const_iterator it , itP, end = stats.end();
     for ( it = stats.begin() ; it != end ; ++it )
     {
         
@@ -477,7 +498,7 @@ void NOMAD::Evaluator_Control::display_stats ( bool                           he
                 NOMAD::display_stats_type dst
                 = NOMAD::Display::get_display_stats_type ( *it );
                 
-                // some stats types are disables in the multi-objective case:
+                // some stats types are disabled in the multi-objective case:
                 if ( multi_obj &&
                     ( dst == NOMAD::DS_SIM_BBE  ||
                      dst == NOMAD::DS_BBE      ||
@@ -493,8 +514,27 @@ void NOMAD::Evaluator_Control::display_stats ( bool                           he
                 {
                     case NOMAD::DS_UNDEFINED:
                         s1 = *it;
+                        
+                        itP = it;
+                        itP++;
+                        
                         NOMAD::Display::extract_display_format ( s1 , format );
-                        out << s1;
+                        
+                        if ( itP != end && _p.get_report_bbe_value() && NOMAD::Display::get_display_stats_type ( *(itP) ) == NOMAD::DS_BBE )
+                            reported_bbe_value = NOMAD::Display::extract_reported_count_value ( s1 );
+                        
+                        if ( itP != end && _p.get_report_sgte_value() && NOMAD::Display::get_display_stats_type ( *(itP) ) == NOMAD::DS_SGTE )
+                            reported_sgte_value = NOMAD::Display::extract_reported_count_value ( s1 );
+                        
+                        
+                        if ( itP != end && _p.get_report_blk_eva_value() && NOMAD::Display::get_display_stats_type ( *(itP) ) == NOMAD::DS_BLK_EVA )
+                            reported_blk_eva_value = NOMAD::Display::extract_reported_count_value ( s1 );
+
+                        
+                        if ( reported_bbe_value == 0 && reported_blk_eva_value ==0 && reported_sgte_value == 0 )
+                            out << s1;
+
+                        
                         break;
                     case NOMAD::DS_OBJ:
                         if ( multi_obj )
@@ -513,6 +553,27 @@ void NOMAD::Evaluator_Control::display_stats ( bool                           he
                             format.clear();
                         }
                         break;
+                        case NOMAD::DS_CONS_H:
+                        {
+                            display_stats_real ( out , h , format );
+                            format.clear();
+                            break;
+                        }
+                    case NOMAD::DS_SMOOTH_OBJ:
+                    {
+                        
+                        if ( f_smooth.is_defined() && valid_smooth )
+                        {
+                            display_stats_real ( out , f_smooth , format );
+                        }
+                        else
+                            out << "0";
+                        
+                        
+                        break;
+                    }
+
+                        
                     case NOMAD::DS_MESH_INDEX:
                     {
                         
@@ -568,20 +629,33 @@ void NOMAD::Evaluator_Control::display_stats ( bool                           he
                     }
 #else
                     {
+                        if ( reported_bbe_value > 0 )
+                            bbe+=reported_bbe_value;
+                        
                         display_stats_int ( out , bbe , max_bbe , format );
+                        reported_bbe_value = 0;
+                            
                     }
 #endif
                         format.clear();
                         break;
                     case NOMAD::DS_BLK_EVA:
                     {
+                        if ( reported_blk_eva_value > 0 )
+                            blk_bbe+=reported_blk_eva_value;
+                        
                         display_stats_int ( out , blk_bbe , max_bbe , format );
+                        reported_blk_eva_value = 0;
+                        
                     }
                         format.clear();
                         break;
                         
                     case NOMAD::DS_SGTE:
-                        display_stats_int ( out , _stats.get_sgte_eval() , max_bbe , format );
+                        if ( reported_sgte_value > 0 )
+                            sgte_eval+=reported_sgte_value;
+                        display_stats_int ( out , sgte_eval , max_bbe , format );
+                        reported_sgte_value = 0;
                         format.clear();
                         break;
                     case NOMAD::DS_EVAL:
@@ -646,7 +720,7 @@ void NOMAD::Evaluator_Control::display_stats_type ( const NOMAD::Display        
         case NOMAD::CONTINUOUS:
             format2 = "%0." + NOMAD::itos(DISPLAY_PRECISION_STD) + "g";
             break;
-        case NOMAD::INTEGER || NOMAD::BINARY || NOMAD::CATEGORICAL:
+        case NOMAD::INTEGER : case NOMAD::BINARY : case NOMAD::CATEGORICAL:
             format2 = "%i";
             break;
         default:
@@ -744,11 +818,11 @@ void NOMAD::Evaluator_Control::display_stats_point ( const NOMAD::Display       
             
             if ( !s1.empty() )
                 out << s1;
-            if ( !s2.empty() && i < n-1  && s2.find("(VNS)")==std::string::npos && s2.find("(PhaseOne)")==std::string::npos && s2.find("(LH)")==std::string::npos && s2.find("(ExtendedPoll)")==std::string::npos )
+            if ( !s2.empty() && i < n-1  && s2.find("(VNS")==std::string::npos && s2.find("(PhaseOne")==std::string::npos && s2.find("(LH")==std::string::npos && s2.find("(ExtendedPoll")==std::string::npos )
                 out << " " << s2;
             out << " ";
         }
-        if ( !s2.empty() && (s2.find("(VNS)")!=std::string::npos || s2.find("(PhaseOne)")!=std::string::npos || s2.find("(LH)")!=std::string::npos || s2.find("(ExtendedPoll)")!=std::string::npos))
+        if ( !s2.empty() && (s2.find("(VNS")!=std::string::npos || s2.find("(PhaseOne")!=std::string::npos || s2.find("(LH")!=std::string::npos || s2.find("(ExtendedPoll")!=std::string::npos))
             out << s2;
     }
 }
@@ -769,10 +843,10 @@ void NOMAD::Evaluator_Control::write_solution_file ( const NOMAD::Eval_Point & x
 /*  or update the history file (HISTORY_FILE )  */
 /*  (private)                                   */
 /*----------------------------------------------*/
-void NOMAD::Evaluator_Control::write_sol_or_his_file ( const std::string      & file_name ,
+void NOMAD::Evaluator_Control::write_sol_or_his_file ( const std::string       & file_name ,
                                                       const NOMAD::Eval_Point & x         ,
                                                       bool                      is_sol    ,
-                                                      bool                      display_bimv ) const
+                                                      bool                        display_bimv ) const
 {
     // if is_sol == true: save the solution file
     //              else: update the history file
@@ -955,16 +1029,22 @@ bool NOMAD::Evaluator_Control::cache_check ( const NOMAD::Eval_Point *& x       
     
     // first cache check:
     if ( x->is_in_cache() )
+    {
         cache_x = x;
+    }
     // second cache check:
     else
+    {
         cache_x = ( ( x->get_eval_type() == NOMAD::TRUTH ) ?
                    _cache : _sgte_cache )->find ( *x );
+    }
+    
     
     // cache hit: transfer some data from x to cache_x:
     if ( cache_x )
     {
         
+       
         if ( x_eval_type != cache_x->get_eval_type() )
             throw NOMAD::Exception ( "Evaluator_Control.cpp" , __LINE__ ,
                                     "Evaluator_Control::cache_check(): eval and cache pts have different eval_type" );
@@ -1009,6 +1089,9 @@ bool NOMAD::Evaluator_Control::cache_check ( const NOMAD::Eval_Point *& x       
           cache_x->get_h().is_defined()            &&
           cache_x->get_h() < h_max                    ) ) )
     {
+        if ( display_degree == NOMAD::FULL_DISPLAY )
+            cout << "in cache but redo"<<endl;
+
         x       = cache_x;
         cache_x = NULL;
     }
@@ -1044,7 +1127,11 @@ bool NOMAD::Evaluator_Control::cache_check ( const NOMAD::Eval_Point *& x       
         
         return true;
     }
-    
+    if ( display_degree == NOMAD::FULL_DISPLAY )
+    {
+        const NOMAD::Display & out = _p.out();
+        out << "not in cache"<<endl;
+    }
     return false;
 }
 
@@ -1152,6 +1239,13 @@ void NOMAD::Evaluator_Control::eval_point ( NOMAD::Eval_Point       & x         
                 x.set_in_cache ( false );
         }
         
+        // Smoothing (robust mads) -->set f smooth
+        //-------------
+        // Smooth objective functions values from cache, get best solution (updated cache), update success status
+        if ( eval_ok && x.is_in_cache() && _p.get_robust_mads() )
+            private_smooth_fx ( *eval_x );
+
+        
     }
     
 }
@@ -1160,14 +1254,14 @@ void NOMAD::Evaluator_Control::eval_point ( NOMAD::Eval_Point       & x         
 /*----------------------------------------------------*/
 /*                 eval points in a list (private)    */
 /*----------------------------------------------------*/
-void NOMAD::Evaluator_Control::eval_points ( std::list<NOMAD::Eval_Point *>     & list_eval         ,
-                                            NOMAD::Barrier                      & true_barrier      ,
-                                            NOMAD::Barrier                      & sgte_barrier      ,
-                                            NOMAD::Pareto_Front                 * pareto_front      ,
-                                            std::list<bool>                     & count_list_eval   ,
-                                            bool                                & stop              ,
-                                            NOMAD::stop_type                    & stop_reason       ,
-                                            const NOMAD::Double                 & h_max             )
+void NOMAD::Evaluator_Control::eval_points ( std::list<NOMAD::Eval_Point *>    & list_eval        ,
+                                            NOMAD::Barrier                    & true_barrier    ,
+                                            NOMAD::Barrier                    & sgte_barrier    ,
+                                            NOMAD::Pareto_Front             * pareto_front    ,
+                                            std::list<bool>                    & count_list_eval,
+                                            bool                            & stop            ,
+                                            NOMAD::stop_type                & stop_reason    ,
+                                            const NOMAD::Double                & h_max          )
 {
     int max_bb_eval   = _p.get_max_bb_eval();
     int max_sgte_eval = _p.get_max_sgte_eval();
@@ -1249,6 +1343,12 @@ void NOMAD::Evaluator_Control::eval_points ( std::list<NOMAD::Eval_Point *>     
                 _ev->compute_f ( *(*it) );
                 _ev->compute_h ( *(*it));
                 
+                // Smoothing (robust mads) -->set f smooth
+                //-------------
+                // Smooth objective functions values from cache and from eval_lop, get best solution (updated cache), update success status
+                if ( _p.get_robust_mads() )
+                    private_smooth_fx ( *(*it) );
+                
             }
             else if (!eval_rejected)
             {
@@ -1278,7 +1378,6 @@ void NOMAD::Evaluator_Control::eval_points ( std::list<NOMAD::Eval_Point *>     
                 if ( size_after == size_before )
                     (*it)->set_in_cache ( false );
             }
-            
             
             // count the output stats (STAT_SUM and STAT_AVG):
             if ( (_p.check_stat_sum() || _p.check_stat_avg()) && !eval_rejected)
@@ -1340,6 +1439,15 @@ void NOMAD::Evaluator_Control::check_stopping_criteria
     {
         int max_bb_eval   = _p.get_max_bb_eval();
         int max_sgte_eval = _p.get_max_sgte_eval();
+        int max_block_eval  = _p.get_max_block_eval();
+
+        // stop when block eval budget is exhausted
+        if ( max_block_eval > 0 && _stats.get_block_eval() >= max_block_eval )
+        {
+            stop        = true;
+            stop_reason = NOMAD::MAX_BLOCK_EVAL_REACHED;
+        }
+
         if ( max_bb_eval > 0 && _stats.get_bb_eval() >= max_bb_eval )
         {
             stop        = true;
@@ -1503,6 +1611,14 @@ void NOMAD::Evaluator_Control::receive_eval_result ( NOMAD::search_type    searc
         
         int max_bb_eval   = _p.get_max_bb_eval();
         int max_sgte_eval = _p.get_max_sgte_eval();
+        int max_block_eval  = _p.get_max_block_eval();
+
+        // stop when block eval budget is exhausted
+        if ( max_block_eval > 0 && _stats.get_block_eval() >= max_block_eval )
+        {
+            stop        = true;
+            stop_reason = NOMAD::MAX_BLOCK_EVAL_REACHED;
+        }
         
         if ( max_bb_eval > 0 && _stats.get_bb_eval() >= max_bb_eval )
         {
@@ -1707,8 +1823,7 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
     const NOMAD::Eval_Point  * x;
     NOMAD::check_failed_type   check_failed_reason;
     bool                       count_eval;
-    std::vector<const NOMAD::Eval_Point *>
-    to_be_evaluated;
+    std::vector<const NOMAD::Eval_Point *> to_be_evaluated;
     NOMAD::success_type        one_eval_success;
     bool                       one_for_luck = false;
     bool                       opp_stop     = false;
@@ -2124,6 +2239,11 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
     old_feasible_incumbent   = barrier.get_best_feasible();
     old_infeasible_incumbent = barrier.get_best_infeasible();
     
+    if ( _p.get_robust_mads() && _best_smooth_feas_inc )
+    {
+        old_feasible_incumbent = _best_smooth_feas_inc;
+    }
+    
     NOMAD::Double f0;
     if ( _p.get_opportunistic_min_f_imprvmt().is_defined() &&
         old_feasible_incumbent )
@@ -2144,8 +2264,8 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
     int                       k            = 0;
     int                       k_block      = 0;
     int                       nb_points    = get_nb_eval_points();
-    int                       block_size   = _p.get_bb_max_block_size();
-    int                       block_nb     = 1;
+    int                          block_size   = _p.get_bb_max_block_size();
+    int                          block_nb        = 1;
     
     // main loop (on the list of points):
     // ----------------------------------
@@ -2155,8 +2275,6 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
     
     while ( !stop_evals && !stop && it != end )
     {
-        
-        
         if ( block_size > 1 && display_degree == NOMAD::FULL_DISPLAY )
         {
             std::ostringstream oss;
@@ -2221,6 +2339,7 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
                     list_eval.push_back(&NOMAD::Cache::get_modifiable_point ( *x ));
                 else
                 {
+                    
                     // check stopping criteria for points in cache
                     check_stopping_criteria ( search , count_eval , *x , stop , stop_reason );
                     
@@ -2278,6 +2397,7 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
             ++it;
             ++k;
         }
+        
         if ( list_eval.size() != 0 )
         {
             
@@ -2285,27 +2405,28 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
             
             if (_p.eval_points_as_block())
             {
-                eval_points ( list_eval         ,
-                             true_barrier       ,
-                             sgte_barrier       ,
-                             pareto_front       ,
+                eval_points ( list_eval            ,
+                             true_barrier        ,
+                             sgte_barrier        ,
+                             pareto_front        ,
                              count_list_eval    ,
-                             stop               ,
+                             stop                ,
                              stop_reason        ,
-                             barrier.get_h_max());
+                             barrier.get_h_max() );
             }
             else
             {
                 // bool count_eval=false;
                 x=*(list_eval.begin());
-                eval_point ( NOMAD::Cache::get_modifiable_point ( *x )  ,
+                
+                eval_point ( NOMAD::Cache::get_modifiable_point ( *x )    ,
                             true_barrier                                ,
                             sgte_barrier                                ,
                             pareto_front                                ,
-                            count_list_eval.front()                     ,
+                            count_list_eval.front()                    ,
                             stop                                        ,
-                            stop_reason                                 ,
-                            barrier.get_h_max()                         );
+                            stop_reason                                ,
+                            barrier.get_h_max()                        );
                 
             }
             
@@ -2319,6 +2440,7 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
         std::list<NOMAD::Eval_Point *>::iterator it_x,it_eval;
         k=k_block;
         it_eval=list_eval.begin();
+        success = NOMAD::UNSUCCESSFUL;
         for(it_x=list_x.begin();it_x!=list_x.end();++it_x)
         {
             
@@ -2331,12 +2453,39 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
                                     true_barrier : sgte_barrier                   ,
                                     pareto_front                                    );
             
+            // With RobustMads smoothing, the barrier is not used to identify a success (no constraints are allowed)
+            NOMAD::success_type one_eval_success = NOMAD::UNSUCCESSFUL;
+            if ( _p.get_robust_mads() && _best_smooth_feas_inc && x->is_in_cache() )
+            {
+                if ( _best_smooth_feas_inc != old_feasible_incumbent )
+                {
+                    
+                    if ( x==_best_smooth_feas_inc )
+                    {
+                        one_eval_success = NOMAD::FULL_SUCCESS;
+                        success = NOMAD::FULL_SUCCESS;
+                    }
+                    else
+                    {
+                        one_eval_success = NOMAD::CACHE_UPDATE_SUCCESS;
+                        success = NOMAD::CACHE_UPDATE_SUCCESS;
+                    }
+                    new_feas_inc = _best_smooth_feas_inc;
+                    
+                    barrier.reset();
+                    barrier.insert( *_best_smooth_feas_inc );
+                    barrier.select_poll_center( one_eval_success );
+                
+                }
+            }
+            else
+            {
+                // success:
+                one_eval_success = barrier.get_one_eval_succ();
+                success          = barrier.get_success();
+            }
             
             
-            
-            // success:
-            NOMAD::success_type one_eval_success = barrier.get_one_eval_succ();
-            success                              = barrier.get_success();
             
             // list of processed points:
             if ( x->is_in_cache() )
@@ -2347,6 +2496,7 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
                 // the point has not been found in the cache
                 // and it failed to be inserted.
                 one_eval_success = NOMAD::UNSUCCESSFUL;
+                
             }
             
             // displays:
@@ -2392,8 +2542,6 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
                     break;
                 }
             }
-            
-            
             
             // close the evaluation block:
             if ( display_degree == NOMAD::FULL_DISPLAY )
@@ -2452,13 +2600,16 @@ void NOMAD::Evaluator_Control::private_eval_list_of_points ( NOMAD::search_type 
         out << std::endl << NOMAD::close_block ( "end of evaluations" )
         << std::endl;
     
-    // incumbents update:
-    const NOMAD::Eval_Point * bf = barrier.get_best_feasible  ();
-    const NOMAD::Eval_Point * bi = barrier.get_best_infeasible();
-    if ( bf && bf != old_feasible_incumbent )
-        new_feas_inc = bf;
-    if ( bi && bi != old_infeasible_incumbent )
-        new_infeas_inc = bi;
+    if ( ! _p.get_robust_mads() || _best_smooth_feas_inc==NULL )
+    {
+        const NOMAD::Eval_Point * bf = barrier.get_best_feasible  ();
+        const NOMAD::Eval_Point * bi = barrier.get_best_infeasible();
+        if ( bf && bf != old_feasible_incumbent )
+            new_feas_inc = bf;
+        if ( bi && bi != old_infeasible_incumbent )
+            new_infeas_inc = bi;
+    }
+    
     
     // the list of eval. points is deleted (only points in the cache are kept):
     clear_eval_lop();
@@ -2860,6 +3011,63 @@ void NOMAD::Evaluator_Control::quad_model_ordering ( NOMAD::dd_type display_degr
 }
 
 
+
+/*-------------------------------------------------*/
+/*            sgtelib_model model ordering (private)    */
+/*-------------------------------------------------*/
+void NOMAD::Evaluator_Control::sgtelib_model_ordering ( NOMAD::dd_type   display_degree ,
+                                                       bool           & modified_list    )
+{
+    modified_list = false;
+    
+    if ( _p.get_SGTELIB_MODEL_FORMULATION()==NOMAD::SGTELIB_MODEL_FORMULATION_EXTERN )
+    {
+        // ROBIN
+        return;
+    }
+    
+    
+    
+    if ( _sgtelib_model_manager && _sgtelib_model_manager->is_ready() ){
+        
+        NOMAD::Double h_model;
+        const NOMAD::Double h_max;
+        bool count_eval = false;
+        std::vector<NOMAD::Eval_Point *> XX;
+        const NOMAD::Eval_Point * x;
+        std::set<NOMAD::Priority_Eval_Point>::const_iterator it , end = _eval_lop.end();
+        
+        
+        for ( it = _eval_lop.begin() ; it != end ; ++it )
+        {
+            x = it->get_point();
+            XX.push_back ( &NOMAD::Cache::get_modifiable_point ( *x ) );
+        }
+        
+        int n_XX = static_cast<int>( XX.size() );
+        _eval_lop.clear();
+        
+        for ( int i = 0 ; i < n_XX ; ++i )
+        {
+            // Prediction
+            _sgtelib_model_manager->eval_x( XX[i] , h_max , count_eval );
+            // Evaluation of h & f
+            _sgtelib_model_manager->eval_h ( XX[i]->get_bb_outputs() , h_model  );
+            
+            // Add the point the eval_lop
+            add_eval_point ( XX[i]   ,
+                            display_degree  ,
+                            _p.get_snap_to_bounds(),
+                            NOMAD::Double() ,
+                            NOMAD::Double() ,
+                            XX[i]->get_f()  ,
+                            h_model         );
+        }//end for
+    }// end if
+    modified_list = true;
+}
+
+
 /*----------------------------------------------------------------------------------*/
 /*  evaluation of a list of points (public version that calls the private version)  */
 /*----------------------------------------------------------------------------------*/
@@ -2968,6 +3176,9 @@ void NOMAD::Evaluator_Control::eval_list_of_points ( NOMAD::search_type         
     {
         switch ( _p.get_model_eval_sort() )
         {
+            case NOMAD::SGTELIB_MODEL:
+                sgtelib_model_ordering ( display_degree , modified_list );
+                break;
             case NOMAD::QUADRATIC_MODEL:
                 quad_model_ordering ( display_degree , modified_list );
                 break;
@@ -3126,6 +3337,9 @@ void NOMAD::Evaluator_Control::ordering_lop ( NOMAD::search_type             sea
             case NOMAD::QUADRATIC_MODEL:
                 quad_model_ordering ( display_degree , modified_list );
                 break;
+            case NOMAD::SGTELIB_MODEL:
+                sgtelib_model_ordering ( display_degree , modified_list );
+                break;
             case NOMAD::NO_MODEL:;
         }
     }
@@ -3203,7 +3417,7 @@ bool NOMAD::Evaluator_Control::stop_evaluations ( const NOMAD::Eval_Point & x   
                 return true;
             }
             
-            if ( success == NOMAD::FULL_SUCCESS &&
+             if ( ( success == NOMAD::FULL_SUCCESS || success == NOMAD::CACHE_UPDATE_SUCCESS ) &&
                 check_opportunistic_criterion ( display_degree   ,
                                                one_eval_success ,
                                                init_nb_eval     ,
@@ -3222,13 +3436,13 @@ bool NOMAD::Evaluator_Control::stop_evaluations ( const NOMAD::Eval_Point & x   
 /*            return true to stop the evaluations                  */
 /*            return false to continue the evaluations             */
 /*-----------------------------------------------------------------*/
-bool NOMAD::Evaluator_Control::check_opportunistic_criterion ( NOMAD::dd_type         display_degree   ,
+bool NOMAD::Evaluator_Control::check_opportunistic_criterion ( NOMAD::dd_type         display_degree  ,
                                                               NOMAD::success_type    one_eval_success ,
                                                               int                    init_nb_eval     ,
                                                               const NOMAD::Double  & f0               ,
                                                               const NOMAD::Barrier & barrier          ,
                                                               int                  & nb_success       ,
-                                                              bool                 & one_for_luck       ) const
+                                                              bool                 & one_for_luck      ) const
 {
     
     int                    min_nb_success = _p.get_opportunistic_min_nb_success();
@@ -3240,8 +3454,7 @@ bool NOMAD::Evaluator_Control::check_opportunistic_criterion ( NOMAD::dd_type   
     // min_nb_success:
     if ( min_nb_success > 0 )
     {
-        
-        if ( one_eval_success == NOMAD::FULL_SUCCESS )
+        if ( one_eval_success == NOMAD::FULL_SUCCESS || one_eval_success == NOMAD::CACHE_UPDATE_SUCCESS )
             ++nb_success;
         
         if ( nb_success < min_nb_success )
@@ -3308,7 +3521,7 @@ bool NOMAD::Evaluator_Control::check_opportunistic_criterion ( NOMAD::dd_type   
     }
     
     // lucky_eval:
-    if ( lucky_eval && one_eval_success == NOMAD::FULL_SUCCESS )
+    if ( lucky_eval && ( one_eval_success == NOMAD::FULL_SUCCESS || one_eval_success == NOMAD::CACHE_UPDATE_SUCCESS ) )
     {
         one_for_luck = true;
         
@@ -3456,6 +3669,7 @@ void NOMAD::Evaluator_Control::add_eval_point( NOMAD::Eval_Point  *& x          
     // 2. model values for f and h:
     pep.set_f_model ( f_model );
     pep.set_h_model ( h_model );
+
     
     if ( x->get_direction() )
     {
@@ -3493,6 +3707,139 @@ void NOMAD::Evaluator_Control::add_eval_point( NOMAD::Eval_Point  *& x          
         delete x;
         x = NULL;
     }
+}
+
+void NOMAD::Evaluator_Control::private_smooth_fx( NOMAD::Eval_Point & eval_pt )
+{
+    
+    if ( ! eval_pt.is_defined())
+        throw NOMAD::Exception ("Evaluator_Control.cpp" , __LINE__ ,"NOMAD::Evaluator_Control::private_smooth_fx ---- eval point is not defined. No smoothing is done!" );
+    
+    
+    NOMAD::Double Px,Fx,gu,Fu;
+    NOMAD::Eval_Point & ptX_1 = _cache->get_modifiable_point( eval_pt );
+    
+    if ( ptX_1.get_f().value() >= NOMAD::INF || ptX_1.get_f().value() <= -NOMAD::INF )
+    {
+        ptX_1.set_smoothing_status ( NOMAD::SMOOTHING_FAIL );
+        return;
+    }
+    
+    // Set the kernel smoothing variance of the point
+    NOMAD::Point Delta = _p.get_signature()->get_mesh()->get_Delta();
+    NOMAD::Double D = Delta[0];
+    
+    NOMAD::Double sigma =  D * _p.get_robust_mads_standard_dev_factor() ;
+    ptX_1.set_smoothing_variance( sigma * sigma );
+
+    
+    // Initialize fsmooth with eval point
+    NOMAD::Double Psmooth=private_grondd ( ptX_1 , ptX_1 );
+    NOMAD::Double fsmooth=Psmooth*ptX_1.get_f();
+    
+    // First: Update evaluated point (eval_pt)----> loop on points in cache (U first)
+    const NOMAD::Eval_Point * curU_1 = _cache->begin();
+    
+    while ( curU_1 )
+    {
+        if ( curU_1->get_eval_status() == NOMAD::EVAL_OK && curU_1->get_f() < NOMAD::INF && curU_1->get_f() > -NOMAD::INF )
+        {
+            
+            gu = private_grondd ( ptX_1 , *curU_1 );
+            Fu = curU_1->get_f();
+            
+            if ( ! gu.is_defined() ||  ! Fu.is_defined() )
+            {
+                throw NOMAD::Exception ("Evaluator_Control.cpp" , __LINE__ ,"NOMAD::Evaluator_Control::private_smooth_fx_pt ---- not enough information for smoothing fx!" );
+                
+            }
+            
+            fsmooth += gu * Fu;
+            Psmooth += gu;
+        }
+        curU_1 = _cache->next();
+    }
+    
+    fsmooth = fsmooth / Psmooth;
+    
+    if ( isnan( fsmooth.value() ) || isnan( Psmooth.value() ) )
+    {
+        ptX_1.set_smoothing_status ( NOMAD::SMOOTHING_FAIL );
+    }
+    else
+    {
+        ptX_1.set_smoothing_status ( NOMAD::SMOOTHING_OK );
+        ptX_1.set_fsmooth( fsmooth );
+        ptX_1.set_P( Psmooth );
+        
+        if ( _best_smooth_feas_inc==NULL || ( _best_smooth_feas_inc->is_defined() && ptX_1.get_fsmooth() < _best_smooth_feas_inc->get_fsmooth() ) )
+                _best_smooth_feas_inc = &eval_pt;
+
+    }
+    
+    // Second: update pts in cache
+    const NOMAD::Eval_Point * curX_2 = _cache->begin();
+    
+    while ( curX_2 )
+    {
+        if ( curX_2->get_eval_status() == NOMAD::EVAL_OK && curX_2->get_smoothing_status() == NOMAD::SMOOTHING_OK && eval_pt.get_smoothing_status () == NOMAD::SMOOTHING_OK )
+        {
+            
+            NOMAD::Eval_Point & ptX_2 = _cache->get_modifiable_point( *curX_2 );
+            
+            Psmooth=ptX_2.get_P();
+            fsmooth=Psmooth*ptX_2.get_fsmooth();
+            
+            gu = private_grondd( ptX_2 , eval_pt );
+            Fu = eval_pt.get_f();
+            
+            if ( ! gu.is_defined() ||  ! Fu.is_defined() )
+            {
+                throw NOMAD::Exception ("Evaluator_Control.cpp" , __LINE__ ,"NOMAD::Evaluator_Control::private_smooth_fx_pt ---- not enough information for smoothing fx!" );
+            }
+            
+            fsmooth += gu * Fu;
+            Psmooth += gu;
+            fsmooth = fsmooth / Psmooth;
+            
+            // Update only if fsmooth and Psmooth are valid
+            if ( ! isnan( fsmooth.value() ) && ! isnan( Psmooth.value() ) )
+            {
+                ptX_2.set_fsmooth( fsmooth );
+                ptX_2.set_P( Psmooth );
+                
+                if ( ptX_2.get_fsmooth() < _best_smooth_feas_inc->get_fsmooth() )
+                    _best_smooth_feas_inc = &ptX_2;
+            }
+        }
+        
+        curX_2=_cache->next();
+        
+    }
+    
+}
+
+NOMAD::Double NOMAD::Evaluator_Control::private_grondd  ( const NOMAD::Eval_Point & x1 , const NOMAD::Eval_Point & x2 )
+{
+
+    // Important remark: x1 and x2 may have different smoothing variance ---> order matters!
+    double var = x1.get_smoothing_variance().value();
+    
+    if ( ! x1.get_smoothing_variance().is_defined() )
+        throw NOMAD::Exception ("Evaluator_Control.cpp" , __LINE__ ,"NOMAD::Evaluator_Control::private_grondd ---- variance smoothing is not available!" );
+    
+    double g = pow( 2 * PI * var , -0.5 );
+    if ( x1 != x2 )
+    {
+        double d=0;
+        for ( int i=0; i < x1.size() ;i++ )
+        {
+            d+=( x1[i].value()-x2[i].value() ) * ( x1[i].value()-x2[i].value() ) ;
+        }
+            g *= exp( - d / (2.0 * var ) );
+    }
+    return NOMAD::Double ( g );
+    
 }
 
 #ifdef MODEL_STATS

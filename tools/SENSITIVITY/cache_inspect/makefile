@@ -15,7 +15,7 @@ endif
 
 LDLIBS                 = -lm -lnomad
 
-INCLUDE                = -I$(NOMAD_HOME)/src -I.
+INCLUDE                = -I$(NOMAD_HOME)/src -I. -I$(NOMAD_HOME)/ext/sgtelib/src
 COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
 OBJS                   = cache_inspect.o
 

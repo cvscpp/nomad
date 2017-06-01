@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Display.cpp
  \brief  Custom class for display (implementation)
@@ -228,6 +230,31 @@ void NOMAD::Display::extract_display_format ( std::string & s , std::string & fo
     }
 }
 
+
+/*--------------------------------------------------------*/
+/*         extract reported count value from a string     */
+/*--------------------------------------------------------*/
+/*  example: s="152+" return 152                          */
+/*--------------------------------------------------------*/
+int NOMAD::Display::extract_reported_count_value ( std::string & s )
+{
+    if ( s.empty() )
+        return 0;
+    size_t k = s.find("+");
+    size_t n = s.size();
+    size_t klast = s.find_last_of("+");
+    if ( n == 0 || k == std::string::npos || klast == std::string::npos || k != klast )
+        return 0;
+
+    int reported_count_value = 0;
+    bool success = atoi ( s.substr ( 0 , k ) , reported_count_value );
+    
+    if ( success )
+        return reported_count_value;
+    else
+        return 0;
+}
+
 /*---------------------------------------------------------*/
 /*         to display a duration with a smart format       */
 /*              (t is in seconds and integer)              */
@@ -268,8 +295,7 @@ void NOMAD::Display::display_size_of ( float size ) const
 /*-------------------------------------------------------------------*/
 /*          get the display_stats_type from a string (static)        */
 /*-------------------------------------------------------------------*/
-NOMAD::display_stats_type NOMAD::Display::get_display_stats_type
-( const std::string & s )
+NOMAD::display_stats_type NOMAD::Display::get_display_stats_type ( const std::string & s )
 {
     int         idst;
     std::string ss = s , keyword;
@@ -299,6 +325,12 @@ std::string NOMAD::Display::get_display_stats_keyword ( NOMAD::display_stats_typ
     {
         case NOMAD::DS_OBJ:
             s = "OBJ";
+            break;
+        case NOMAD::DS_CONS_H:
+            s = "CONS_H";
+            break;
+        case NOMAD::DS_SMOOTH_OBJ:
+            s = "SMOOTH_O";
             break;
         case NOMAD::DS_MESH_INDEX:
             s = "MESH_INDEX";
@@ -381,8 +413,17 @@ std::ostream & NOMAD::operator << ( std::ostream & out , NOMAD::success_type st 
 {
     switch ( st )
     {
+        case NOMAD::FULL_SUCCESS_ZOOM:
+            out << "dominating (SGTELIB)";
+            break;
+        case NOMAD::FULL_SUCCESS_STAY:
+            out << "dominating (SGTELIB)";
+            break;
         case NOMAD::FULL_SUCCESS:
             out << "dominating";
+            break;
+        case NOMAD::CACHE_UPDATE_SUCCESS:
+            out << "dominating (RobustMads)";
             break;
         case NOMAD::PARTIAL_SUCCESS:
             out << "improving";
@@ -492,12 +533,14 @@ std::ostream & NOMAD::operator << ( std::ostream & out , NOMAD::model_type mt )
         case NOMAD::QUADRATIC_MODEL:
             out << "quadratic";
             break;
+        case NOMAD::SGTELIB_MODEL:
+            out << "SGTELIB";
+            break;
         case NOMAD::NO_MODEL:
             out << "no models";
     }
     return out;
 }
-
 
 /*-----------------------------------------------------------------*/
 /*                  to display an evaluation type                  */
@@ -575,6 +618,9 @@ std::ostream & NOMAD::operator << ( std::ostream & out , NOMAD::stop_type st )
             break;
         case NOMAD::MAX_BB_EVAL_REACHED:
             out << "max number of blackbox evaluations";
+            break;
+        case NOMAD::MAX_BLOCK_EVAL_REACHED:
+            out << "max number of block evaluations";
             break;
         case NOMAD::MAX_SGTE_EVAL_REACHED:
             out << "max number of sgte evaluations";

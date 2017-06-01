@@ -18,7 +18,8 @@ char       Master_Slaves::OPTI_DATA_SIGNAL = 'D';
 /*--------------------------------*/
 /*  start the master (process 0)  */
 /*--------------------------------*/
-void Master_Slaves::start ( void ) const {
+void Master_Slaves::start ( void ) const
+{
     
     if ( _rank != 0 )
         return;
@@ -31,19 +32,22 @@ void Master_Slaves::start ( void ) const {
     int        pollster_mesh_index = 0;
     bool       stop_algo           = false;
     double   * best_feasible       = NULL;
+    double   * best_infeasible     = new double [n+2];
     
     // the first best infeasible point is initialized with x0:
-    double      * best_infeasible = new double [n+2];
     const Point * x0              = (_p.get_x0s())[0];
     for ( int i = 0 ; i < n ; ++i )
         best_infeasible[i] = (*x0)[i].value();
+    
     best_infeasible[n  ] = INF;
     best_infeasible[n+1] = INF;
+    
     
     /*-------------*/
     /*  main loop  */
     /*-------------*/
-    while ( nb_stops != _np-2 ) {
+    while ( nb_stops != _np-2 )
+    {
         
         MPI_Recv ( &signal , 1 , MPI_CHAR , MPI_ANY_SOURCE ,
                   Master_Slaves::TAG_SIGNAL , MPI_COMM_WORLD , &status );
@@ -52,8 +56,10 @@ void Master_Slaves::start ( void ) const {
         
         // stop signal:
         // ------------
-        if ( signal == Master_Slaves::STOP_SIGNAL ) {
-            if ( _debug ) {
+        if ( signal == Master_Slaves::STOP_SIGNAL )
+        {
+            if ( _debug )
+            {
                 _p.out() << "MASTER: STOP SIGNAL FROM RANK " << source;
                 if ( source == 1 )
                     _p.out() << " (POLLSTER)";
@@ -64,8 +70,10 @@ void Master_Slaves::start ( void ) const {
         
         // optimization data signal:
         // -------------------------
-        else if ( signal == Master_Slaves::OPTI_DATA_SIGNAL ) {
-            if ( _debug ) {
+        else if ( signal == Master_Slaves::OPTI_DATA_SIGNAL )
+        {
+            if ( _debug )
+            {
                 _p.out() << "MASTER: receive optimization data request from slave "
                 << source;
                 if ( source == 1 )
@@ -82,25 +90,30 @@ void Master_Slaves::start ( void ) const {
         
         // optimization result signal:
         // ---------------------------
-        else if ( signal == Master_Slaves::OPTI_RES_SIGNAL ) {
-            if ( _debug ) {
+        else if ( signal == Master_Slaves::OPTI_RES_SIGNAL )
+        {
+            if ( _debug )
+            {
                 _p.out() << "MASTER: receive optimization result from slave "
                 << source;
-                if ( source == 1 )
-                    _p.out() << " (POLLSTER)";
-                _p.out() << endl;
+                
             }
             
             // pollster:
             if ( source == 1 )
+            {
                 receive_optimization_result ( pollster_mesh_index ,
                                              stop_algo           ,
                                              best_feasible       ,
                                              best_infeasible     ,
                                              source                );
+                if ( _debug && best_feasible )
+                    _p.out() << "(POLLSTER): NEW_F" << best_feasible[n+1] <<endl;
+            }
             
             // other slaves:
-            else {
+            else
+            {
                 int  tmp1;
                 bool tmp2;
                 receive_optimization_result ( tmp1            ,
@@ -108,7 +121,13 @@ void Master_Slaves::start ( void ) const {
                                              best_feasible   ,
                                              best_infeasible ,
                                              source            );
+                if ( _debug && best_feasible )
+                    _p.out() << ": NEW_F" << best_feasible[n+1] <<endl;
+                
             }
+            if ( _debug )
+                _p.out() << endl;
+            
         }
     }
     
@@ -121,7 +140,8 @@ void Master_Slaves::start ( void ) const {
 /*------------------------------------------*/
 /*  stop the master (processes 1 to _np-2)  */
 /*------------------------------------------*/
-void Master_Slaves::stop ( void ) const {
+void Master_Slaves::stop ( void ) const
+{
     if ( _rank == 0 || _rank == _np-1 )
         return;
     
@@ -132,7 +152,8 @@ void Master_Slaves::stop ( void ) const {
 /*----------------------------------------*/
 /*                MADS run                */
 /*----------------------------------------*/
-void Master_Slaves::mads_run ( Cache & cache ) {
+void Master_Slaves::mads_run ( Cache & cache , Cache & init_cache )
+{
     
     const Eval_Point * best_feasible   = NULL;
     const Eval_Point * best_infeasible = NULL;
@@ -148,16 +169,18 @@ void Master_Slaves::mads_run ( Cache & cache ) {
     /*---------------------*/
     /*      main loop      */
     /*---------------------*/
-    while ( !stop_algo ) {
+    while ( !stop_algo )
+    {
         
         best_feasible   = NULL;
         best_infeasible = NULL;
         
         // Seed:
-        _p.set_SEED ( 99 * _rank + 20 * run_index );
+        RNG::set_seed ( 99 * _rank + 20 * run_index );
         
         // first run:
-        if ( run_index == 0 ) {
+        if ( run_index == 0 )
+        {
             
             // max number of evaluations for regular slaves:
             if ( _rank != 1 )
@@ -175,14 +198,16 @@ void Master_Slaves::mads_run ( Cache & cache ) {
         /*------------------*/
         /*  pollster slave  */
         /*------------------*/
-        if ( _rank == 1 ) {
+        if ( _rank == 1 )
+        {
+            
+            bool cache_file_init_success = false;
             
             stop_type stop_reason = UNKNOWN_STOP_REASON;
-        
+            
             _p.check();   // must do check to get a valid signature
             _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n,mesh_index ) );
             delta_0=_p.get_signature()->get_mesh()->get_delta ( );
-            
             
             
             // we set a very small epsilon in order to accept
@@ -192,25 +217,105 @@ void Master_Slaves::mads_run ( Cache & cache ) {
             if ( !check_delta ( delta_0 ) )
                 stop_algo = true;
             
-            else {
+            else
+            {
                 
                 // first run:
-                if ( run_index == 0 ) {
+                if ( run_index == 0 )
+                {
                     
-                    // directions:
+                    if ( init_cache.size() > 0 )
                     {
-                        bool use_orthomads = _p.has_orthomads_directions();
-                        _p.reset_directions   ( );
-                        _p.set_DIRECTION_TYPE ( (use_orthomads) ? ORTHO_1 : LT_1 );
+                        
+                        NOMAD::Mads mads ( _p , NULL , NULL , &cache , NULL );
+                        
+                        const NOMAD::Eval_Point * x;
+                        NOMAD::Eval_Point * pt;
+                        
+                        // we copy all the temporary cache points
+                        // into the list of points to be evaluated:
+                        x = init_cache.begin();
+                        
+                        while ( x )
+                        {
+                            // Points will be inserted in cache
+                            pt = new NOMAD::Eval_Point ( *x );
+                            pt->set_signature ( _p.get_signature() );
+                            
+                            mads.get_evaluator_control().add_eval_point ( pt              ,
+                                                                         NOMAD::NO_DISPLAY ,
+                                                                         false           ,
+                                                                         NOMAD::Double() ,
+                                                                         NOMAD::Double() ,
+                                                                         NOMAD::Double() ,
+                                                                         NOMAD::Double()   );
+                            
+                            x = init_cache.next();
+                        }
+                        
+                        
+                        // Eval objective and constraints from points in the cache
+                        // -------------------------
+                        NOMAD::success_type       success;
+                        NOMAD::stop_type stop_reason;
+                        bool stop=false;
+                        mads.get_evaluator_control().eval_list_of_points ( NOMAD::X0_EVAL ,
+                                                                          mads.get_true_barrier()  ,
+                                                                          mads.get_sgte_barrier()  ,
+                                                                          mads.get_pareto_front()  ,
+                                                                          stop           ,
+                                                                          stop_reason    ,
+                                                                          best_feasible   ,
+                                                                          best_infeasible ,
+                                                                          success          );
+                        
+                        
+                        
+                        if ( best_feasible )
+                        {
+                            
+                            if ( _debug )
+                            _p.out() << "POLLSTER: new feasible incumbent from init cache file NEW_F=" << best_feasible->get_f() << endl ;
+                            
+                            cache_file_init_success = true;
+                            
+                        }
+                        else if ( best_infeasible )
+                        {
+                            if ( _debug )
+                            _p.out() << "MASTER: new infeasible incumbent from init cache file NEW_F=" << best_infeasible->get_f() << endl ;
+                            
+                            cache_file_init_success = true;
+                            
+                        }
                     }
                     
-                    // cache search:
-                    _p.set_CACHE_SEARCH               ( true  );
-                    _p.set_OPPORTUNISTIC_CACHE_SEARCH ( false );
+                    
+                    if ( ! cache_file_init_success )
+                    {
+                        // directions:
+                        {
+                            bool use_orthomads = _p.has_orthomads_directions();
+                            _p.reset_directions   ( );
+                            _p.set_DIRECTION_TYPE ( (use_orthomads) ? ORTHO_1 : LT_1 );
+                        }
+                        
+                        // cache search:
+                        _p.set_CACHE_SEARCH               ( true  );
+                        _p.set_OPPORTUNISTIC_CACHE_SEARCH ( false );
+                    }
+                    else
+                    {
+                        _p.check();
+                        stop_algo = false;
+                        stop_reason = NOMAD::NO_STOP;
+                    }
+                    
                 }
                 
                 // other runs:
-                else {
+                else
+                {
                     
                     // stop_algo may be set to 'false' here:
                     receive_optimization_data ( stop_algo , x0 , old_f );
@@ -220,9 +325,11 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                     _p.set_X0 ( x0 );
                 }
                 
-                if ( !stop_algo ) {
+                if ( !stop_algo && !cache_file_init_success )
+                {
                     
                     // check the parameters:
+                    _p.set_DISPLAY_DEGREE(NOMAD::NO_DISPLAY);
                     _p.check();
                     
                     _p.get_signature()->get_mesh()->set_min_mesh_sizes( delta_0 );
@@ -231,6 +338,7 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                         _p.get_signature()->get_mesh()->set_limit_mesh_index ( mesh_index );
                     else
                         _p.get_signature()->get_mesh()->set_limit_mesh_index ( 0 );
+
                     
                     Double::set_epsilon ( default_eps );
                     
@@ -241,7 +349,8 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                     
                     bool success = false;
                     
-                    if ( best_feasible ) {
+                    if ( best_feasible )
+                    {
                         
                         success = (best_feasible->get_f() < old_f);
                         
@@ -253,12 +362,12 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                             << best_feasible->get_f()
                             << " SUCCESS=" << success << endl;
                     }
-
+                    
                     // pollster mesh update:
                     if ( success )
-                            ++mesh_index;
-                        else
-                            --mesh_index;
+                        ++mesh_index;
+                    else
+                        --mesh_index;
                     
                 }
             }
@@ -273,7 +382,8 @@ void Master_Slaves::mads_run ( Cache & cache ) {
         /*------------------*/
         /*  regular slaves  */
         /*------------------*/
-        else {
+        else
+        {
             
             int i , j , pollster_mesh_index;
             
@@ -283,7 +393,8 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                                        pollster_mesh_index ,
                                        free_vars             );
             
-            if ( _debug ) {
+            if ( _debug )
+            {
                 _p.out() << "SLAVE #" << _rank
                 << ": OPTIM. DATA: [STOP=" << stop_algo
                 << "] [POLLSTER_MESH_INDEX=" << pollster_mesh_index
@@ -294,7 +405,8 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                 _p.out() << " ]" << endl;
             }
             
-            if ( !stop_algo ) {
+            if ( !stop_algo )
+            {
                 
                 // starting point:
                 _p.reset_X0();
@@ -308,28 +420,30 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                 _p.check();  // Must do check to access signature
                 _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n,ell_0 ) );
                 delta_0=_p.get_signature()->get_mesh()->get_delta();
-
+                
                 _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n ,pollster_mesh_index ) );
                 delta_min=_p.get_signature()->get_mesh()->get_delta();
-
+                
                 
                 
                 Double::set_epsilon ( 1e-16 );
                 if ( !check_delta ( delta_0 ) || !check_delta ( delta_min ) )
                     stop_algo = true;
                 
-                else {
-                    
+                else
+                {
                     
                     
                     // free variables:
                     {
                         _p.reset_fixed_variables();
                         bool fix_var;
-                        for ( i = 0 ; i < n ; ++i ) {
+                        for ( i = 0 ; i < n ; ++i )
+                        {
                             fix_var = true;
                             for ( j = 0 ; j < _ns ; ++j )
-                                if ( free_vars[j] == i ) {
+                                if ( free_vars[j] == i )
+                                {
                                     fix_var = false;
                                     break;
                                 }
@@ -341,6 +455,7 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                     // check the parameters:
                     _p.check();
                     
+                    
                     // modify mesh termination criterions
                     _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n,ell_0 ) );
                     
@@ -351,7 +466,7 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                     
                     _p.get_signature()->get_mesh()->set_min_mesh_sizes( delta_min );
                     _p.get_signature()->get_mesh()->set_delta_0 ( delta_0 );
-
+                    
                     
                     
                     Double::set_epsilon ( default_eps );
@@ -362,7 +477,8 @@ void Master_Slaves::mads_run ( Cache & cache ) {
                     best_feasible   = mads.get_best_feasible();
                     best_infeasible = mads.get_best_infeasible();
                     
-                    if ( _debug && best_feasible ) {
+                    if ( _debug && best_feasible )
+                    {
                         _p.out() << "RANK #" << _rank << ": POLLSTER_ELL="
                         << pollster_mesh_index << " VARS = [";
                         for ( i = 0 ; i < _ns ; ++i )
@@ -405,7 +521,8 @@ void Master_Slaves::receive_optimization_result
  bool    & stop_algo           ,
  double *& best_feasible       ,
  double *& best_infeasible     ,
- int       source                ) const {
+ int       source                ) const
+{
     
     int        itab[5];
     MPI_Status status;
@@ -418,11 +535,13 @@ void Master_Slaves::receive_optimization_result
     // stop the algorithm ?
     stop_algo = ( itab[4] == 1 );
     
-    if ( !stop_algo ) {
+    if ( !stop_algo )
+    {
         
         stop_type stop_reason = static_cast<stop_type>(itab[1]);
         
-        switch ( stop_reason ) {
+        switch ( stop_reason )
+        {
             case ERROR:
             case UNKNOWN_STOP_REASON:
             case CTRL_C:
@@ -461,7 +580,8 @@ void Master_Slaves::receive_optimization_result
     // itab[2] == 1 --> bf != NULL
     // itab[3] == 1 --> bi != NULL
     
-    if ( nb_pts > 0 ) {
+    if ( nb_pts > 0 )
+    {
         
         int      n    = _p.get_dimension();
         double * rtab = new double [(n+2)*nb_pts];
@@ -469,23 +589,27 @@ void Master_Slaves::receive_optimization_result
         MPI_Recv ( rtab , (n+2)*nb_pts , MPI_DOUBLE , source ,
                   Master_Slaves::TAG_R1 , MPI_COMM_WORLD , &status );
         
-        if ( nb_pts == 2 ) {
+        if ( nb_pts == 2 )
+        {
             
             // best feasible and infeasible updates:
             bool update = false;
             
-            if ( best_feasible ) {
+            if ( best_feasible )
+            {
                 Double old_f = best_feasible[n+1];
                 Double new_f = rtab         [n+1];
                 if ( new_f < old_f )
                     update = true;
             }
-            else {
+            else
+            {
                 best_feasible = new double[n+2];
                 update = true;
             }
             
-            if ( update ) {
+            if ( update )
+            {
                 for ( i = 0 ; i < n ; ++i )
                     best_feasible[i] = rtab[i];
                 best_feasible[n  ] = rtab[n];
@@ -494,19 +618,22 @@ void Master_Slaves::receive_optimization_result
             
             update = false;
             
-            if ( best_infeasible ) {
+            if ( best_infeasible )
+            {
                 
                 Double old_h = best_infeasible[n];
                 Double new_h = rtab           [2*n+2];
                 if ( new_h < old_h )
                     update = true;
             }
-            else {
+            else
+            {
                 best_infeasible = new double[n+2];
                 update = true;
             }
             
-            if ( update ) {
+            if ( update )
+            {
                 int cur = n+2;
                 for ( i = 0 ; i < n ; ++i )
                     best_infeasible[i] = rtab[cur++];
@@ -515,14 +642,18 @@ void Master_Slaves::receive_optimization_result
             }
             delete [] rtab;
         }
-        else {
+        else
+        {
             
             // best feasible update:
-            if ( itab[2] == 1 ) {
-                if ( best_feasible ) {
+            if ( itab[2] == 1 )
+            {
+                if ( best_feasible )
+                {
                     Double old_f = best_feasible[n+1];
                     Double new_f = rtab         [n+1];
-                    if ( new_f < old_f ) {
+                    if ( new_f < old_f )
+                    {
                         delete [] best_feasible;
                         best_feasible = rtab;
                     }
@@ -534,11 +665,14 @@ void Master_Slaves::receive_optimization_result
             }
             
             // best infeasible update:
-            else {
-                if ( best_infeasible ) {
+            else
+            {
+                if ( best_infeasible )
+                {
                     Double old_h = best_infeasible[n];
                     Double new_h = rtab           [n];
-                    if ( new_h < old_h ) {
+                    if ( new_h < old_h )
+                    {
                         delete [] best_infeasible;
                         best_infeasible = rtab;
                     }
@@ -561,7 +695,8 @@ void Master_Slaves::send_optimization_result
  bool               stop_algo           ,
  const Eval_Point * bf                  ,
  const Eval_Point * bi                  ,
- stop_type          st                    ) const {
+ stop_type          st                    ) const
+{
     
     // send a signal to the master:
     MPI_Send ( &Master_Slaves::OPTI_RES_SIGNAL , 1 , MPI_CHAR ,
@@ -574,14 +709,16 @@ void Master_Slaves::send_optimization_result
     itab[1] = static_cast<int>(st);
     
     int nb_pts = 0;
-    if ( bf ) {
+    if ( bf )
+    {
         ++nb_pts;
         itab[2] = 1;
     }
     else
         itab[2] = 0;
     
-    if ( bi ) {
+    if ( bi )
+    {
         ++nb_pts;
         itab[3] = 1;
     }
@@ -593,20 +730,23 @@ void Master_Slaves::send_optimization_result
     MPI_Send ( itab , 5 , MPI_INT , 0 ,
               Master_Slaves::TAG_I1 , MPI_COMM_WORLD );
     
-    if ( nb_pts > 0 ) {
+    if ( nb_pts > 0 )
+    {
         
         int      n    = _p.get_dimension();
-        double * rtab = new double [(n+2)*nb_pts]; 
+        double * rtab = new double [(n+2)*nb_pts];
         
         int i , cur = 0;
-        if ( bf ) {
+        if ( bf )
+        {
             for ( i = 0 ; i < n ; ++i )
                 rtab[cur++] = (*bf)[i].value();
             rtab[cur++] = bf->get_h().value();
             rtab[cur++] = bf->get_f().value();
         }
         
-        if ( bi ) {
+        if ( bi )
+        {
             for ( i = 0 ; i < n ; ++i )
                 rtab[cur++] = (*bi)[i].value();
             rtab[cur++] = bi->get_h().value();
@@ -629,7 +769,8 @@ void Master_Slaves::receive_optimization_data
  Point  & x0                  ,
  Double & fx0                 ,
  int    & pollster_mesh_index ,
- int    * free_vars             ) const {
+ int    * free_vars             ) const
+{
     
     // step 1/2: receive common pollster data:
     receive_optimization_data ( stop_algo , x0 , fx0 );
@@ -637,7 +778,8 @@ void Master_Slaves::receive_optimization_data
     int i;
     
     // step 2/2: receive additional data for regular slaves:
-    if ( !stop_algo ) {
+    if ( !stop_algo )
+    {
         
         int      * itab = new int [_ns+1];
         MPI_Status status;
@@ -652,7 +794,8 @@ void Master_Slaves::receive_optimization_data
         
         delete [] itab;
     }
-    else {
+    else
+    {
         pollster_mesh_index = 1;
         for ( i = 0 ; i < _ns ; ++i )
             free_vars[i] = -1;
@@ -665,7 +808,8 @@ void Master_Slaves::receive_optimization_data
 /*---------------------------------------------*/
 void Master_Slaves::receive_optimization_data ( bool   & stop_algo ,
                                                Point  & x0        ,
-                                               Double & fx0         ) const {
+                                               Double & fx0         ) const
+{
     char        c_stop;
     MPI_Status  status;
     MPI_Request req    = MPI_REQUEST_NULL;
@@ -682,13 +826,15 @@ void Master_Slaves::receive_optimization_data ( bool   & stop_algo ,
     MPI_Wait ( &req , &status );
     
     // stop:
-    if ( c_stop == '1' ) {
+    if ( c_stop == '1' )
+    {
         stop_algo = true;
         x0.reset();
     }
     
     // continue:
-    else {
+    else
+    {
         
         stop_algo     = false;
         double * rtab = new double [n+2];
@@ -714,7 +860,8 @@ void Master_Slaves::receive_optimization_data ( bool   & stop_algo ,
             
             MPI_Wait ( &req , &status );
             
-            if ( pt_flag == '1' ) {
+            if ( pt_flag == '1' )
+            {
                 
                 MPI_Recv ( rtab , n+2 , MPI_DOUBLE , npm1 ,
                           Cache_Server::TAG_X7 , MPI_COMM_WORLD , &status );
@@ -733,7 +880,8 @@ void Master_Slaves::receive_optimization_data ( bool   & stop_algo ,
         const Point & lb = _p.get_lb();
         const Point & ub = _p.get_ub();
         
-        for ( i = 0 ; i < n ; ++i ) {
+        for ( i = 0 ; i < n ; ++i )
+        {
             if ( lb[i].is_defined() && x0[i].value() < lb[i].value() )
                 x0[i] = lb[i];
             if ( ub[i].is_defined() && x0[i].value() > ub[i].value() )
@@ -751,7 +899,8 @@ void Master_Slaves::send_optimization_data
  bool           stop_algo           ,
  const double * best_feasible       ,
  const double * best_infeasible     ,
- int            source                ) const {
+ int            source                ) const
+{
     
     char c_stop = (stop_algo) ? '1' : '0';
     
@@ -759,7 +908,8 @@ void Master_Slaves::send_optimization_data
                Master_Slaves::TAG_CSTOP , MPI_COMM_WORLD );
     
     // continue:
-    if ( !stop_algo ) {
+    if ( !stop_algo )
+    {
         
         int n = _p.get_dimension();
         
@@ -772,7 +922,8 @@ void Master_Slaves::send_optimization_data
                       source , Master_Slaves::TAG_D1 , MPI_COMM_WORLD );
         
         // additional data for regular slaves:
-        if ( source != 1 ) {
+        if ( source != 1 )
+        {
             
             int * itab = new int [_ns+1];
             
@@ -797,7 +948,8 @@ void Master_Slaves::send_optimization_data
 /*-----------------------------------------------*/
 /*        check the initial mesh size values     */
 /*-----------------------------------------------*/
-bool Master_Slaves::check_delta ( const Point & delta ) {
+bool Master_Slaves::check_delta ( const Point & delta )
+{
     int n = delta.size();
     for ( int i = 0 ; i < n ; ++i )
         if ( delta[i].value() < Double::get_epsilon() || 

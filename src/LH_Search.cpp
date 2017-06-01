@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   LH_Search.cpp
  \brief  Latin-Hypercube search (implementation)
@@ -186,9 +188,7 @@ void NOMAD::LH_Search::search ( NOMAD::Mads              & mads           ,
                 else
                 {
                     pts[i] = new NOMAD::Point ( p );
-                    
-                    // for the initial mesh: delta_m is not used and there will
-                    // be no projection on mesh:
+
                     if ( !_initial_search )
                         delta_i = delta[i];
                     
@@ -268,12 +268,12 @@ void NOMAD::LH_Search::search ( NOMAD::Mads              & mads           ,
 /*        LH search: decide p values for one variable        */
 /*-----------------------------------------------------------*/
 /*  . if no bounds, values are scaled with the largest       */
-/*    delta_m value obtained so far                          */
+/*    delta value obtained so far                            */
 /*  . private method                                         */
 /*-----------------------------------------------------------*/
 void NOMAD::LH_Search::values_for_var_i ( int                          p           ,
-                                         const NOMAD::Double        & delta_m     ,
-                                         const NOMAD::Double        & delta_m_max ,
+                                         const NOMAD::Double        & delta     ,
+                                         const NOMAD::Double        & delta_max ,
                                          const NOMAD::bb_input_type & bbit        ,
                                          const NOMAD::Double        & lb          ,
                                          const NOMAD::Double        & ub          ,
@@ -294,7 +294,7 @@ void NOMAD::LH_Search::values_for_var_i ( int                          p        
     // main loop:
     for ( i = 0 ; i < p ; ++i )
     {
-        
+
         // both bounds exist:
         if ( lb_def && ub_def )
             v = lb + ( i + NOMAD::RNG::rand()/NOMAD::D_INT_MAX ) * w;
@@ -304,7 +304,7 @@ void NOMAD::LH_Search::values_for_var_i ( int                          p        
             
             // lb exists, and ub not: mapping [0;1] --> [lb;+INF[
             if ( lb_def )
-                v = lb + 10 * delta_m_max * sqrt ( - log ( NOMAD::DEFAULT_EPSILON +
+                v = lb + 10 * delta_max * sqrt ( - log ( NOMAD::DEFAULT_EPSILON +
                                                           ( i + NOMAD::RNG::rand()/NOMAD::D_INT_MAX ) * w ) );
             
             // lb does not exist:
@@ -313,13 +313,13 @@ void NOMAD::LH_Search::values_for_var_i ( int                          p        
                 
                 // ub exists, and lb not: mapping [0;1] --> ]-INF;ub]
                 if ( ub_def )
-                    v = ub - delta_m_max * 10 *
+                    v = ub - delta_max * 10 *
                     sqrt ( -log ( NOMAD::DEFAULT_EPSILON +
                                  ( i +NOMAD::RNG::rand()/NOMAD::D_INT_MAX ) * w ) );
                 
                 // there are no bounds: mapping [0;1] --> ]-INF;+INF[
                 else
-                    v = (NOMAD::RNG::rand()%2 ? -1.0 : 1.0) * delta_m_max * 10 *
+                    v = (NOMAD::RNG::rand()%2 ? -1.0 : 1.0) * delta_max * 10 *
                     sqrt ( - log ( NOMAD::DEFAULT_EPSILON +
                                   ( i + NOMAD::RNG::rand()/NOMAD::D_INT_MAX ) * w ) );
             }
@@ -330,7 +330,7 @@ void NOMAD::LH_Search::values_for_var_i ( int                          p        
             v = v.round();
         
         // projection to mesh (with ref=0):
-        v.project_to_mesh ( 0.0 , delta_m , lb , ub );
+        v.project_to_mesh ( 0.0 , delta , lb , ub );
         
         // affectation + permutation:
         x[rp.pickup()] = v;

@@ -1,43 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   nomad.cpp
  \brief  NOMAD main file
@@ -71,12 +75,11 @@ int main ( int argc , char ** argv )
         }
         
         // parameters file:
-        std::string param_file_name = argv[1];
-        std::string opt             = param_file_name;
+        std::string opt             = argv[1];
         NOMAD::toupper ( opt );
         
-        // display version if option '-v' has been specified:
-        if ( opt == "-U" )
+        // display usage if option '-u' has been specified:
+        if ( opt == "-U" || opt == "-USAGE" || opt == "--USAGE" )
         {
             NOMAD::display_usage ( argv[0], out );
             NOMAD::end();
@@ -85,7 +88,7 @@ int main ( int argc , char ** argv )
         
         
         // display version if option '-v' has been specified:
-        if ( opt == "-V" || opt =="-VERSION")
+        if ( opt == "-V" || opt == "-VERSION" || opt == "--VERSION" )
         {
             NOMAD::display_version ( out );
             NOMAD::end();
@@ -93,7 +96,7 @@ int main ( int argc , char ** argv )
         }
         
         // display info if option '-i' has been specified:
-        if ( opt == "-I" || opt == "-INFO" )
+        if ( opt == "-I" || opt == "-INFO" || opt == "--INFO" )
         {
             NOMAD::display_info  ( out );
             NOMAD::display_usage ( argv[0], out );
@@ -105,7 +108,7 @@ int main ( int argc , char ** argv )
         NOMAD::Parameters p ( out );
         
         // display help on parameters if option '-h' has been specified:
-        if ( opt == "-H" || opt == "-HELP" )
+        if ( opt == "-H" || opt == "-HELP" || opt == "--HELP" )
         {
             p.help ( argc , argv );
             NOMAD::end();
@@ -113,19 +116,42 @@ int main ( int argc , char ** argv )
         }
         
         // display developer help on parameters if option '-d' has been specified:
-        if ( opt == "-D" )
+        if ( opt == "-D" || opt == "-DEVELOPER" || opt == "--DEVELOPER" )
         {
             p.help ( argc , argv,true );
             NOMAD::end();
             return EXIT_SUCCESS;
         }
         
+        if ( opt[0] == '-' )
+        {
+            // Unrecognized flag. Display usage and exit gracefully.
+            error = std::string("ERROR: Unrecognized option ") + argv[1];
+            std::cerr << std::endl << error << std::endl << std::endl;
+            NOMAD::display_usage ( argv[0], out );
+            NOMAD::end();
+            return EXIT_FAILURE;
+        }
+
+        std::string param_file_name = argv[1];
+
+        // Verify the argument is a file name 
+        if ( !NOMAD::check_read_file(param_file_name) )
+        {
+            // Could not read input file. Display usage and exit gracefully.
+            error = std::string("ERROR: Could not read file \"") + argv[1] + "\"";
+            std::cerr << std::endl << error << std::endl << std::endl;
+            NOMAD::display_usage ( argv[0], out );
+            NOMAD::end();
+            return EXIT_FAILURE;
+        }
         
         // check the number of processess:
 #ifdef USE_MPI
         if ( NOMAD::Slave::get_nb_processes() < 2 )
         {
-            std::cerr << "ERROR: Incorrect command to run with MPI." << std::endl;
+            error = std::string("ERROR: Incorrect command to run with MPI.");
+            std::cerr << std::endl << error << std::endl << std::endl;
             NOMAD::display_usage ( argv[0], std::cerr );
             NOMAD::end();
             return EXIT_FAILURE;
@@ -133,18 +159,16 @@ int main ( int argc , char ** argv )
 #endif
         
         try {
-            
-            
+
             // read parameters file:
             p.read ( param_file_name );
             
             // parameters check:
             p.check();
             
-            // display NOMAD info:
+            // display NOMAD info and Seed:
             if ( p.get_display_degree() > NOMAD::MINIMAL_DISPLAY)
                 NOMAD::display_info ( out );
-            
             
             // parameters display:
             if ( NOMAD::Slave::is_master() &&
@@ -161,6 +185,7 @@ int main ( int argc , char ** argv )
             else
                 mads.multi_run();
             
+            
 #ifdef MODEL_STATS
             mads.display_model_stats ( out );
 #endif
@@ -170,13 +195,15 @@ int main ( int argc , char ** argv )
         {
             if ( NOMAD::Slave::is_master() )
             {
-                error = std::string ( "NOMAD has been interrupted: " ) + e.what();
+                error = std::string ( "ERROR: " ) + e.what();
                 std::cerr << std::endl << error << std::endl << std::endl;
             }
         }
         
+        
         NOMAD::Slave::stop_slaves ( out );
         NOMAD::end();
+        
     }
     
 #ifdef MEMORY_DEBUG
@@ -305,10 +332,14 @@ void NOMAD::display_info ( const NOMAD::Display & out )
     << "Sebastien Le Digabel - Ecole Polytechnique de Montreal" << std::endl
     << "Christophe Tribes    - Ecole Polytechnique de Montreal" << std::endl
     << NOMAD::close_block()
-    << std::endl << "NOMAD version 3 is a new version of Nomad v1 and v2, it has been funded by AFOSR and Exxon Mobil." << std::endl
-    << "Nomad v1 and v2 were created and developed by Mark A. Abramson from The Boeing Company, Charles Audet and Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from Rice University, and were funded by AFOSR and Exxon Mobil." << std::endl
     << std::endl
-    << "Download  : www.gerad.ca/nomad" << std::endl
+    << "NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto and " << std::endl
+    << "IVADO." << std::endl
+    << std::endl
+    << "NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created" << std::endl
+    << "and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E." << std::endl
+    << "Dennis Jr., and were funded by AFOSR and Exxon Mobil." << std::endl
+    << std::endl
     << "License   : \'" << NOMAD::LGPL_FILE       << "\'" << std::endl
     << "User guide: \'" << NOMAD::USER_GUIDE_FILE << "\'" << std::endl
     << "Examples  : \'" << NOMAD::EXAMPLES_DIR    << "\'" << std::endl
@@ -316,15 +347,7 @@ void NOMAD::display_info ( const NOMAD::Display & out )
     << std::endl
     << "Please report bugs to nomad@gerad.ca"
     << std::endl;
-    out << endl << "Seed: "<< NOMAD::RNG::get_seed()<<endl;
-}
-
-
-
-
-
-
-
+    out << endl << "Seed: "<< NOMAD::RNG::get_seed()<<endl;}
 
 /*------------------------------------------*/
 /*             display NOMAD usage          */
@@ -341,7 +364,7 @@ void NOMAD::display_usage ( char* exeName, const NOMAD::Display & out )
     << "Developer help : " << exeName << " -d keyword(s) (or 'all')"     << std::endl
     << "Version        : " << exeName << " -v"                           << std::endl
     << "Usage          : " << exeName << " -u"                          << std::endl
-    << std::endl;
+    << std::endl;  
 #else
     out << std::endl
     << "Run NOMAD      : " << exeName << " parameters_file"          << std::endl
@@ -350,6 +373,6 @@ void NOMAD::display_usage ( char* exeName, const NOMAD::Display & out )
     << "Developer help : " << exeName << " -d keyword(s) (or 'all')" << std::endl
     << "Version        : " << exeName << " -v"                       << std::endl
     << "Usage          : " << exeName << " -u"                       << std::endl
-    << std::endl;
+    << std::endl; 
 #endif
 }

@@ -16,7 +16,7 @@ endif
 
 LDLIBS                 = -lm -lnomad
 
-INCLUDE                = -I$(NOMAD_HOME)/src -I.
+INCLUDE                = -I$(NOMAD_HOME)/src -I$(NOMAD_HOME)/ext/sgtelib/src -I.
 COMPILE                = $(COMPILATOR) $(COMPILATOR_OPTIONS) $(INCLUDE) -c
 OBJS                   = main.o Cache_Server.o Master_Slaves.o
 

@@ -9,8 +9,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #1   ( 0.132741232 )
-				mesh indices: (  0 )
+				mesh indices   : (  0 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {
@@ -42,8 +43,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #2   ( 0.061929856 )
-				mesh indices: (  0 )
+				mesh indices   : (  1 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {
@@ -75,8 +77,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #3   ( 0.052807552 )
-				mesh indices: (  0 )
+				mesh indices   : (  2 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {
@@ -108,8 +111,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #4   ( 0.003343488002 )
-				mesh indices: (  0 )
+				mesh indices   : (  3 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {
@@ -141,8 +145,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #5   ( 0.003046400592 )
-				mesh indices: (  0 )
+				mesh indices   : (  4 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {
@@ -174,8 +179,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #6   ( 0.002265794838 )
-				mesh indices: (  0 )
+				mesh indices   : (  5 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {
@@ -207,8 +213,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #7   ( 0.001481318181 )
-				mesh indices: (  0 )
+				mesh indices   : (  6 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {
@@ -240,8 +247,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #8   ( 0.001371090082 )
-				mesh indices: (  0 )
+				mesh indices   : (  7 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {
@@ -273,8 +281,9 @@ MADS search {
 			submitted evaluation 1/1 {
 
 				point #9   ( 0.0008957599348 )
-				mesh indices: (  0 )
+				mesh indices   : (  8 )
 
+				not in cache
 			} 
 
 			evaluation 1/1 {

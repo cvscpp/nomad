@@ -1,45 +1,47 @@
-/*-------------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search - version 3.7.3      */
-/*                                                                                     */
-/*                                                                                     */
-/*  NOMAD - version 3.7.3 has been created by                                          */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal              */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  The copyright of NOMAD - version 3.7.3 is owned by                                 */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal              */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal              */
-/*                                                                                     */
-/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                                 */
-/*                                                                                     */
-/*  NOMAD v3 is a new version of Nomad v1 and v2. Nomad v1 and v2 were created and     */
-/*  developed by Mark A. Abramson from The Boeing Company, Charles Audet and           */
-/*  Gilles Couture from Ecole Polytechnique de Montreal, and John E. Dennis Jr. from   */
-/*  Rice University, and were funded by AFOSR and Exxon Mobil.                         */
-/*                                                                                     */
-/*                                                                                     */
-/*  Contact information:                                                               */
-/*    Ecole Polytechnique de Montreal - GERAD                                          */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada                  */
-/*    e-mail: nomad@gerad.ca                                                           */
-/*    phone : 1-514-340-6053 #6928                                                     */
-/*    fax   : 1-514-340-5665                                                           */
-/*                                                                                     */
-/*  This program is free software: you can redistribute it and/or modify it under the  */
-/*  terms of the GNU Lesser General Public License as published by the Free Software   */
-/*  Foundation, either version 3 of the License, or (at your option) any later         */
-/*  version.                                                                           */
-/*                                                                                     */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT ANY    */
-/*  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A    */
-/*  PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.   */
-/*                                                                                     */
-/*  You should have received a copy of the GNU Lesser General Public License along     */
-/*  with this program. If not, see <http://www.gnu.org/licenses/>.                     */
-/*                                                                                     */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad               */
-/*-------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
+/*          version 3.8.1                                                       */
+/*                                                                              */
+/*  NOMAD - version 3.8.1 has been created by                                   */
+/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
+/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
+/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
+/*                                                                              */
+/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
+/*  and IVADO.                                                                  */
+/*                                                                              */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
+/*                                                                              */
+/*  Contact information:                                                        */
+/*    Ecole Polytechnique de Montreal - GERAD                                   */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
+/*    e-mail: nomad@gerad.ca                                                    */
+/*    phone : 1-514-340-6053 #6928                                              */
+/*    fax   : 1-514-340-5665                                                    */
+/*                                                                              */
+/*  This program is free software: you can redistribute it and/or modify it     */
+/*  under the terms of the GNU Lesser General Public License as published by    */
+/*  the Free Software Foundation, either version 3 of the License, or (at your  */
+/*  option) any later version.                                                  */
+/*                                                                              */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
+/*  for more details.                                                           */
+/*                                                                              */
+/*  You should have received a copy of the GNU Lesser General Public License    */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
+/*                                                                              */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
+/*------------------------------------------------------------------------------*/
+
+
 /**
  \file   Eval_Point.cpp
  \brief  Evaluation point (implementation)
@@ -70,6 +72,7 @@ _eval_type        ( NOMAD::TRUTH                      ) ,
 _direction        ( NULL                              ) ,
 _poll_center_type ( NOMAD::UNDEFINED_POLL_CENTER_TYPE ) ,
 _eval_status      ( NOMAD::UNDEFINED_STATUS           ) ,
+_smoothing_status ( NOMAD::SMOOTHING_UNDEFINED        ) ,
 _EB_ok            ( true                              )
 {
 #ifdef MODEL_STATS
@@ -91,6 +94,7 @@ _eval_type        ( NOMAD::TRUTH                      ) ,
 _direction        ( NULL                              ) ,
 _poll_center_type ( NOMAD::UNDEFINED_POLL_CENTER_TYPE ) ,
 _eval_status      ( NOMAD::UNDEFINED_STATUS           ) ,
+_smoothing_status ( NOMAD::SMOOTHING_UNDEFINED        ) ,
 _EB_ok            ( true                              ) ,
 _bb_outputs       ( m                                 )
 {
@@ -174,6 +178,7 @@ _eval_type          ( x._eval_type                      ) ,
 _direction          ( NULL                              ) ,
 _poll_center_type   ( x._poll_center_type               ) ,
 _eval_status        ( x._eval_status                    ) ,
+_smoothing_status   ( x._smoothing_status               ) ,
 _EB_ok              ( x._EB_ok                          ) ,
 _bb_outputs         ( x.get_bb_outputs()                ) ,
 _user_eval_priority ( x._user_eval_priority             ) ,
@@ -311,6 +316,7 @@ int NOMAD::Eval_Point::size_of ( void ) const
     sizeof (_in_cache           ) +
     sizeof (_eval_type          ) +
     sizeof (_eval_status        ) +
+    sizeof (_smoothing_status   ) +
     sizeof (_EB_ok              ) +
     sizeof (_direction          ) +
     ((_direction     ) ? _direction->size_of() : 0);
@@ -470,6 +476,8 @@ void NOMAD::Eval_Point::display_eval( const NOMAD::Display & out , bool in_block
             out << "h    = " << _h << std::endl;
         if ( _f.is_defined() )
             out << "f    = " << _f << std::endl;
+        if ( _fsmooth.is_defined() )
+	    out << "fsmooth = " << _fsmooth << std::endl;
         out.close_block();
     }
     else
@@ -485,6 +493,8 @@ void NOMAD::Eval_Point::display_eval( const NOMAD::Display & out , bool in_block
             out << " h=" << _h;
         if ( _f.is_defined() )
             out << " f=" << _f;
+        if ( _fsmooth.is_defined() )
+            out << "fsmooth = " << _fsmooth << std::endl;
     }
 }
 

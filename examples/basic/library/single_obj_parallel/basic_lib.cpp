@@ -9,7 +9,7 @@ using namespace std;
 // using namespace NOMAD; avoids putting NOMAD:: everywhere
 
 // Number of threads to be used in parallel
-#define NUM_THREADS    4
+#define NUM_THREADS    8
 
 // A semaphore to manage the number of threads to be run concurrently
 sem_t mySemaphore;
@@ -23,16 +23,22 @@ typedef struct Arg_Eval_tag {
 } Arg_Eval_t;
 
 
-/*----------------------------------------*/
-/*     The problem evaluatiom             */
-/*----------------------------------------*/
-// Provide the objective and constraints here
-bool eval_x ( NOMAD::Eval_Point   & x          ,
-             const NOMAD::Double & h_max      ,
-             bool                & count_eval   )
+// Wrapper of eval_x used for parallel evaluation (pthreads).
+static void * wrapper_eval_x ( void * dummy_eval_arg   )
 {
     
+    Arg_Eval_t * eval_arg = static_cast<Arg_Eval_t *>(dummy_eval_arg);
+    
+    NOMAD::Eval_Point & x=*(eval_arg->x);
+    bool & count_eval = *(eval_arg->count_eval);
+    const NOMAD::Double & h_max = (eval_arg->h_max);
+    
+    
+    
+    
+    
     NOMAD::Double c1 = 0.0 , c2 = 0.0;
+ 
     for ( int i = 0 ; i < 5 ; i++ )
     {
         c1 += (x[i]-1).pow2();
@@ -44,21 +50,6 @@ bool eval_x ( NOMAD::Eval_Point   & x          ,
     
     count_eval = true; // count a black-box evaluation
     
-    return true;       // the evaluation succeeded
-}
-
-// Wrapper of eval_x used for parallel evaluation (pthreads).
-static void * wrapper_eval_x ( void * dummy_eval_arg   )
-{
-    
-    Arg_Eval_t * eval_arg = static_cast<Arg_Eval_t *>(dummy_eval_arg);
-    
-    NOMAD::Eval_Point & x=*(eval_arg->x);
-    bool & count_eval = *(eval_arg->count_eval);
-    const NOMAD::Double & h_max = (eval_arg->h_max);
-    
-    eval_x(x,h_max,count_eval);
-    
     pthread_exit(NULL);
     
     // The semaphore is incremented. Another thread can be started
@@ -67,14 +58,67 @@ static void * wrapper_eval_x ( void * dummy_eval_arg   )
 }
 
 
+
 class My_Evaluator : public NOMAD::Evaluator
 {
+    
 public:
     My_Evaluator  ( const NOMAD::Parameters & p ) :
     NOMAD::Evaluator ( p ) {}
     
     ~My_Evaluator ( void ) {}
+    
+    
+    
 
+    bool eval_x ( NOMAD::Eval_Point   & x          ,
+                 const NOMAD::Double & h_max      ,
+                 bool                & count_eval   )
+    {
+        
+        pthread_t threads[1];
+
+        // Arguments passed to the evaluation wrapper
+        Arg_Eval_t * eval_arg=new Arg_Eval_t[1];
+
+        eval_arg[0].x=&x;
+        eval_arg[0].h_max=h_max.value();
+        eval_arg[0].count_eval=&count_eval;
+    
+
+        // The semaphore will allow to run one thread
+        sem_init(&mySemaphore,0,1);
+        
+        try
+        {
+            
+            int rc=pthread_create(&threads[0], NULL, wrapper_eval_x,&eval_arg[0]);
+            if (rc)
+            {
+                cout << "Error:unable to create thread," << rc << endl;
+                return false;
+            }
+            
+            int ret=pthread_join(threads[0],0);
+            if (ret!=0)
+            {
+                perror("pthread join has failed");
+                return false;
+            }
+
+            
+            // wait until value of semaphore is 1 --> thread is finished
+            sem_wait(&mySemaphore);
+        }
+        catch( exception & e )
+        {
+            
+            cerr << "\nEval_x wrapper returned exeption (" << e.what() << ")\n\n";
+            return false;
+        }
+        
+        return true;       // the evaluation succeeded
+    }
     
     // Implementation
     bool eval_x ( std::list<NOMAD::Eval_Point *>	&list_x  ,

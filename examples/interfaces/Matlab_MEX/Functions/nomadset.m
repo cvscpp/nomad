@@ -40,13 +40,13 @@ Names = {'bb_input_type','bb_output_type','direction_type','f_target','initial_m
          'history_file','solution_file','stats_file','param_file','iterfun','disable','epsilon','opt_only_sgte','sgte_cost','sgte_eval_sort','has_sgte',...
          'sgte_cache_file','max_sgte_eval','anisotropic_mesh','fixed_variable'}';
 Defaults = {[],[],[],[],[],[],[],1,...%bb_max_block_size
-            [],1,1,[],[],1,1,[],0,... %vns_search
+            [],1,1,[],[],1,1,0,0,... %vns_search
             0,1e20,[],'L2',[],[],2000,[],...%max_consecutive_failed_iterations
             [],[],[],[],1,-1,4,... %mesh_update_basis
-            [],[],1,4,1,1,... %model_search_proj_to_mesh
-            [],500,2,0,[],'product',0,...%multi_use_delta_crit
-            [],0,0,[],[],[],0.1,[],[],...%sec_poll_dir_type
-            1,1,[],0,1,[],25,0,0,... %display_all_eval
+            [],[],0,10,1,1,... %model_search_proj_to_mesh
+            [],[],2,0,[],'product',0,...%multi_use_delta_crit
+            [],0,0,[],[],-1,0.1,[],[],...%sec_poll_dir_type
+            1,1,[],0,1,[],25,2,0,... %display_all_eval
             [],[],[],[],[],[],1e-13,0,[],1,0,...%has_sgte
             [],[],1,''}';        
 
@@ -296,7 +296,7 @@ fprintf('                 vns_search: [ Variable Neighbourhood Search (Multiple 
 
 fprintf('\nDEVELOPER PARAMETERS:\n');
 fprintf('                    epsilon: [ Precision on real numbers {1e-13} ]\n');
-fprintf('   model_eval_sort_cautious: [ If the model ordering strategy is cautious: No (0), Yes {1} ] \n');
+fprintf('   model_eval_sort_cautious: [ If the model ordering strategy is cautious: No {0}, Yes (1) ] \n');
 fprintf(' model_search_max_trial_pts: [ Maximum trial points for one model search {4} ] \n');
 fprintf('  model_search_proj_to_mesh: [ If model search trial points are projected to mesh: No (0), Yes {1} ] \n');
 fprintf('      model_quad_max_y_size: [ Upper limit on the size of interpolation sets for quadratic models {500} ] \n');
