@@ -1,4 +1,4 @@
-AC_INIT(nomad, 3.7.2, miroslav.shaltev@shaltev.de)
+AC_INIT(nomad, 3.8.1, miroslav.shaltev@shaltev.de)
 AC_PREREQ([2.63])
 AC_CONFIG_HEADERS([config.h])
 
@@ -50,6 +50,8 @@ if test "x$mpi" = "xtrue"; then
   LX_FIND_MPI([mpi=true],[mpi=false])
 fi
 NOMAD_ENABLE_MODULE([MPI],[mpi])
+
+PKG_CHECK_MODULES(SGTELIB, sgtelib)
 
 AC_PROG_CPP
 AC_CONFIG_FILES([Makefile src/Makefile docs/Makefile nomad.pc nomadmpi.pc])

@@ -46,9 +46,12 @@ pkginclude_HEADERS = Cache_File_Point.hpp Cache.hpp Cache_Point.hpp\
 	GMesh.hpp Sgtelib_Model_Evaluator.hpp Sgtelib_Model_Manager.hpp \
 	Sgtelib_Model_Search.hpp
 
+libnomad_a_CXXFLAGS = $(SGTELIB_CFLAGS)
+
 bin_PROGRAMS = nomad
 nomad_SOURCES = nomad.cpp
-nomad_LDADD = libnomad.a
+nomad_LDADD = libnomad.a $(SGTELIB_LIBS)
+nomad_CXXFLAGS = $(SGTELIB_CFLAGS)
 
 pkgconfigdir = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA = ../nomad.pc
@@ -56,12 +59,12 @@ nomad.pc: ../nomad.pc.in
 
 if MPI_ENABLED
 lib_LIBRARIES += libnomadmpi.a
-libnomadmpi_a_CXXFLAGS = -DUSE_MPI $(MPI_LDFLAGS) $(MPI_CXXFLAGS) $(AM_CXXFLAGS)
+libnomadmpi_a_CXXFLAGS = -DUSE_MPI $(MPI_LDFLAGS) $(MPI_CXXFLAGS) $(AM_CXXFLAGS) $(SGTELIB_CFLAGS)
 nodist_pkgconfig_DATA += ../nomadmpi.pc
 nomadmpi.pc: ../nomadmpi.pc.in
 bin_PROGRAMS += nomad.mpi
 nomad_mpi_SOURCES = nomad.cpp
-nomad_mpi_LDADD = libnomadmpi.a
-nomad_mpi_CXXFLAGS = -DUSE_MPI $(MPI_CXXFLAGS) $(AM_CXXFLAGS)
+nomad_mpi_LDADD = libnomadmpi.a $(SGTELIB_LIBS)
+nomad_mpi_CXXFLAGS = -DUSE_MPI $(MPI_CXXFLAGS) $(AM_CXXFLAGS) $(SGTELIB_CFLAGS) $(SGTELIB_CFLAGS)
 nomad_mpi_LDFLAGS = $(MPI_CXXLDFLAGS) $(AM_CXXLDFLAGS)
 endif
