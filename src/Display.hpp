@@ -1,46 +1,45 @@
-/*------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
-/*          version 3.8.1                                                       */
-/*                                                                              */
-/*  NOMAD - version 3.8.1 has been created by                                   */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
-/*  and IVADO.                                                                  */
-/*                                                                              */
-/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
-/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
-/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
-/*                                                                              */
-/*  Contact information:                                                        */
-/*    Ecole Polytechnique de Montreal - GERAD                                   */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
-/*    e-mail: nomad@gerad.ca                                                    */
-/*    phone : 1-514-340-6053 #6928                                              */
-/*    fax   : 1-514-340-5665                                                    */
-/*                                                                              */
-/*  This program is free software: you can redistribute it and/or modify it     */
-/*  under the terms of the GNU Lesser General Public License as published by    */
-/*  the Free Software Foundation, either version 3 of the License, or (at your  */
-/*  option) any later version.                                                  */
-/*                                                                              */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT */
-/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
-/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
-/*  for more details.                                                           */
-/*                                                                              */
-/*  You should have received a copy of the GNU Lesser General Public License    */
-/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
-/*                                                                              */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
-/*------------------------------------------------------------------------------*/
-
+/*---------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -                */
+/*                                                                                 */
+/*  NOMAD - version 3.9.1 has been created by                                      */
+/*                 Charles Audet               - Ecole Polytechnique de Montreal   */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  The copyright of NOMAD - version 3.9.1 is owned by                             */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                             */
+/*                                                                                 */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created     */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.     */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                          */
+/*                                                                                 */
+/*  Contact information:                                                           */
+/*    Ecole Polytechnique de Montreal - GERAD                                      */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada              */
+/*    e-mail: nomad@gerad.ca                                                       */
+/*    phone : 1-514-340-6053 #6928                                                 */
+/*    fax   : 1-514-340-5665                                                       */
+/*                                                                                 */
+/*  This program is free software: you can redistribute it and/or modify it        */
+/*  under the terms of the GNU Lesser General Public License as published by       */
+/*  the Free Software Foundation, either version 3 of the License, or (at your     */
+/*  option) any later version.                                                     */
+/*                                                                                 */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT    */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or          */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License    */
+/*  for more details.                                                              */
+/*                                                                                 */
+/*  You should have received a copy of the GNU Lesser General Public License       */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.           */
+/*                                                                                 */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad           */
+/*---------------------------------------------------------------------------------*/
 
 /**
  \file   Display.hpp
@@ -110,7 +109,7 @@ namespace NOMAD {
      }
      \endverbatim
      */
-    class Display {
+    class DLL_API Display {
         
     private:
         
@@ -418,7 +417,7 @@ namespace NOMAD {
     /**
      Allows the use of \c out \c << \c open_block(msg).
      */
-    class open_block {
+    class DLL_API open_block {
     private:
         std::string _msg; ///< Message displayed as a block title.
     public:
@@ -445,7 +444,7 @@ namespace NOMAD {
     /**
      Allows the use of \c out \c << \c close_block(msg).
      */
-    class close_block {
+    class DLL_API close_block {
     private:
         std::string _msg; ///< Message displayed at the end of a block.
     public:
@@ -471,52 +470,52 @@ namespace NOMAD {
     /*-------------------------------------------------------------*/
     
     /// Operator << for NOMAD::stop_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::stop_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::stop_type );
     
     /// Operator << for NOMAD::dd_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::dd_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::dd_type );
     
     /// Operator << for NOMAD::success_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::success_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::success_type );
     
     /// Operator << for NOMAD::bb_input_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::bb_input_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::bb_input_type );
     
     /// Operator << for NOMAD::bb_output_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::bb_output_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::bb_output_type );
     
     /// Operator << for NOMAD::interpolation_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::interpolation_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::interpolation_type );
     
     /// Operator << for NOMAD::hnorm_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::hnorm_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::hnorm_type );
     
     /// Operator << for NOMAD::search_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::search_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::search_type );
     
     /// Operator << for NOMAD::model_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::model_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::model_type );
  
     /// Operator << for NOMAD::direction_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::direction_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::direction_type );
     
     /// Operator << for NOMAD::check_failed_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::check_failed_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::check_failed_type );
     
     /// Operator << for NOMAD::display_stats_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::display_stats_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::display_stats_type );
     
     /// Operator << for NOMAD::eval_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::eval_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::eval_type );
     
     /// Operator << for NOMAD::eval_status_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::eval_status_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::eval_status_type );
     
     /// Operator << for NOMAD::multi_formulation_type.
-    std::ostream & operator << ( std::ostream & , NOMAD::multi_formulation_type );
+    DLL_API std::ostream & operator << ( std::ostream & , NOMAD::multi_formulation_type );
     
     /// Operator << for a vector of NOMAD::bb_intput_type.
-    std::ostream & operator << ( std::ostream                            & ,
+    DLL_API std::ostream & operator << ( std::ostream                            & ,
                                 const std::vector<NOMAD::bb_input_type> &   );
     
     /// Operator <<.

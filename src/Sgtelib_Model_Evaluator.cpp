@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------------*/
 /*  sgtelib - A surrogate model library for derivative-free optimization               */
-/*  Version 2.0.1                                                                      */
+/*  Version 2.0.2                                                                      */
 /*                                                                                     */
 /*  Copyright (C) 2012-2016  Sebastien Le Digabel - Ecole Polytechnique, Montreal      */ 
 /*                           Bastien Talgorn - McGill University, Montreal             */
@@ -34,7 +34,7 @@
 
 
 /*------------------------------------------------------------------------*/
-/*                evaluate the sgtelib_model model at a given trial point */
+/*                evaluate the sgtelib_model model at a given trial point           */
 /*------------------------------------------------------------------------*/
 bool NOMAD::Sgtelib_Model_Evaluator::eval_x ( NOMAD::Eval_Point   & x          ,
                                              const NOMAD::Double & h_max      ,
@@ -44,5 +44,3 @@ bool NOMAD::Sgtelib_Model_Evaluator::eval_x ( NOMAD::Eval_Point   & x          ,
                                           h_max      ,
                                           count_eval );
 }
-
-

@@ -25,30 +25,30 @@ reactor<TYPE>::~reactor() {
 
 template<class TYPE>
 void reactor<TYPE>::set ( double l , double d , int nb , const string * list_rx ) {
-  m      = in->nb;
-  n      = nb;
-  L      = l;
-  D      = d;
-  V      = pi*pow(D/2.0, 2)*L;
+  size_t m      = in->nb;
+  size_t n      = nb;
+  //L      = l;
+  //D      = d;
+  //V      = pi*pow(D/2.0, 2)*L;
 
   double * yields = new double [n];
 
   rx = new reaction * [n];
-  for ( j = 0 ; j < n ; j++ )
+  for ( size_t j = 0 ; j < n ; j++ )
     rx[j] = new reaction ( list_rx[j] , m , in->chem );
 
   table = new double * [m];
-  for ( i = 0 ; i < m ; i++ )
+  for ( size_t i = 0 ; i < m ; i++ )
     table[i] = new double[n];
-  for ( j = 0 ; j < n ; j++ )
-    for ( i = 0 ; i < m ; i++ )
+  for ( size_t j = 0 ; j < n ; j++ )
+    for ( size_t i = 0 ; i < m ; i++ )
       table[i][j] = rx[j]->a[i];
-  for ( j = 0 ; j < n ; j++ ) {
+  for ( size_t j = 0 ; j < n ; j++ ) {
     yields[j]=0.0;
-    for ( i = 0 ; i < m ; i++ )
+    for ( size_t i = 0 ; i < m ; i++ )
       if ( table[i][j] < 0 ) {
-	yields[j]=in->chem[i]->n();
-	i=m;
+	    yields[j]=in->chem[i]->n();
+	    i=m;
       }
   }
 

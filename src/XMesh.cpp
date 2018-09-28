@@ -1,46 +1,45 @@
-/*------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
-/*          version 3.8.1                                                       */
-/*                                                                              */
-/*  NOMAD - version 3.8.1 has been created by                                   */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
-/*  and IVADO.                                                                  */
-/*                                                                              */
-/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
-/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
-/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
-/*                                                                              */
-/*  Contact information:                                                        */
-/*    Ecole Polytechnique de Montreal - GERAD                                   */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
-/*    e-mail: nomad@gerad.ca                                                    */
-/*    phone : 1-514-340-6053 #6928                                              */
-/*    fax   : 1-514-340-5665                                                    */
-/*                                                                              */
-/*  This program is free software: you can redistribute it and/or modify it     */
-/*  under the terms of the GNU Lesser General Public License as published by    */
-/*  the Free Software Foundation, either version 3 of the License, or (at your  */
-/*  option) any later version.                                                  */
-/*                                                                              */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT */
-/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
-/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
-/*  for more details.                                                           */
-/*                                                                              */
-/*  You should have received a copy of the GNU Lesser General Public License    */
-/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
-/*                                                                              */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
-/*------------------------------------------------------------------------------*/
-
+/*---------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -                */
+/*                                                                                 */
+/*  NOMAD - version 3.9.1 has been created by                                      */
+/*                 Charles Audet               - Ecole Polytechnique de Montreal   */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  The copyright of NOMAD - version 3.9.1 is owned by                             */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                             */
+/*                                                                                 */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created     */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.     */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                          */
+/*                                                                                 */
+/*  Contact information:                                                           */
+/*    Ecole Polytechnique de Montreal - GERAD                                      */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada              */
+/*    e-mail: nomad@gerad.ca                                                       */
+/*    phone : 1-514-340-6053 #6928                                                 */
+/*    fax   : 1-514-340-5665                                                       */
+/*                                                                                 */
+/*  This program is free software: you can redistribute it and/or modify it        */
+/*  under the terms of the GNU Lesser General Public License as published by       */
+/*  the Free Software Foundation, either version 3 of the License, or (at your     */
+/*  option) any later version.                                                     */
+/*                                                                                 */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT    */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or          */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License    */
+/*  for more details.                                                              */
+/*                                                                                 */
+/*  You should have received a copy of the GNU Lesser General Public License       */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.           */
+/*                                                                                 */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad           */
+/*---------------------------------------------------------------------------------*/
 
 /**
  \file   XMesh.cpp
@@ -54,7 +53,7 @@
 
 
 /*-----------------------------------------------------------*/
-/*                    init the XMesh                         */
+/*                    init the XMesh                       */
 /*-----------------------------------------------------------*/
 void NOMAD::XMesh::init ( )
 {
@@ -77,50 +76,17 @@ void NOMAD::XMesh::init ( )
         _r[k]=0;
         _r_max[k]=0;
         _r_min[k]=0;
+
     }
     
     
 }
-
-
-/*-----------------------------------------------------------*/
-/* Update the provided mesh indices (the Mesh is unchanged). */
-/*-----------------------------------------------------------*/
-void NOMAD::XMesh::update ( NOMAD::success_type success ,
-                           NOMAD::Point & mesh_indices,
-                           const NOMAD::Direction *dir ) const
-{
-    
-    if ( mesh_indices.is_defined() )
-    {
-        
-        if ( dir && dir->size() != mesh_indices.size() )
-            throw NOMAD::Exception ( "XMesh.cpp" , __LINE__ ,
-                                    "NOMAD::XMesh::update(): mesh_indices and dir have different sizes" );
-        
-        for (int i=0; i < mesh_indices.size() ; i++)
-        {
-            if ( success == NOMAD::FULL_SUCCESS )
-            {
-                
-                if ( (*dir)[i] !=0.0)
-                    mesh_indices[i] += _coarsening_step;
-                
-                if ( mesh_indices[i] > -NOMAD::XL_LIMITS )
-                    mesh_indices[i] = -NOMAD::XL_LIMITS;
-            }
-            else if ( success == NOMAD::UNSUCCESSFUL )
-                mesh_indices[i] += _refining_step;
-        }
-    }
-}
-
 
 
 /*-----------------------------------------------------------*/
 /*                    update the XMesh                       */
 /*-----------------------------------------------------------*/
-void NOMAD::XMesh::update ( NOMAD::success_type success , const NOMAD::Direction * dir)
+void NOMAD::XMesh::update ( NOMAD::success_type success , const NOMAD::Direction * dir) // , const NOMAD::OrthogonalMesh *mesh )
 {
     // defaults:
     //  full success: r^k_j = r^k_j + 1 if (dir_k != 0 and anistropic_mesh) and r^k_j remains the same if dir_k=0
@@ -317,17 +283,18 @@ bool NOMAD::XMesh::check_min_mesh_size_criterion ( ) const
 
 
 /*--------------------------------------------------------------*/
-/*  get delta (mesh size parameter)                             */
-/*       delta^k = delta^0 \tau ^min{0,2*r^k}                   */
+/*  get delta (mesh size parameter)                                */
+/*       delta^k = delta^0 \tau ^min{0,2*r^k}                    */
 /*--------------------------------------------------------------*/
 /*  the function also returns true if ALL delta[i] < delta_min  */
-/*--------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
 bool NOMAD::XMesh::get_delta ( NOMAD::Point & delta ) const
 {
     
     delta.resize(_n);
     
     bool delta_min_is_defined=_delta_min.is_defined();
+    
     bool stop    = true;
     
     // delta^k = power_of_beta * delta^0:
@@ -345,8 +312,8 @@ bool NOMAD::XMesh::get_delta ( NOMAD::Point & delta ) const
 
 
 /*--------------------------------------------------------------*/
-/*  get delta (mesh size parameter)                             */
-/*       delta^k = delta^0 \beta ^min{0,2*r^k}                  */
+/*  get delta (mesh size parameter)                                */
+/*       delta^k = delta^0 \beta ^min{0,2*r^k}                    */
 /*--------------------------------------------------------------*/
 NOMAD::Double NOMAD::XMesh::get_delta ( int i ) const
 {
@@ -376,7 +343,7 @@ bool NOMAD::XMesh::get_Delta ( NOMAD::Point & Delta ) const
     for ( int i = 0 ; i < _n ; ++i )
     {
         Delta[i] = get_Delta( i );
-        
+
         if (  stop && ! _fixed_variables[i].is_defined() && ( !_Delta_min_is_complete  || Delta[i] >= _Delta_min[i] ) )
             stop = false;
     }
@@ -386,13 +353,13 @@ bool NOMAD::XMesh::get_Delta ( NOMAD::Point & Delta ) const
 
 /*--------------------------------------------------------------*/
 /*  get Delta_i  (poll size parameter)                          */
-/*       Delta^k = Delta^0 \beta ^{r^k}                         */
+/*       Delta^k = Delta^0 \beta ^{r^k}                            */
 /*--------------------------------------------------------------*/
 NOMAD::Double NOMAD::XMesh::get_Delta ( int i ) const
 {
     NOMAD::Double Delta = _Delta_0[i] * pow( _update_basis.value() , _r[i].value() );
-
     return Delta;
+
 }
 
 
@@ -444,6 +411,7 @@ void NOMAD::XMesh::set_limit_mesh_index ( int l )
 /*-----------------------------------------------------------*/
 NOMAD::Double NOMAD::XMesh::scale_and_project(int i, const NOMAD::Double & l, bool round_up) const
 {
+
     NOMAD::Double delta = get_delta( i );
     NOMAD::Double Delta = get_Delta( i );
     
@@ -452,6 +420,7 @@ NOMAD::Double NOMAD::XMesh::scale_and_project(int i, const NOMAD::Double & l, bo
 
         NOMAD::Double d = Delta / delta * l;
         if ( ! round_up )
+            // round to double instead of Nomad round to int
             return ( d < 0.0 ? -std::floor(.5-d.value()) : std::floor(.5+d.value()) ) * delta;
         else
             return d.NOMAD::Double::ceil()*delta;

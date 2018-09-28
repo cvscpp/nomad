@@ -4,7 +4,7 @@ import PyNomad
 # The blackbox output must be put in the Eval_Point passed as argument
 def bb(x):
     dim = x.get_n()
-    f = sum([x.get_coord(i)**2 for i in xrange(dim)])    
+    f = sum([x.get_coord(i)**2 for i in range(dim)])    
     x.set_bb_output(0, f )
     return 1 # 1: success 0: failed evaluation
 

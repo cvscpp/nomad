@@ -28,7 +28,25 @@
 using namespace std;
 using namespace NOMAD;
 
-const bool DEBUG = false;
+const bool DEBUG        = false;
+const bool DEBUG_CACHE  = false;
+const int min_arg = 4;
+const int max_arg = 5;
+const int min_np  = 3;
+const int min_bbe = 2;
+const int min_ns  = 1;
+const int i_param = 1;
+const int i_bbe   = 2;
+const int i_ns    = 3;
+const int i_hist  = 4;
+
+void display_usage(std::string prog_name)
+{
+    cerr << "usage: mpirun -np p " << prog_name
+         << " param_file bbe ns [history_file(txt)], with p >= " << min_np << ","
+         << " bbe >= " << min_bbe << ", and " << min_ns << " <= ns <= n."
+         << endl;
+}
 
 /*-----------------------------------*/
 /*           main function           */
@@ -41,15 +59,21 @@ int main ( int argc , char ** argv )
     int rank , np;
     MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
     MPI_Comm_size ( MPI_COMM_WORLD, &np   );
+    int bbe, ns;
+
+    if (argc >= min_arg)
+    {
+        bbe = atoi ( argv[i_bbe] );
+        ns  = atoi ( argv[i_ns] );
+    }
     
     // check the arguments and the number of processes:
-    if ( np <= 2 || argc < 4 || argc > 5 )
+    if (np < min_np || argc < min_arg || argc > max_arg || bbe < min_bbe || ns < min_ns)
     {
         if ( rank == 0 )
-            cerr << "usage: mpirun -np p " << argv[0]
-            << " param_file bbe ns [history_file(txt)], with p>2,"
-            << " bbe>1, and 1<=ns<=n."
-            << endl;
+        {
+            display_usage(argv[0]);
+        }
         MPI_Finalize();
         return 1;
     }
@@ -60,15 +84,15 @@ int main ( int argc , char ** argv )
     
     // parameters:
     NOMAD::Parameters p ( out );
-    int bbe = atoi ( argv[2] );
-    int ns  = atoi ( argv[3] );
     
     // The history file is handled by the cache server only (rank==np-1)
     string history_file;
-    if ( argc == 5 && rank ==np-1 )
+    if ( argc == max_arg
+        && rank ==np-1
+    )
     {
         
-        history_file = argv[5];
+        history_file = argv[i_hist];
         
         std::ofstream fout;
         fout.open ( history_file.c_str() );
@@ -98,7 +122,7 @@ int main ( int argc , char ** argv )
     {
         
         // read the parameters file:
-        p.read ( argv[1] );
+        p.read ( argv[i_param] );
         
         // Force anisotropy(false) to have a single mesh_index (XMesh)
         p.set_ANISOTROPIC_MESH ( false );
@@ -165,10 +189,10 @@ int main ( int argc , char ** argv )
                         p.get_max_bb_eval()  ,
                         history_file         ,
                         false                ,  // ALLOW_MULTIPLE_EVALS
-                        DEBUG                  );
+                        DEBUG_CACHE            );
     
     
-    master_slaves.start( );
+    master_slaves.start_master( );
     
     
     // Cache server:
@@ -183,7 +207,7 @@ int main ( int argc , char ** argv )
         // Save the cache when done (after start is completed)
         if ( ! init_cache_file.empty() )
         {
-            bool success_load_cache_file = cache.load ( init_cache_file , NULL , DEBUG );
+            bool success_load_cache_file = cache.load ( init_cache_file , NULL , DEBUG_CACHE );
             
             if ( ! success_load_cache_file )
             {
@@ -192,7 +216,9 @@ int main ( int argc , char ** argv )
                 
             }
             else
-                cache.save( true , DEBUG );
+            {
+                cache.save( true , DEBUG_CACHE );
+            }
         }
     }
     
@@ -200,10 +226,10 @@ int main ( int argc , char ** argv )
     if ( rank != 0 && rank != np-1 )
     {
         // MADS run:
-        master_slaves.mads_run ( cache , init_cache );
+        master_slaves.mads_slave_run ( cache , init_cache );
         
-        // stop the master:
-        master_slaves.stop();
+        // stop the slave:
+        master_slaves.stop_slave();
     }
     
     
@@ -212,7 +238,7 @@ int main ( int argc , char ** argv )
     cache.stop();
     
     // display the final solution:
-    if ( !DEBUG && rank == np-1 )
+    if (rank == np-1)
     {
         cache.display_best_points ( out );
     }

@@ -1,46 +1,45 @@
-/*------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
-/*          version 3.8.1                                                       */
-/*                                                                              */
-/*  NOMAD - version 3.8.1 has been created by                                   */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
-/*  and IVADO.                                                                  */
-/*                                                                              */
-/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
-/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
-/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
-/*                                                                              */
-/*  Contact information:                                                        */
-/*    Ecole Polytechnique de Montreal - GERAD                                   */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
-/*    e-mail: nomad@gerad.ca                                                    */
-/*    phone : 1-514-340-6053 #6928                                              */
-/*    fax   : 1-514-340-5665                                                    */
-/*                                                                              */
-/*  This program is free software: you can redistribute it and/or modify it     */
-/*  under the terms of the GNU Lesser General Public License as published by    */
-/*  the Free Software Foundation, either version 3 of the License, or (at your  */
-/*  option) any later version.                                                  */
-/*                                                                              */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT */
-/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
-/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
-/*  for more details.                                                           */
-/*                                                                              */
-/*  You should have received a copy of the GNU Lesser General Public License    */
-/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
-/*                                                                              */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
-/*------------------------------------------------------------------------------*/
-
+/*---------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -                */
+/*                                                                                 */
+/*  NOMAD - version 3.9.1 has been created by                                      */
+/*                 Charles Audet               - Ecole Polytechnique de Montreal   */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  The copyright of NOMAD - version 3.9.1 is owned by                             */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                             */
+/*                                                                                 */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created     */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.     */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                          */
+/*                                                                                 */
+/*  Contact information:                                                           */
+/*    Ecole Polytechnique de Montreal - GERAD                                      */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada              */
+/*    e-mail: nomad@gerad.ca                                                       */
+/*    phone : 1-514-340-6053 #6928                                                 */
+/*    fax   : 1-514-340-5665                                                       */
+/*                                                                                 */
+/*  This program is free software: you can redistribute it and/or modify it        */
+/*  under the terms of the GNU Lesser General Public License as published by       */
+/*  the Free Software Foundation, either version 3 of the License, or (at your     */
+/*  option) any later version.                                                     */
+/*                                                                                 */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT    */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or          */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License    */
+/*  for more details.                                                              */
+/*                                                                                 */
+/*  You should have received a copy of the GNU Lesser General Public License       */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.           */
+/*                                                                                 */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad           */
+/*---------------------------------------------------------------------------------*/
 
 /**
  \file   GMesh.cpp
@@ -52,6 +51,7 @@
 #include "GMesh.hpp"
 #include <math.h>
 
+const int HARD_MIN_MESH_INDEX = -300; // Below this limit creates issues.
 
 /*-----------------------------------------------------------*/
 /*                    init the GMesh                       */
@@ -89,38 +89,6 @@ void NOMAD::GMesh::init ( )
 
 
 /*-----------------------------------------------------------*/
-/* Update the provided mesh indices (the Mesh is unchanged). */
-/*-----------------------------------------------------------*/
-void NOMAD::GMesh::update ( NOMAD::success_type success ,
-                           NOMAD::Point & mesh_indices,
-                           const NOMAD::Direction *dir ) const
-{
-    
-    if ( mesh_indices.is_defined() )
-    {
-        
-        if ( dir && dir->size() != mesh_indices.size() )
-            throw NOMAD::Exception ( "GMesh.cpp" , __LINE__ ,
-                                    "NOMAD::GMesh::update(): mesh_indices and dir have different sizes" );
-        
-        for (int i=0; i < mesh_indices.size() ; i++)
-        {
-            if ( ! _fixed_variables.is_defined() && success == NOMAD::FULL_SUCCESS )
-            {
-                mesh_indices[i] ++;
-                
-                if ( mesh_indices[i] > -NOMAD::GL_LIMITS )
-                    mesh_indices[i] = -NOMAD::GL_LIMITS;
-            }
-            else if ( ! _fixed_variables.is_defined() && success == NOMAD::UNSUCCESSFUL )
-                mesh_indices[i] --;
-        }
-    }
-}
-
-
-
-/*-----------------------------------------------------------*/
 /*                    update the granular mesh                        */
 /*-----------------------------------------------------------*/
 void NOMAD::GMesh::update ( NOMAD::success_type success , const NOMAD::Direction * d )
@@ -142,14 +110,11 @@ void NOMAD::GMesh::update ( NOMAD::success_type success , const NOMAD::Direction
         
         for (int i=0 ; i < _n ; i++ )
         {
-            
             // Test for producing anisotropic mesh + correction to prevent mesh collapsing for some variables ( ifnot )
             if ( !_fixed_variables[i].is_defined() )
             {
-                
-
                 if ( ! d || ! _anisotropic_mesh ||
-                     fabs((*d)[i].value())/get_delta(i).value()/get_rho(i).value() > 0.1 ||
+                     fabs((*d)[i].value())/get_delta(i).value()/get_rho(i).value() > _anisotropy_factor.value() ||
                     ( _granularity[i] == 0  && _Delta_exp[i] < _Delta_0_exp[i] && get_rho(i) > min_rho*min_rho ))
                 {
                     // update the mesh index
@@ -272,27 +237,34 @@ void NOMAD::GMesh::check_min_mesh_sizes ( bool             & stop           ,
 
     stop=true;
 
-    // Fine mesh stopping criterion (do not apply when all variables have granularity
-    // All mesh indices must < _limit_mesh_index for all continuous variables (granularity==0) and
-    // and mesh size = granularity for all granular variables to trigger this stopping criterion
+    // Fine mesh stopping criterion. Do not apply when all variables have granularity.
+    // To trigger this stopping criterion:
+    //  - All mesh indices must be < _limit_mesh_index for all continuous variables (granularity==0), and
+    //  - mesh size == granularity for all granular variables.
     if ( _all_granular )
     {
-        // Do not stop because of to fine a mesh if all variables are granular
-        stop =false;
+        // Do not stop because of too fine a mesh if all non-fixed variables are granular.
+        stop = false;
     }
     else
     {
         for ( int i=0 ; i <_n ; i++ )
         {
+            // Skip fixed variables
+            if (_fixed_variables[i].is_defined())
+            {
+                continue;
+            }
+
             // Do not stop if the mesh size of a variable is strictly larger than its granularity
-            if ( _granularity[i] > 0 && ! _fixed_variables[i].is_defined() && get_delta(i) > _granularity[i] )
+            if ( _granularity[i] > 0 && get_delta(i) > _granularity[i] )
             {
                 stop = false;
                 break;
             }
             
             // Do not stop if the mesh of a variable is above the limit mesh index
-            if ( _granularity[i] == 0 && ! _fixed_variables[i].is_defined() && _r[i] >= _limit_mesh_index )
+            if ( _granularity[i] == 0 && _r[i] >= _limit_mesh_index )
             {
                 stop = false;
                 break;
@@ -445,12 +417,16 @@ bool NOMAD::GMesh::get_Delta ( NOMAD::Point & Delta ) const
 /*--------------------------------------------------------------*/
 NOMAD::Double NOMAD::GMesh::get_rho ( int i ) const
 {
+
     NOMAD::Double rho ;
     if ( _granularity[i] > 0  )
-        rho = _Delta_mant[i] * min( pow ( 10 , _Delta_exp[i].value() ) , pow ( 10 , std::fabs( _Delta_exp[i].value() - _Delta_0_exp[i].value() ) ) );
+    {
+        rho = _Delta_mant[i] * NOMAD::min( pow ( 10 , _Delta_exp[i].value() ) , pow ( 10 , std::fabs( _Delta_exp[i].value() - _Delta_0_exp[i].value() ) ) );
+    }
     else
+    {
         rho = _Delta_mant[i] * pow ( 10 , std::fabs( _Delta_exp[i].value() - _Delta_0_exp[i].value() ) );
-    
+    }
 
     return rho;
     
@@ -478,6 +454,11 @@ void NOMAD::GMesh::set_mesh_indices ( const NOMAD::Point & r )
     if ( r.size() != _n )
         throw NOMAD::Exception ( "GMesh.cpp" , __LINE__ ,
                                 "NOMAD::GMesh::set_mesh_indices(): dimension of provided mesh indices must be consistent with their previous dimension" );
+
+    if (r[0] < HARD_MIN_MESH_INDEX)
+    {
+        throw NOMAD::Exception(__FILE__,__LINE__, "NOMAD::GMesh::set_mesh_indices(): mesh index is too small");
+    }
     
     // Set the mesh indices
     _r=r;
@@ -496,6 +477,7 @@ void NOMAD::GMesh::set_mesh_indices ( const NOMAD::Point & r )
         int pos= ( shift + 300 )  % 3 ;
         
         _Delta_exp[i] = std::floor( ( shift + 300.0 )/3.0 ) - 100.0 + _Delta_0_exp[i];
+        // _Delta_exp[i] = (int)( (_r[i].value() + _pos_mant_0[i].value() )/3.0) + _Delta_0_exp[i];
         
         if ( pos == 0 )
             _Delta_mant[i] = 1;
@@ -517,8 +499,15 @@ void NOMAD::GMesh::set_mesh_indices ( const NOMAD::Point & r )
 void NOMAD::GMesh::set_limit_mesh_index ( int l )
 {
     if ( l > 0 )
+    {
         throw NOMAD::Exception ( "GMesh.cpp" , __LINE__ ,
                                 "NOMAD::GMesh::set_limit_mesh_index(): the limit mesh index must be negative or null." );
+    }
+    if ( l < HARD_MIN_MESH_INDEX )
+    {
+        throw NOMAD::Exception ( "GMesh.cpp" , __LINE__ ,
+                                "NOMAD::GMesh::set_limit_mesh_index(): the limit mesh index is too small." );
+    }
     _limit_mesh_index=l;
 }
 
@@ -537,12 +526,15 @@ NOMAD::Double NOMAD::GMesh::scale_and_project(int i, const NOMAD::Double & l, bo
     if ( i <= _n && _Delta_mant.is_defined() && _Delta_exp.is_defined() && delta.is_defined() )
     {
         NOMAD::Double d = get_rho(i) * l;
+        
+        // round to double instead of Nomad round to int
         return d.roundd() * delta;
     }
     else
-        
         throw NOMAD::Exception ( "GMesh.cpp" , __LINE__ ,
                                 "NOMAD::GMesh::scale_and_project(): mesh scaling and projection cannot be performed!" );
+    
+    
 }
 
 
@@ -597,6 +589,12 @@ void NOMAD::GMesh::init_poll_size_granular ( NOMAD::Point & cont_init_poll_size 
             d_min=1.0;
         
         int exp= (int)( std::log10( std::fabs( cont_init_poll_size[i].value()/d_min.value() )));
+        
+        // The poll size cannot be smaller than the granularity
+        // Hence, the initial exponant must >= 0 
+        if ( exp < 0 )
+            exp = 0;
+        
         _Delta_exp[i]=exp;
         
         double cont_mant = cont_init_poll_size[i].value() / d_min.value() * pow ( 10.0 , -exp );
@@ -627,6 +625,7 @@ bool NOMAD::GMesh::is_finer_than_initial (void) const
     
     for (int i =0; i < _n ; ++i )
     {
+        
         if ( !_fixed_variables[i].is_defined() )
         {
             

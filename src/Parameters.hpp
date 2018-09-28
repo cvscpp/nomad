@@ -1,46 +1,45 @@
-/*------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
-/*          version 3.8.1                                                       */
-/*                                                                              */
-/*  NOMAD - version 3.8.1 has been created by                                   */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
-/*  and IVADO.                                                                  */
-/*                                                                              */
-/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
-/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
-/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
-/*                                                                              */
-/*  Contact information:                                                        */
-/*    Ecole Polytechnique de Montreal - GERAD                                   */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
-/*    e-mail: nomad@gerad.ca                                                    */
-/*    phone : 1-514-340-6053 #6928                                              */
-/*    fax   : 1-514-340-5665                                                    */
-/*                                                                              */
-/*  This program is free software: you can redistribute it and/or modify it     */
-/*  under the terms of the GNU Lesser General Public License as published by    */
-/*  the Free Software Foundation, either version 3 of the License, or (at your  */
-/*  option) any later version.                                                  */
-/*                                                                              */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT */
-/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
-/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
-/*  for more details.                                                           */
-/*                                                                              */
-/*  You should have received a copy of the GNU Lesser General Public License    */
-/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
-/*                                                                              */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
-/*------------------------------------------------------------------------------*/
-
+/*---------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -                */
+/*                                                                                 */
+/*  NOMAD - version 3.9.1 has been created by                                      */
+/*                 Charles Audet               - Ecole Polytechnique de Montreal   */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  The copyright of NOMAD - version 3.9.1 is owned by                             */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                             */
+/*                                                                                 */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created     */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.     */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                          */
+/*                                                                                 */
+/*  Contact information:                                                           */
+/*    Ecole Polytechnique de Montreal - GERAD                                      */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada              */
+/*    e-mail: nomad@gerad.ca                                                       */
+/*    phone : 1-514-340-6053 #6928                                                 */
+/*    fax   : 1-514-340-5665                                                       */
+/*                                                                                 */
+/*  This program is free software: you can redistribute it and/or modify it        */
+/*  under the terms of the GNU Lesser General Public License as published by       */
+/*  the Free Software Foundation, either version 3 of the License, or (at your     */
+/*  option) any later version.                                                     */
+/*                                                                                 */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT    */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or          */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License    */
+/*  for more details.                                                              */
+/*                                                                                 */
+/*  You should have received a copy of the GNU Lesser General Public License       */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.           */
+/*                                                                                 */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad           */
+/*---------------------------------------------------------------------------------*/
 
 /**
  \file   Parameters.hpp
@@ -58,6 +57,7 @@
 #include <map>
 #include "Parameter_Entries.hpp"
 #include "Signature.hpp"
+#include "Algo_Parameters.hpp"
 
 namespace NOMAD {
     
@@ -83,7 +83,7 @@ namespace NOMAD {
     };
     
     /// Class for the NOMAD parameters.
-    class Parameters : private NOMAD::Uncopyable {
+    class DLL_API Parameters : public Algo_Parameters, private NOMAD::Uncopyable {
         
     private:
         
@@ -152,6 +152,12 @@ namespace NOMAD {
          */
         void interpret_f_target ( const NOMAD::Parameter_Entries & entries );
         
+        /// Interpretation of the entries for parameter \c TREND_MATRIX.
+        /**
+         \param entries Parameter entries -- \b IN.
+         */
+        void interpret_trend_matrix ( const NOMAD::Parameter_Entries & entries );
+        
         /// Delete the list of starting points.
         void delete_x0s ( void );
         
@@ -192,7 +198,10 @@ namespace NOMAD {
             Invalid_Parameter ( const std::string & file ,
                                int                 line ,
                                const std::string & msg    )
-            : NOMAD::Exception ( file , line , msg ) {}
+            : NOMAD::Exception ( file , line , msg ) {
+                _type_msg = "Invalid Parameter";
+            }
+            
         };
         
         /// Exception class for a bad access.
@@ -231,6 +240,30 @@ namespace NOMAD {
         /// Destructor.
         virtual ~Parameters ( void );
         
+        // Added for Algo_Parameters
+        /// Check if algo parameters are compatible with current parameters
+        /**
+         \param p Parameters for compatibility  -- \b IN.
+         */
+        bool is_algo_compatible ( const NOMAD::Parameters & p) const ;
+        
+        
+        // Added for Algo_Parameters
+        /// Check if algo parameters are compatible with current parameters
+        /**
+         \param ap Algorithmic parameters for compatibility  -- \b IN.
+         */
+        virtual bool is_algo_compatible ( const Algo_Parameters & ap) const ;
+        
+        
+        // Added for Algo_Parameters
+        /// Return algo name
+        virtual std::string get_algo_name() const { return std::string("NOMAD");}
+        
+        // Added for Algo_Parameters
+        /// Return algo version
+        virtual std::string get_algo_version() const { return BASE_VERSION;}
+        
         /// Display parameter help.
         /**
          - Help option obtained with command \c nomad \c -h.
@@ -252,8 +285,8 @@ namespace NOMAD {
         /// Display parameter help.
         /**
          For a list of parameters.
-         \param param_names_list	List of parameter names              -- \b IN.
-         \param developer			Bool to request developer help (defaut=false) -- \b IN.
+         \param param_names_list    List of parameter names              -- \b IN.
+         \param developer           Bool to request developer help (defaut=false) -- \b IN.
          */
         void help ( const std::list<std::string> & param_names_list , bool developer=false) const;
         
@@ -271,7 +304,6 @@ namespace NOMAD {
          \param entries -- \b IN.
          */
         void read ( const NOMAD::Parameter_Entries & entries );
-        
         
         /// Check the parameters.
         /**
@@ -309,7 +341,6 @@ namespace NOMAD {
         
         /// Reset the display for warning.
         /**
-         \return void.
          */
         static void reset_display_warning ( ){ _warning_has_been_displayed = false ;}
         
@@ -323,18 +354,19 @@ namespace NOMAD {
     private:
         std::string            _problem_dir;   ///< Problem directory.
         std::string            _tmp_dir;       ///< Temporary directory.
+        bool                   _reject_unknown_parameters;  ///< Error if an unknown parameter is encountered
         int                    _seed;          ///< Seed.
         int                    _max_eval;      ///< Maximum number of evaluations.
         int                    _max_bb_eval;   ///< Maximum number of blackbox evaluations.
-
+        
         // Report blackbox evaluation number for sub-algos (VNS,ExtendedPoll) on display stat
         // (if false the number of eval is not reported and a symbol "+" is displayed
         bool                   _report_bbe_value; ///< Parameter \c REPORT_BBE_VALUE
-
+        
         // Report surrogate evaluation number for sub-algos (VNS,ExtendedPoll) on display stat
         // (if false the number of eval is not reported and a symbol "+" is displayed
         bool                   _report_sgte_value; ///< Parameter \c REPORT_SGTE_VALUE
-
+        
         
         // Report block evaluation number for sub-algos (VNS, ExtendedPoll) on display stat
         // (if false the number of eval is not reported and a symbol "+" is displayed
@@ -355,7 +387,8 @@ namespace NOMAD {
         /// Maximum number of evaluation during intensification of poll and/or search
         int                    _max_eval_intensification;
         
-        int                    _intensification_type;
+        /// Intensification on poll or on search or on both
+        NOMAD::intensification_type _intensification_type;
         
         int                    _max_time;           ///< Maximum time.
         int                    _max_iterations;     ///< Maximum number of iterations.
@@ -377,6 +410,12 @@ namespace NOMAD {
          to be checked with function NOMAD::Parameters::check().
          */
         bool to_be_checked ( void ) const { return _to_be_checked; }
+        
+        /// When an unknown parameter is read, should an error occur.
+        /**
+         \return true if unknown parameters trigger an error (default) and false if unknown parameters are ignored.
+         */
+        bool get_reject_unknown_parameters() { return _reject_unknown_parameters; }
         
         /// Access to the display degrees.
         /**
@@ -445,19 +484,22 @@ namespace NOMAD {
         /**
          \return The \c MAX_BLOCK_EVAL parameter.
          */
-        int get_max_block_eval ( void ) const;        
-
+        int get_max_block_eval ( void ) const;
+        
         /// Access to the \c INTENSITIFICATION_TYPE parameter.
         /**
          \return The \c INTENSIFICATION_TYPE parameter.
          */
-        int get_intensification_type ( void ) const { return _intensification_type ; }
+        NOMAD::intensification_type get_intensification_type ( void ) const { return _intensification_type ; }
         
         /// Access to the \c MAX_EVAL_INTENSIFICATION parameter.
         /**
          \return The \c MAX_EVAL_INTENSIFICATION parameter.
          */
         int get_max_eval_intensification ( void ) const { return _max_eval_intensification ; }
+        
+        
+        
         
         /// Access to the \c MAX_TIME parameter.
         /**
@@ -556,7 +598,13 @@ namespace NOMAD {
          \return The \c REPORT_BLK_EVA_VALUE parameter.
          */
         bool get_report_blk_eva_value ( void ) const;
-
+        
+        
+        /// Set the \c REJECT_UNKNOWN_PARAMETERS parameter.
+        /**
+         \param reject The \c REJECT_UNKNOWN_PARAMETERS value.
+         */
+        void set_REJECT_UNKNOWN_PARAMETERS(const bool reject);
         
         /// Set the \c POINT_DISPLAY_LIMIT parameter.
         /**
@@ -653,12 +701,24 @@ namespace NOMAD {
          \param blk The \c MAX_BLOCK__EVAL parameter -- \b IN.
          */
         void set_MAX_BLOCK_EVAL ( int blk );
-
+        
         /// Set the \c MAX_EVAL_INTENSIFICATION parameter.
         /**
          \param bbe The \c MAX_EVAL_INTENSIFICATION parameter -- \b IN.
          */
         void set_MAX_EVAL_INTENSIFICATION ( int bbe );
+        
+        /// Set the \c INTENSIFICATION_TYPE parameter.
+        /**
+         \param it The \c INTENSIFICATION_TYPE parameter -- \b IN.
+         */
+        void set_INTENSIFICATION_TYPE ( NOMAD::intensification_type it );
+        
+        /// Set the \c POLL_INTENSIFICATION_DIRECTION parameter.
+        /**
+         \param pid The \c POLL_INTENSIFICATION_DIRECTION parameter -- \b IN.
+         */
+        void set_POLL_INTENSIFICATION_DIRECTION ( NOMAD::direction_type pid );
         
         /// Set the \c MAX_TIME parameter.
         /**
@@ -929,6 +989,32 @@ namespace NOMAD {
         bool          _VNS_search;  ///< Flag for the VNS search.
         NOMAD::Double _VNS_trigger; ///< VNS trigger.
         
+        
+        // NelderMead search simplex parameters:
+        bool          _NM_search;  ///< Flag for the NM search.
+        
+        // NelderMead simplex update parameters
+        Double        _NM_gamma ;     ///< Shrink parameter
+        Double        _NM_delta_ic ;  ///< Inside contraction parameter
+        Double        _NM_delta_oc ;  ///< Outside contraction parameter
+        Double        _NM_delta_e ;   ///< Expansion parameter
+        
+        // NelderMead search parameters:
+        bool          _NM_search_intensive;  ///< Flag for the NM search intensive mode.
+        bool          _NM_search_opportunistic;  ///< Flag for the NM search opportunistic mode.
+        int           _NM_search_max_trial_pts;  ///< NM max number of trial points at each iteration.
+        Double        _NM_search_min_simplex_vol; ///< NM min simplex volume for stopping.
+        Double        _NM_search_include_factor; ///< NM search initial simplex inclusion factor.
+        Double        _NM_search_rank_eps; ///< NM search epsilon for rank calculation of NM simplex.
+        int           _NM_search_max_trial_pts_nfactor; ///< NM max number of trial points at each iteration : nfactor * dim.
+        bool          _NM_search_use_only_Y; ///< Flag for the NM search using only Y to establish dominance of new points.
+        bool          _NM_search_scaled_DZ; ///< Flag for the NM search using scaled DZ (Delta) for simplex characteristics.
+        bool          _NM_search_init_Y_iter; ///< Flag for the NM search initial simplex Y to be obtained iteratively.
+        bool          _NM_search_use_short_Y0; ///< Flag for the NM search using only two points for Y0.
+        bool          _NM_search_init_Y_best_von; ///< Flag for the NM search picking point for init Y having best normalized volume.
+        
+        
+        
         // Latin-Hypercube (LH) search:
         int  _LH_search_p0;      ///< Number of initial LH search points.
         int  _LH_search_pi;      ///< LH search points at each iteration.
@@ -940,6 +1026,9 @@ namespace NOMAD {
         
         /// A boolean equal to \c true if \c OPPORTUNISTIC_CACHE_SEARCH has been defined.
         bool _opp_CS_is_defined;
+        
+        bool _random_eval_sort;            ///< Use random order to sort trial pts.
+        
         
     public:
         
@@ -1042,6 +1131,128 @@ namespace NOMAD {
          */
         const NOMAD::Double & get_VNS_trigger ( void ) const;
         
+        
+        /// Access to the \c NM_SEARCH parameter.
+        /**
+         \return The \c NM_SEARCH parameter.
+         */
+        bool get_NM_search ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_GAMMA parameter.
+        /**
+         \return The \c simplex shrink parameter.
+         */
+        const Double & get_NM_gamma ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_DELTA_IC parameter.
+        /**
+         \return The \c simplex inside contraction parameter.
+         */
+        const Double & get_NM_delta_ic ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_DELTA_OC parameter.
+        /**
+         \return The \c simplex outside contraction parameter.
+         */
+        const Double & get_NM_delta_oc ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_DELTA_E parameter.
+        /**
+         \return The \c simplex expansion parameter.
+         */
+        const Double & get_NM_delta_e ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_INTENSIVE parameter.
+        /**
+         \return The \c NM_SEARCH_INTENSIVE parameter.
+         */
+        bool get_NM_search_intensive ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_OPPORTUNISTIC parameter.
+        /**
+         \return The \c NM_SEARCH_OPPORTUNISTIC parameter.
+         */
+        bool get_NM_search_opportunistic ( void ) const;
+        
+        /// Access to the max number of NM trial points per iteration.
+        /**
+         \return The max number of NM search trial points per iteration.
+         */
+        int get_NM_search_max_trial_pts ( void ) const;
+        
+        /// Access to the minimum volume of the NM simplex.
+        /**
+         \return The min volume of the NM simplex.
+         */
+        const NOMAD::Double & get_NM_search_min_simplex_vol ( void ) const;
+        
+        /// Access to the epsilon for rank calculation of NM simplex.
+        /**
+         \return The epsilon for rank calculation of NM simplex.
+         */
+        const NOMAD::Double & get_NM_search_rank_eps ( void ) const;
+        
+        
+        /// Access to the inclusion factor for constructing initial NM simplex.
+        /**
+         \return The inclusion factor.
+         */
+        const NOMAD::Double & get_NM_search_include_factor ( void ) const;
+        
+        
+        /// Access to the ratio of feasible points for producing initial NM simplex.
+        /**
+         \return The feasible ratio.
+         */
+        const NOMAD::Double & get_NM_search_init_Y_feas_ratio ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_USE_ONLY_Y parameter.
+        /**
+         \return The \c NM_SEARCH_USE_ONLY_Y parameter.
+         */
+        bool get_NM_search_use_only_Y ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_SCALED_DZ parameter.
+        /**
+         \return The \c NM_SEARCH_SCALED_DZ parameter.
+         */
+        bool get_NM_search_scaled_DZ ( void ) const;
+        
+        /// Access to the \c NM_SEARCH_INIT_Y_ITER parameter.
+        /**
+         \return The \c NM_SEARCH_INIT_Y_ITER parameter.
+         */
+        bool get_NM_search_init_Y_iter ( void ) const;
+        
+        
+        /// Access to the \c NM_SEARCH_INIT_Y_BY_TAG parameter.
+        /**
+         \return The \c NM_SEARCH_INTI_Y_BY_TAG parameter.
+         */
+        bool get_NM_search_init_Y_by_tag ( void ) const;
+        
+        
+        /// Access to the \c NM_SEARCH_INIT_Y_BEST_VON parameter.
+        /**
+         \return The \c NM_SEARCH_INTI_Y_BEST_VON parameter.
+         */
+        bool get_NM_search_init_Y_best_von ( void ) const;
+        
+        
+        /// Access to the \c NM_SEARCH_USE_SHORT_Y0 parameter.
+        /**
+         \return The \c NM_SEARCH_USE_SHORT_Y0 parameter.
+         */
+        bool get_NM_search_use_short_Y0 ( void ) const;
+        
+        
+        /// Access to the multiplicative factor to obtain the max number of NM trial points per iteration.
+        /**
+         \return The multiplicative factor.
+         */
+        int get_NM_search_max_trial_pts_nfactor ( void ) const;
+        
+        
         /// Access to the number of initial LH search points.
         /**
          \return The number of initial LH search points.
@@ -1066,6 +1277,18 @@ namespace NOMAD {
          */
         bool get_cache_search ( void ) const;
         
+        /// Access to the \c DISABLE_EVAL_SORT parameter.
+        /**
+         \return The \c DISABLE_EVAL_SORT parameter.
+         */
+        bool get_disable_eval_sort ( void ) const;
+        
+        /// Access to the \c RANDOM_EVAL_SORT parameter.
+        /**
+         \return The \c RANDOM_EVAL_SORT parameter.
+         */
+        bool get_random_eval_sort ( void ) const;
+        
         /// Access to the \c OPPORTUNISTIC_CACHE_SEARCH parameter.
         /**
          \return The \c OPPORTUNISTIC_CACHE_SEARCH parameter.
@@ -1087,6 +1310,12 @@ namespace NOMAD {
         /**
          */
         void set_DISABLE_EVAL_SORT ( void );
+        
+        /// Set random random eval sort parameter.
+        /**
+         \param res The \c RANDOM_EVAL_SORT parameter -- \b IN.
+         */
+        void set_RANDOM_EVAL_SORT ( bool res );
         
         /// Set all the models parameters.
         /**
@@ -1186,6 +1415,127 @@ namespace NOMAD {
          */
         void set_VNS_SEARCH ( bool vns );
         
+        
+        /// Set the \c NM_SEARCH parameter.
+        /**
+         \param nm The \c NM_SEARCH parameter -- \b IN.
+         */
+        void set_NM_SEARCH ( bool nm );
+        
+        /// Set the \c NM_GAMMA parameter.
+        /**
+         \param ga The \c NM_GAMMA parameter -- \b IN.
+         */
+        void set_NM_GAMMA ( const NOMAD::Double & ga );
+        
+        /// Set the \c NM_DELTA_IC parameter.
+        /**
+         \param dic The \c NM_DELTA_IC parameter -- \b IN.
+         */
+        void set_NM_DELTA_IC ( const NOMAD::Double & dic );
+        
+        /// Set the \c NM_DELTA_OC parameter.
+        /**
+         \param doc The \c NM_DELTA_OC parameter -- \b IN.
+         */
+        void set_NM_DELTA_OC ( const NOMAD::Double & doc );
+        
+        /// Set the \c NM_DELTA_E parameter.
+        /**
+         \param de The \c NM_DELTA_E parameter -- \b IN.
+         */
+        void set_NM_DELTA_E ( const NOMAD::Double & de );
+        
+        /// Set the \c NM_SEARCH_INTENSIVE parameter.
+        /**
+         \param nm_intens The \c NM_SEARCH_INTENSIVE parameter -- \b IN.
+         */
+        void set_NM_SEARCH_INTENSIVE ( bool nm_intens );
+        
+        /// Set the \c NM_SEARCH_SCALED_DZ parameter.
+        /**
+         \param nm_scaled The \c NM_SEARCH_SCALED_DZ parameter -- \b IN.
+         */
+        void set_NM_SEARCH_SCALED_DZ ( bool nm_scaled );
+        
+        /// Set the \c NM_SEARCH_OPPORTUNISTIC parameter.
+        /**
+         \param nm_oppor The \c NM_SEARCH_OPPORTUNISTIC parameter -- \b IN.
+         */
+        void set_NM_SEARCH_OPPORTUNISTIC ( bool nm_oppor );
+        
+        /// Set the \c NM_SEARCH_MIN_SIMPLEX_VOL parameter.
+        /**
+         \param vol The \c NM_SEARCH_MIN_SIMPLEX_VOL parameter -- \b IN.
+         */
+        void set_NM_SEARCH_MIN_SIMPLEX_VOL ( NOMAD::Double vol );
+        
+        /// Set the \c NM_SEARCH_RANK_EPS parameter.
+        /**
+         \param eps The \c NM_SEARCH_RANK_EPS parameter -- \b IN.
+         */
+        void set_NM_SEARCH_RANK_EPS ( NOMAD::Double eps );
+        
+        /// Set the \c NM_SEARCH_INCLUDE_FACTOR parameter.
+        /**
+         \param f The \c NM_SEARCH_INCLUDE_FACTOR parameter -- \b IN.
+         */
+        void set_NM_SEARCH_INCLUDE_FACTOR ( NOMAD::Double f );
+        
+        /// Set the \c NM_SEARCH_INIT_Y_FEAS_RATIO parameter.
+        /**
+         \param f The \c NM_SEARCH_INIT_Y_FEAS_RATIO parameter -- \b IN.
+         */
+        void set_NM_SEARCH_INIT_Y_FEAS_RATIO ( NOMAD::Double f );
+        
+        /// Set the \c NM_SEARCH_INIT_Y_ITER parameter.
+        /**
+         \param nm_init_y_iter The \c NM_SEARCH_INIT_Y_ITER parameter -- \b IN.
+         */
+        void set_NM_SEARCH_INIT_Y_ITER ( bool nm_init_y_iter );
+        
+        /// Set the \c NM_SEARCH_MAX_TRIAL_PTS parameter.
+        /**
+         \param max_trial_pts The \c NM_SEARCH_MAX_TRIAL_PTS parameter -- \b IN.
+         */
+        void set_NM_SEARCH_MAX_TRIAL_PTS ( int max_trial_pts );
+        
+        
+        /// Set the \c NM_SEARCH_USE_ONLY_Y parameter.
+        /**
+         \param nm_use_only_y The \c NM_SEARCH_USE_ONLY_Y parameter.
+         */
+        void set_NM_SEARCH_USE_ONLY_Y ( bool nm_use_only_y ) ;
+        
+        
+        /// Set the \c NM_SEARCH_USE_SHORT_Y0 parameter.
+        /**
+         \param nm_use_short_y0 The \c NM_SEARCH_USE_SHORT_Y0 parameter.
+         */
+        void set_NM_SEARCH_USE_SHORT_Y0 ( bool nm_use_short_y0 ) ;
+        
+        
+        /// Set the \c NM_SEARCH_INIT_Y_BY_TAG parameter.
+        /**
+         \param nm_init_y_by_tag The \c NM_SEARCH_INIT_Y_BY_TAG parameter.
+         */
+        void set_NM_SEARCH_INIT_Y_BY_TAG ( bool nm_init_y_by_tag ) ;
+        
+        
+        /// Set the \c NM_SEARCH_INIT_Y_BEST_VON parameter.
+        /**
+         \param nm_init_y_by_best_von The \c NM_SEARCH_INIT_Y_BEST_VON parameter.
+         */
+        void set_NM_SEARCH_INIT_Y_BEST_VON ( bool nm_init_y_by_best_von ) ;
+        
+        
+        /// Set the multiplicative factor to obtain the max number of NM trial points per iteration.
+        /**
+         \param nm_nfactor The \c NM_SEARCH_MAX_TRIAL_PTS_NFACTOR parameter.
+         */
+        void set_NM_SEARCH_MAX_TRIAL_PTS_NFACTOR ( int nm_nfactor ) ;
+        
+        
         /// Set the \c VNS_SEARCH parameter.
         /**
          \param trigger The VNS trigger -- \b IN.
@@ -1221,8 +1571,10 @@ namespace NOMAD {
         // -----
     private:
         
+        
         NOMAD::mesh_type _mesh_type;            ///< The type of mesh used (xmesh [D], gmesh, smesh [old] )
-        bool		  _anisotropic_mesh;		///< Anisotropic mesh (gmesh, xmesh only)
+        bool          _anisotropic_mesh;        ///< Anisotropic mesh (gmesh, xmesh only)
+        NOMAD::Double _anisotropy_factor; ///< Anisotropic mesh shrink/expand factor (gmesh only)
         NOMAD::Double _mesh_update_basis;        ///< Mesh update basis (tau).
         NOMAD::Double _poll_update_basis;        ///< Poll update basis (beta).
         int           _mesh_coarsening_exponent; ///< Mesh coarsening exponent.
@@ -1243,19 +1595,23 @@ namespace NOMAD {
          */
         bool get_anisotropic_mesh ( void ) const;
         
+        /// Access to the \c ANISOTROPY_FACTOR parameter.
+        /**
+         \return The \c ANISOTROPY_FACTOR parameter -- \b IN.
+         */
+        NOMAD::Double get_anisotropy_factor ( void ) const;
+        
         /// Access to the \c MESH_TYPE parameter.
         /**
          \return The \c MESH_TYPE parameter -- \b IN.
          */
         const NOMAD::mesh_type & get_mesh_type ( void ) const;
         
-        
         /// Access to the \c POLL_UPDATE_BASIS parameter.
         /**
          \return The \c POLL_UPDATE_BASIS parameter.
          */
         const NOMAD::Double & get_poll_update_basis ( void ) const;
-        
         
         /// Access to the \c MESH_UPDATE_BASIS parameter.
         /**
@@ -1317,6 +1673,12 @@ namespace NOMAD {
          \param anis The \c ANISOTROPIC_MESH parameter -- \b IN.
          */
         void set_ANISOTROPIC_MESH ( bool anis );
+        
+        /// Set the \c ANISOTROPY_FACTOR parameter.
+        /**
+         \param f The \c ANISOTROPY_FACTOR parameter -- \b IN.
+         */
+        void set_ANISOTROPY_FACTOR ( const NOMAD::Double & f );
         
         /// Set the \c MESH_TYPE parameter.
         /**
@@ -1470,7 +1832,7 @@ namespace NOMAD {
          */
         void set_INITIAL_POLL_SIZE ( const NOMAD::Point & ims , bool relative = false );
         
-
+        // TODO update to prevent access on uncheck attributes
         // Granular variables:
         // -------------------
     private:
@@ -1531,6 +1893,9 @@ namespace NOMAD {
         /// Types of directions for the secondary poll.
         std::set<NOMAD::direction_type> _sec_poll_dir_types;
         
+        /// Types of directions for the intensification poll.
+        std::set<NOMAD::direction_type> _int_poll_dir_types;
+        
         /// Change direction types to prevent using models for finding the (n+1)th direction
         ///   Apply if  ORTHO N+1 QUAD   ->    ORTHO N+1 NEG.
         void set_DIRECTION_TYPE_NO_MODEL ( void );
@@ -1549,6 +1914,12 @@ namespace NOMAD {
          \return The list of secondary poll direction types.
          */
         const std::set<NOMAD::direction_type> & get_sec_poll_dir_types ( void ) const;
+        
+        /// Access to the list of intensification poll direction types.
+        /**
+         \return The list of intensification poll direction types.
+         */
+        const std::set<NOMAD::direction_type> & get_int_poll_dir_types ( void ) const;
         
         
         /// Check if there are Ortho-MADS directions.
@@ -1598,6 +1969,19 @@ namespace NOMAD {
         void set_SEC_POLL_DIR_TYPE ( const std::set<NOMAD::direction_type> & dt );
         
         
+        /// Add a new direction type for the intensification poll.
+        /**
+         \param dt The new direction type -- \b IN.
+         */
+        void set_INT_POLL_DIR_TYPE ( NOMAD::direction_type dt );
+        
+        /// Add a set of new direction types for the intensification poll.
+        /**
+         \param dt The set of new direction types -- \b IN.
+         */
+        void set_INT_POLL_DIR_TYPE ( const std::set<NOMAD::direction_type> & dt );
+        
+        
         /// Enables use of quad model to determine prospect direction
         /// for Ortho n+1 direction type
         /**
@@ -1626,7 +2010,7 @@ namespace NOMAD {
          */
         void set_X0 ( const std::string  & file_name );
         
-        /// Reset all string points.
+        /// Reset all starting points.
         void reset_X0 ( void );
         
         /// Access to the list of starting points.
@@ -1671,6 +2055,15 @@ namespace NOMAD {
          \param s A pointer to the extern signature -- \b IN.
          */
         void set_EXTERN_SIGNATURE ( NOMAD::Signature * s );
+        
+        
+        //        /// Reset standard and extern signatures.
+        //        /**
+        //         Deletes the standard and extern signatures.
+        //        */
+        //        void reset_signatures ( void );
+        
+        
         
         // Dimension:
         // ----------
@@ -1934,10 +2327,12 @@ namespace NOMAD {
          \param var_indexes         Indexes of the variables of the group  -- \b IN.
          \param prim_poll_dir_types Types of the poll directions           -- \b IN.
          \param sec_poll_dir_types  Types of the secondary poll directions -- \b IN.
+         \param int_poll_dir_types  Types of the intensification poll directions -- \b IN.
          */
         void set_VARIABLE_GROUP ( const std::set<int>                   & var_indexes         ,
                                  const std::set<NOMAD::direction_type> & prim_poll_dir_types ,
-                                 const std::set<NOMAD::direction_type> & sec_poll_dir_types  );
+                                 const std::set<NOMAD::direction_type> & sec_poll_dir_types ,
+                                 const std::set<NOMAD::direction_type> & int_poll_dir_types  );
         
         /// Set several groups of variables.
         /**
@@ -2261,6 +2656,66 @@ namespace NOMAD {
          */
         void change_PEB_constraint_status ( int index ) const;
         
+        // Trend matrix:
+        // ------------
+    private:
+        
+        /// Trend matrix provided as a vector of points.
+        std::vector<NOMAD::Point> _trend_matrix;
+        
+        /// Flag equal to \c true if constraint trend matrix used to sort evaluation points.
+        bool _trend_matrix_eval_sort;
+        
+        /// Flag equal to \c true if trend matrix used to perform a basic line search.
+        bool _trend_matrix_basic_line_search;
+        
+        
+    public:
+        
+        /// Push back a new trend point in the trend matrix. Order must follow bbot order.
+        /**
+         \param T The new trend point -- \b IN.
+         */
+        void push_back_trend ( const NOMAD::Point & T ) ;
+        
+        /// Reset trend matrix.
+        void reset_trend_matrix ( void );
+        
+        /// Get the trend matrix.
+        /**
+         \return The trend matrix.
+         */
+        const std::vector<NOMAD::Point> & get_trend_matrix ( void ) const { return _trend_matrix ; }
+        
+        /// Get the flag for trend matrix basic line search.
+        /**
+         \return A boolean equal to \c true if trend matrix
+         basic line search is enabled.
+         */
+        bool get_trend_matrix_basic_line_search ( void ) const { return _trend_matrix_basic_line_search ; }
+        
+        
+        /// Set the \c TREND_MATRIX_BASIC_LINE_SEARCH bool parameter.
+        /**
+         \param t                    -- \b IN.
+         */
+        void set_TREND_MATRIX_BASIC_LINE_SEARCH ( bool t ) ;
+        
+        /// Get the flag for trend matrix eval sort.
+        /**
+         \return A boolean equal to \c true if trend matrix
+         eval sort is enabled.
+         */
+        bool get_trend_matrix_eval_sort ( void ) const { return _trend_matrix_eval_sort ; }
+        
+        
+        /// Set the \c TREND_MATRIX_EVAL_SORT bool parameter.
+        /**
+         \param t                    -- \b IN.
+         */
+        void set_TREND_MATRIX_EVAL_SORT ( bool t );
+        
+        
         // Surrogates:
         // -----------
     private:
@@ -2294,6 +2749,8 @@ namespace NOMAD {
         
         /// Surrogate cache file.
         std::string _sgte_cache_file;
+        
+        
         
     public:
         
@@ -2743,8 +3200,8 @@ namespace NOMAD {
         
         
         
-    // SGTELIB parameters
-    // ----------------------------------
+        // SGTELIB parameters
+        // ----------------------------------
     private:
         
         /// Number of evaluation of the model during each sgtelib_model-search step.
@@ -2781,7 +3238,7 @@ namespace NOMAD {
         /**
          \return The \c SGTELIB_MODEL_EVAL_NB parameter.
          */
-        int	get_SGTELIB_MODEL_EVAL_NB ( void ) const;
+        int get_SGTELIB_MODEL_EVAL_NB ( void ) const;
         
         
         /// Set the \c SGTELIB_MODEL_TRIALS parameter.
@@ -2794,8 +3251,8 @@ namespace NOMAD {
         /**
          \return The \c SGTELIB_MODEL_TRIALS parameter.
          */
-        int	get_SGTELIB_MODEL_TRIALS ( void ) const;
-
+        int get_SGTELIB_MODEL_TRIALS ( void ) const;
+        
         
         /// Set the \c SGTELIB_MODEL_CANDIDATES_NB parameter.
         /**
@@ -2807,9 +3264,9 @@ namespace NOMAD {
         /**
          \return The \c SGTELIB_MODEL_CANDIDATES_NB parameter.
          */
-        int	get_SGTELIB_MODEL_CANDIDATES_NB ( void ) const;
-
-
+        int get_SGTELIB_MODEL_CANDIDATES_NB ( void ) const;
+        
+        
         /// Set the \c SGTELIB_MODEL_DEFINITION parameter.
         /**
          \param s The \c SGTELIB_MODEL_DEFINITION parameter -- \b IN.
@@ -2820,7 +3277,7 @@ namespace NOMAD {
         /**
          \return The \c SGTELIB_MODEL_DEFINITION parameter.
          */
-        std::string	get_SGTELIB_MODEL_DEFINITION ( void ) const;
+        std::string get_SGTELIB_MODEL_DEFINITION ( void ) const;
         
         
         /// Set the \c SGTELIB_MODEL_DISPLAY parameter.
@@ -2833,7 +3290,7 @@ namespace NOMAD {
         /**
          \return The \c SGTELIB_MODEL_DISPLAY parameter.
          */
-        std::string	get_SGTELIB_MODEL_DISPLAY ( void ) const;
+        std::string get_SGTELIB_MODEL_DISPLAY ( void ) const;
         
         
         /// Set the \c SGTELIB_MODEL_FILTER parameter.
@@ -2846,9 +3303,9 @@ namespace NOMAD {
         /**
          \return The \c SGTELIB_MODEL_FILTER parameter.
          */
-        std::string	get_SGTELIB_MODEL_FILTER ( void ) const;
+        std::string get_SGTELIB_MODEL_FILTER ( void ) const;
         
-
+        
         /// Set the \c SGTELIB_MODEL_DIVERSIFICATION parameter.
         /**
          \param dsw The \c SGTELIB_MODEL_DIVERSIFICATION parameter -- \b IN.
@@ -2917,14 +3374,5 @@ namespace NOMAD {
         return out;
     }
 }
-
-typedef NOMAD::Parameters * Params;
-
-extern "C" Params NewParameters(void);
-typedef Params (* Params_creator)(void);
-
-extern "C" void DeleteParameters(Params p);
-typedef void (* Params_disposer)(Params);
-
 
 #endif

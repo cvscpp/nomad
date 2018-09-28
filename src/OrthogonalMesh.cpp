@@ -1,46 +1,45 @@
-/*------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
-/*          version 3.8.1                                                       */
-/*                                                                              */
-/*  NOMAD - version 3.8.1 has been created by                                   */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
-/*  and IVADO.                                                                  */
-/*                                                                              */
-/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
-/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
-/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
-/*                                                                              */
-/*  Contact information:                                                        */
-/*    Ecole Polytechnique de Montreal - GERAD                                   */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
-/*    e-mail: nomad@gerad.ca                                                    */
-/*    phone : 1-514-340-6053 #6928                                              */
-/*    fax   : 1-514-340-5665                                                    */
-/*                                                                              */
-/*  This program is free software: you can redistribute it and/or modify it     */
-/*  under the terms of the GNU Lesser General Public License as published by    */
-/*  the Free Software Foundation, either version 3 of the License, or (at your  */
-/*  option) any later version.                                                  */
-/*                                                                              */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT */
-/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
-/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
-/*  for more details.                                                           */
-/*                                                                              */
-/*  You should have received a copy of the GNU Lesser General Public License    */
-/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
-/*                                                                              */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
-/*------------------------------------------------------------------------------*/
-
+/*---------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -                */
+/*                                                                                 */
+/*  NOMAD - version 3.9.1 has been created by                                      */
+/*                 Charles Audet               - Ecole Polytechnique de Montreal   */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  The copyright of NOMAD - version 3.9.1 is owned by                             */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                             */
+/*                                                                                 */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created     */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.     */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                          */
+/*                                                                                 */
+/*  Contact information:                                                           */
+/*    Ecole Polytechnique de Montreal - GERAD                                      */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada              */
+/*    e-mail: nomad@gerad.ca                                                       */
+/*    phone : 1-514-340-6053 #6928                                                 */
+/*    fax   : 1-514-340-5665                                                       */
+/*                                                                                 */
+/*  This program is free software: you can redistribute it and/or modify it        */
+/*  under the terms of the GNU Lesser General Public License as published by       */
+/*  the Free Software Foundation, either version 3 of the License, or (at your     */
+/*  option) any later version.                                                     */
+/*                                                                                 */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT    */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or          */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License    */
+/*  for more details.                                                              */
+/*                                                                                 */
+/*  You should have received a copy of the GNU Lesser General Public License       */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.           */
+/*                                                                                 */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad           */
+/*---------------------------------------------------------------------------------*/
 
 /**
  \file   OrthogonalMesh.hpp
@@ -54,16 +53,18 @@
 
 /// Constructor (called only by derived objects).
 NOMAD::OrthogonalMesh::OrthogonalMesh (bool                   anisotropic_mesh ,
+                                       NOMAD::Double           anisotropy_factor,
                                        const NOMAD::Point    & Delta_0   ,
                                        const NOMAD::Point    & Delta_min ,
                                        const NOMAD::Point    & delta_min ,
-                                       const NOMAD::Point   & fixed_variables ,
-                                       const NOMAD::Point   & granularity ,
-                                       NOMAD::Double            update_basis,
+                                       const NOMAD::Point    & fixed_variables ,
+                                       const NOMAD::Point    & granularity ,
+                                       NOMAD::Double           update_basis,
                                        int                     coarsening_step,
                                        int                     refining_step,
-                                       int                   limit_mesh_index ) :
+                                       int                     limit_mesh_index) :
 _anisotropic_mesh   ( anisotropic_mesh ),
+_anisotropy_factor  ( anisotropy_factor ),
 _delta_0            ( Delta_0 ),
 _Delta_0            ( Delta_0 ),
 _Delta_min          ( Delta_min ),
@@ -76,7 +77,7 @@ _refining_step      ( refining_step ),
 _limit_mesh_index   ( limit_mesh_index )
 {
     
-    
+
     _Delta_min_is_defined = _Delta_min.is_defined();
     _Delta_min_is_complete = _Delta_min.is_complete();
     
@@ -105,7 +106,9 @@ _limit_mesh_index   ( limit_mesh_index )
     
     
     std::string error;
-    _all_granular = ( _granularity.is_defined() && _granularity.is_complete() ) ? true:false ;
+    // _all_granular is true if all variables are granular; fixed variables are ignored.
+    _all_granular = (_granularity.is_defined()) ? true : false;
+
     for ( int k = 0 ; k < _n ; ++k )
     {
         // we check that Delta_min <= Delta_0 and that delta_min <= delta_0:
@@ -124,8 +127,10 @@ _limit_mesh_index   ( limit_mesh_index )
             break;
         }
         
-        if ( _all_granular && _granularity[k] == 0 )
+        if ( _all_granular && !_fixed_variables[k].is_defined() && _granularity[k] == 0 )
+        {
             _all_granular = false;
+        }
         
     }
     
@@ -181,11 +186,17 @@ void NOMAD::OrthogonalMesh::set_min_mesh_sizes ( const NOMAD::Point & delta_min 
     {
         
         // we check that Delta_min <= Delta_0 and that delta_min <= delta_0:
-        if ( delta_min[k].is_defined() && _delta_0[k] < delta_min[k] )
+        if ( delta_min[k].is_defined()    &&
+            _delta_0[k] < delta_min[k]        )
+        {
             _delta_min[k]=_delta_0[k];
-        
-        if ( delta_min[k].is_defined() && _Delta_0[k] < delta_min[k] )
+        }
+        if ( delta_min[k].is_defined()    &&
+            _Delta_0[k] < delta_min[k]     )
+        {
             _delta_min[k]=_Delta_0[k];
+        }
+        
     }
     
     if ( !error.empty() )

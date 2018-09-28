@@ -1,45 +1,45 @@
-/*------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
-/*          version 3.8.1                                                       */
-/*                                                                              */
-/*  NOMAD - version 3.8.1 has been created by                                   */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
-/*  and IVADO.                                                                  */
-/*                                                                              */
-/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
-/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
-/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
-/*                                                                              */
-/*  Contact information:                                                        */
-/*    Ecole Polytechnique de Montreal - GERAD                                   */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
-/*    e-mail: nomad@gerad.ca                                                    */
-/*    phone : 1-514-340-6053 #6928                                              */
-/*    fax   : 1-514-340-5665                                                    */
-/*                                                                              */
-/*  This program is free software: you can redistribute it and/or modify it     */
-/*  under the terms of the GNU Lesser General Public License as published by    */
-/*  the Free Software Foundation, either version 3 of the License, or (at your  */
-/*  option) any later version.                                                  */
-/*                                                                              */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT */
-/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
-/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
-/*  for more details.                                                           */
-/*                                                                              */
-/*  You should have received a copy of the GNU Lesser General Public License    */
-/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
-/*                                                                              */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
-/*------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -                */
+/*                                                                                 */
+/*  NOMAD - version 3.9.0 has been created by                                      */
+/*                 Charles Audet               - Ecole Polytechnique de Montreal   */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montaplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  The copyright of NOMAD - version 3.9.0 is owned by                             */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montaplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                             */
+/*                                                                                 */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created     */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.     */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                          */
+/*                                                                                 */
+/*  Contact information:                                                           */
+/*    Ecole Polytechnique de Montreal - GERAD                                      */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada              */
+/*    e-mail: nomad@gerad.ca                                                       */
+/*    phone : 1-514-340-6053 #6928                                                 */
+/*    fax   : 1-514-340-5665                                                       */
+/*                                                                                 */
+/*  This program is free software: you can redistribute it and/or modify it        */
+/*  under the terms of the GNU Lesser General Public License as published by       */
+/*  the Free Software Foundation, either version 3 of the License, or (at your     */
+/*  option) any later version.                                                     */
+/*                                                                                 */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT    */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or          */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License    */
+/*  for more details.                                                              */
+/*                                                                                 */
+/*  You should have received a copy of the GNU Lesser General Public License       */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.           */
+/*                                                                                 */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad           */
+/*---------------------------------------------------------------------------------*/
 
 
 #define NOMADMEX_VERSION "1.26_ct  [Feb. 10th, 2017]"
@@ -326,8 +326,18 @@ public:
         
         //Call MATLAB Objective
         try
-        {
-            mexCallMATLAB(1, fun->plhs, fun->nrhs, fun->prhs, fun->f);
+        {	
+              // Use Trap to catch some errors on fun eval that are not properly catched as an exception
+              mxArray * except = mexCallMATLABWithTrap(1, fun->plhs, fun->nrhs, fun->prhs, fun->f);
+              if ( except != NULL )
+              {
+                   std::string error_message ( "\n +++++++++++++++++++++++++++++++++++++++++++++++ \n");
+                   error_message += " Error message captured from blackbox: \n";
+                   error_message += mxArrayToString(mxGetProperty(except,0,"message"));
+                   error_message += "....... \n Correct this error in the blackbox or handle exception.\n";
+                   error_message += " +++++++++++++++++++++++++++++++++++++++++++++++ \n";
+                   throw ( exception(error_message.c_str()) );
+               }
         }
         
         //Note if these errors occur it is due to errors in MATLAB code, no way to recover?
@@ -457,13 +467,23 @@ public:
         //Call MATLAB Objective
         try
         {
-            mexCallMATLAB(1, fun->plhs, fun->nrhs, fun->prhs, fun->f);
+              // Use Trap to catch some errors on fun eval that are not properly catched as an exception
+              mxArray * except = mexCallMATLABWithTrap(1, fun->plhs, fun->nrhs, fun->prhs, fun->f);
+              if ( except != NULL )
+              {
+                   std::string error_message ( "\n +++++++++++++++++++++++++++++++++++++++++++++++ \n");
+                   error_message += " Error message captured from blackbox: \n";
+                   error_message += mxArrayToString(mxGetProperty(except,0,"message"));
+                   error_message += "....... \n Correct this error in the blackbox or handle exception.\n";
+                   error_message += " +++++++++++++++++++++++++++++++++++++++++++++++ \n";
+                   throw ( exception(error_message.c_str()) );
+               }
         }
         //Note if these errors occur it is due to errors in MATLAB code, no way to recover?
         catch(exception &e)
         {
             sprintf(errstr,"Unrecoverable Error from Objective / Blackbox Callback:\n%sExiting NOMAD...\n\n",e.what());
-            mexWarnMsgTxt(errstr);
+            mexErrMsgTxt(errstr);
             //Force exit
             raise(SIGINT);
             return false;
@@ -1195,8 +1215,9 @@ void mexFunction (int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
     
     
+	// Deprecated for Matlab 2018
     //Return error control to default
-    mexSetTrapFlag(0);
+    // mexSetTrapFlag(0);
     
     
     //Free Memory
@@ -1439,7 +1460,7 @@ int checkInputs(const mxArray *prhs[], int nrhs, mxArray *plhs[], int nlhs)
             mexPrintf("The copyright of NOMAD - version %s is owned by {\n",NOMAD::VERSION.c_str());
             mexPrintf("      Sebastien Le Digabel - Ecole Polytechnique de Montreal\n");
             mexPrintf("      Christophe Tribes    - Ecole Polytechnique de Montreal\n}\n\n");
-            mexPrintf("NOMAD version 3 is a new version of Nomad v1 and v2, it has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto and \n IVADO.");
+            mexPrintf("NOMAD version 3 is a new version of Nomad v1 and v2, it has been funded by AFOSR and Exxon Mobil.\n");
             mexPrintf("Nomad v1 and v2 were created and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E. Dennis Jr.,\n");
             mexPrintf(" and were funded by AFOSR and Exxon Mobil.\n\n");
             mexPrintf("Web       : www.gerad.ca/nomad\n");

@@ -20,7 +20,7 @@ function options = nomadset(varargin)
 %Valid direction types
 global dirtypes
 dirtypes = {'ortho 1','ortho 2','ortho n+1','ortho n+1 quad','ortho n+1 neg','ortho','ortho 2n','lt 1','lt 2','lt 2n','lt n+1','gps binary','gps 2n static',...
-            'gps 2n rand','gps n+1 static uniform','gps n+1 static','gps n+1 rand uniform','gps n+1 rand'};
+            'gps 2n rand','gps n+1 static uniform','gps n+1 static','gps n+1 rand uniform','gps n+1 rand','gps 1 static'};
 
 % Print out possible values of properties.
 if (nargin == 0) && (nargout == 0)
@@ -38,7 +38,7 @@ Names = {'bb_input_type','bb_output_type','direction_type','f_target','initial_m
          'neighbors_mat','opportunistic_cache_search','opportunistic_lucky_eval','opportunistic_min_eval','opportunistic_min_f_imprvmt','opportunistic_min_nb_success','rho','scaling','sec_poll_dir_type',...
          'snap_to_bounds','speculative_search','stat_sum_target','stop_if_feasible','add_seed_to_file_names','cache_file','cache_save_period','display_degree','display_all_eval',...
          'history_file','solution_file','stats_file','param_file','iterfun','disable','epsilon','opt_only_sgte','sgte_cost','sgte_eval_sort','has_sgte',...
-         'sgte_cache_file','max_sgte_eval','anisotropic_mesh','fixed_variable'}';
+         'sgte_cache_file','max_sgte_eval','anisotropic_mesh','fixed_variable','intensification_type','max_eval_intensification','int_poll_dir_types','granularity'}';
 Defaults = {[],[],[],[],[],[],[],1,...%bb_max_block_size
             [],1,1,[],[],1,1,0,0,... %vns_search
             0,1e20,[],'L2',[],[],2000,[],...%max_consecutive_failed_iterations
@@ -48,7 +48,7 @@ Defaults = {[],[],[],[],[],[],[],1,...%bb_max_block_size
             [],0,0,[],[],-1,0.1,[],[],...%sec_poll_dir_type
             1,1,[],0,1,[],25,2,0,... %display_all_eval
             [],[],[],[],[],[],1e-13,0,[],1,0,...%has_sgte
-            [],[],1,''}';        
+            [],[],1,'','P',[],'ORTHO 1',[]}';
 
 %Collect Sizes and lowercase matches         
 m = size(Names,1); numberargs = nargin;
@@ -143,13 +143,13 @@ switch lower(field)
          'model_quad_max_y_size','model_quad_min_y_size','model_quad_radius_factor','model_quad_use_wp','multi_use_delta_crit',...
          'opportunistic_cache_search','opportunistic_lucky_eval','opportunistic_min_f_imprvmnt','opportunistic_min_nb_success','rho',...
          'snap_to_bounds','speculative_search','stat_sum_target','stop_if_feasible','add_seed_to_file_names','cache_save_period','display_degree',...
-         'display_all_eval','has_sgte','sgte_cost','sgte_eval_sort','opt_only_sgte','epsilon','max_sgte_eval','anisotropic_mesh'}
+         'display_all_eval','has_sgte','sgte_cost','sgte_eval_sort','opt_only_sgte','epsilon','max_sgte_eval','anisotropic_mesh','max_eval_intensification'}
         if(~isscalar(value) || ~isnumeric(value) || ~isreal(value) || ~isa(value,'double'))
-            err = MException('NOMAD:SetFieldError','Parameter ''%s'' should be a real scalar double',field);
+            err = MException('NOMAD:SetFieldError','Parameter ''%s'' should be a real scalar double (or int)',field);
         end
     
     %Direction Type
-    case {'direction_type','sec_poll_dir_type'}
+    case {'direction_type','sec_poll_dir_type','int_poll_dir_type'}
         if(~ischar(value) || ~any(strcmp(value,dirtypes)))
             err = MException('NOMAD:SetFieldError','Parameter ''%s'' should match one of those displayed by nomadset()',field);
         end   
@@ -162,13 +162,13 @@ switch lower(field)
     
     %String
     case {'cache_file','history_file','solution_file','stats_file','param_file','multi_formulation','h_norm',...
-          'lh_search','multi_f_bounds','sgte_cache_file'}
+          'lh_search','multi_f_bounds','sgte_cache_file','intensification_type'}
         if(~ischar(value))
             err = MException('NOMAD:SetFieldError','Parameter ''%s'' should be a char array (string)',field);
         end 
      
     %string or cell of strings
-    case {'bb_output_type','bb_input_type','initial_mesh_size','min_mesh_size','min_poll_size','scaling','fixed_variable'}
+    case {'bb_output_type','bb_input_type','initial_mesh_size','min_mesh_size','min_poll_size','scaling','fixed_variable','granularity'}
         if(~ischar(value) && ~iscell(value))
             err = MException('NOMAD:SetFieldError','Parameter ''%s'' should be a string or cell array of strings',field);
         elseif(iscell(value))
@@ -253,16 +253,20 @@ fprintf('          bb_max_block_size: [ Maximum size of a block of evaluations g
 fprintf('               cache_search: [ Use Cache search: Off {0}, On (1) ] \n');
 fprintf('                    disable: [ Forcefully disable NOMAD features {[]} ] \n');
 fprintf('             fixed_variable: [ Fixed variable provided as ( 0.0 - 0.0 ) -> variables 0 and 2 are fixed; or as  1-10 0.0 -> variable 1 to 10 are fixed to 0.0 {[]} \n');
+fprintf('                granularity: [ Granularity provided in vector form ( 0.01 0 0.01 ) -> variables 0 and 2 have granularity 0.01; variable 1 has granularity 0.0 (real) {[]} \n');
 fprintf('                    h_max_0: [ Initial value of hmax {1e20} ] \n');
 fprintf('                      h_min: [ x is feasible if h(x) >= v {0.0} ] \n');
 fprintf('                     h_norm: [ Norm used to compute h: ''L1'', {''L2''}, ''Linf'' ] \n');
 fprintf('                   has_sgte: [ Indicates if the problem has a surrogate function: No {0}, Yes {1} ] \n');
 fprintf('         initial_mesh_index: [ Initial Mesh Index {0} ] \n');
+fprintf('       intensification_type: [ Type of intensification: {''POLL''}, ''SEARCH'', ''POLL_AND_SEARCH'' ] \n');
+fprintf('          int_poll_dir_type: [ Type of directions for the poll intensification {[]} ] \n');
 fprintf('             l_curve_target: [ NOMAD terminates if objective may not reach this value {[]} ] \n');
 fprintf('           max_cache_memory: [ Maximum cache memory {2000} MB ] \n');
 fprintf(' max_consecutive_failed_iterations: [ Maximum number of failed MADS iterations {[]} ] \n');
 fprintf('                   max_eval: [ Maximum number of evaluations (includes cache and bb) {[]} ] \n');
 fprintf('             max_iterations: [ Maximum number of iterations {[]} ] \n');
+fprintf('   max_eval_intensification: [ Maximum number of evaluations for the intensification {[]} ] \n');
 fprintf('             max_mesh_index: [ Maximum Mesh Index {[]} ] \n');
 fprintf('              max_sgte_eval: [ Maximum Number of Surrogate Evaluations {[]} ] \n');
 fprintf('            max_sim_bb_eval: [ Maximum Simulated BB evaluations {[]} ] \n');
@@ -284,6 +288,7 @@ fprintf('           opportunistic_lh: [ Opportunistic strategy for LH search: Of
 fprintf('     opportunistic_min_eval: [ Do not terminate below i evaluations {[]} ] \n');
 fprintf('                        rho: [ Parameter of the progressive barrier {0.1} ] \n');
 fprintf('                    scaling: [ Scaling on the variables (vector of scaling values for each variable) {[]} ] \n');
+fprintf('          sec_poll_dir_type: [ Type of directions for the secondary poll {[]} ] \n');
 fprintf('                       seed: [ Random Seed: {[]} ] \n');
 fprintf('                  sgte_cost: [ The cost of c surrogate evaluations is equivalent to one blackbox evaluation: {[]} ] \n');
 fprintf('             sgte_eval_sort: [ If surrogates are used to sort list of trial points: Off (0), On {1} ] \n');
@@ -306,10 +311,9 @@ fprintf('          model_quad_use_wp: [ Enable strategy to maintain well-poised 
 fprintf('          multi_formulation: [ Single objective reformulation: ''normalized'', {''product''}, ''dist_l1'', ''dist_l2'', ''dist_linf'' ] \n');
 fprintf('       multi_use_delta_crit: [ Use stopping criterion based on the delta criterion: Off {0}, On (1) ] \n');
 fprintf('   opportunistic_lucky_eval: [ Perform an additional BB eval after an improvement: Off {0}, On (1) ] \n');
-fprintf(' opportunistic_min_f_imprvmt: [ Terminate only if f is reduced by r%% {[]} ] \n');
+fprintf('opportunistic_min_f_imprvmt: [ Terminate only if f is reduced by r%% {[]} ] \n');
 fprintf('opportunistic_min_nb_success: [ Do not terminate before i successes {[]} ] \n');
 fprintf('              opt_only_sgte: [ Minimize only with surrogates: No {0}, Yes (1) ]\n');
-fprintf('          sec_poll_dir_type: [ Type of directions for the secondary poll (see below) {[]} ] \n');
 
 fprintf('\nOUTPUT PARAMETERS:\n');
 fprintf('     add_seed_to_file_names: [ If the seed is added to the output file names: Off (0), On {1} ]\n');

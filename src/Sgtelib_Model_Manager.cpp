@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------------*/
 /*  sgtelib - A surrogate model library for derivative-free optimization               */
-/*  Version 2.0.1                                                                      */
+/*  Version 2.0.2                                                                      */
 /*                                                                                     */
 /*  Copyright (C) 2012-2016  Sebastien Le Digabel - Ecole Polytechnique, Montreal      */ 
 /*                           Bastien Talgorn - McGill University, Montreal             */
@@ -255,8 +255,7 @@ void NOMAD::Sgtelib_Model_Manager::update(void)
     const NOMAD::Display & out = _p.out();    
     const bool display_update = string_find( _p.get_SGTELIB_MODEL_DISPLAY(),"U") ;
     
-    if ( display_update )
-        out.open_block("Update sgtelib model");
+    if ( display_update ) out.open_block("Update sgtelib model");
     
     // EXTERN SGTE
     if ( _p.get_SGTELIB_MODEL_FORMULATION() == NOMAD::SGTELIB_MODEL_FORMULATION_EXTERN )
@@ -307,6 +306,7 @@ void NOMAD::Sgtelib_Model_Manager::update(void)
             valid_point = true;
             for ( int j=0 ; j < _p.get_bb_nb_outputs() ; j++)
             {
+                // test on valid f (needed below)
                 if ( ( !cur->get_bb_outputs()[j].is_defined() ) || ( isnan(cur->get_bb_outputs()[j].value()) ) || !cur->is_eval_ok() || !cur->get_f().is_defined() )
                     valid_point = false;
             }
@@ -609,8 +609,8 @@ void NOMAD::Sgtelib_Model_Manager::check_hf ( NOMAD::Eval_Point   * x )
 /*                evaluate the sgtelib_model model at a given point       */
 /*------------------------------------------------------------------------*/
 bool NOMAD::Sgtelib_Model_Manager::eval_x ( NOMAD::Eval_Point   * x          ,
-	                                          const NOMAD::Double & h_max      ,
-                                          	bool                & count_eval )
+                                            const NOMAD::Double & h_max      ,
+                                            bool                & count_eval )
 {
     int i;
     const int dim = _p.get_dimension();

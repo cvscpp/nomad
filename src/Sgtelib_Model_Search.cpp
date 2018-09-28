@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------------*/
 /*  sgtelib - A surrogate model library for derivative-free optimization               */
-/*  Version 2.0.1                                                                      */
+/*  Version 2.0.2                                                                      */
 /*                                                                                     */
 /*  Copyright (C) 2012-2016  Sebastien Le Digabel - Ecole Polytechnique, Montreal      */ 
 /*                           Bastien Talgorn - McGill University, Montreal             */
@@ -100,7 +100,6 @@ void NOMAD::Sgtelib_Model_Search::search ( NOMAD::Mads              & mads      
     count_search  = false;
     const NOMAD::Display    & out = _p.out();
     const NOMAD::dd_type display_degree = out.get_search_dd();
-    //const bool bool_display = ( string_find(_p.get_SGTELIB_MODEL_DISPLAY(),"S") or (display_degree == NOMAD::FULL_DISPLAY) );
     const bool bool_display = ( _p.get_SGTELIB_MODEL_DISPLAY().size() || (display_degree == NOMAD::FULL_DISPLAY) );
     
     // initial displays:
@@ -220,10 +219,10 @@ void NOMAD::Sgtelib_Model_Search::search ( NOMAD::Mads              & mads      
     // Get mads & ev_ctrl
     NOMAD::Stats & stats = mads.get_stats();
     NOMAD::Evaluator_Control * ev_control = _sgtelib_model_manager->get_evaluator_control();
+
     
     const int kkmax = _p.get_SGTELIB_MODEL_TRIALS();
     
-    // MULTIPLE_SEARCH
     for (int kk=0 ; kk<kkmax ; kk++)
     {
         
@@ -334,7 +333,7 @@ void NOMAD::Sgtelib_Model_Search::search ( NOMAD::Mads              & mads      
                                              success                 ,
                                              evaluated_pts             );
             ev_control->enable_model_eval_sort();
-        
+            
             delete evaluated_pts;
             
             cache_hit = (cache_hits<stats.get_cache_hits());
@@ -718,11 +717,7 @@ bool NOMAD::Sgtelib_Model_Search::filter_cache (  const NOMAD::Display & out    
     if (nb_methods==0)
         throw NOMAD::Exception ( "Sgtelib_Model_Search.cpp" ,
                                  __LINE__ ,"method index non valid" );
-    
-    
-    
-    
-    
+
     
     int failure = 0;
     int ni, nmax, iselect;
@@ -814,7 +809,7 @@ bool NOMAD::Sgtelib_Model_Search::filter_cache (  const NOMAD::Display & out    
                 dmax = 0;
                 for (i=0 ; i<pp ; i++)
                 {
-                    if ( ( ! keep[i]) && (DTX[i]>=dmax) )
+                    if ( (!keep[i]) && (DTX[i]>=dmax) )
                     {
                         dmax = DTX[i];
                         iselect = i;
@@ -896,7 +891,7 @@ bool NOMAD::Sgtelib_Model_Search::filter_cache (  const NOMAD::Display & out    
                 for (i=0 ; i<pp ; i++)
                 {
                     
-                    if ( ( ! keep[i]) && (d_isolation[i]>0) )
+                    if ( (!keep[i]) && (d_isolation[i]>0) )
                     {
                         ni = n_isolation[i];
                         // If criteria undef, then compute.
@@ -928,7 +923,7 @@ bool NOMAD::Sgtelib_Model_Search::filter_cache (  const NOMAD::Display & out    
                 nmax = 0;
                 for (i=0 ; i<pp ; i++)
                 {
-                    if ( ( ! keep[i]) && (DTX[i]>0) )
+                    if ( (!keep[i]) && (DTX[i]>0) )
                     {
                         ni = n_density[i];
                         // If criteria undef, then compute.
@@ -1108,11 +1103,6 @@ bool NOMAD::Sgtelib_Model_Search::check_oracle_point  ( const NOMAD::Cache   & c
 } // end check_oracle_points
 
 
-
-
-
-
-
 /*--------------------------------------------------------*/
 /*  insert a trial point in the evaluator control object  */
 /*  (private)                                             */
@@ -1252,10 +1242,6 @@ bool NOMAD::Sgtelib_Model_Search::optimize_model ( const NOMAD::Cache      & cac
     model_param.set_INITIAL_POLL_SIZE ( init_Delta , false );
     model_param.set_INITIAL_MESH_SIZE ( init_delta , false );
     
-    
-    
-    //  model_param.set_INITIAL_MESH_INDEX ( 0 );
-    
     // searches:
     model_param.set_LH_SEARCH ( int(_p.get_SGTELIB_MODEL_EVAL_NB()*0.3) , 0 );
     model_param.set_OPPORTUNISTIC_LH ( false );
@@ -1280,11 +1266,6 @@ bool NOMAD::Sgtelib_Model_Search::optimize_model ( const NOMAD::Cache      & cac
     // bounds:
     model_param.set_LOWER_BOUND ( _sgtelib_model_manager->get_extended_lb() );
     model_param.set_UPPER_BOUND ( _sgtelib_model_manager->get_extended_ub() );
-    
-    //out << "Bounds : " << std::endl;
-    //out << _sgtelib_model_manager->get_extended_lb() << std::endl;
-    //out << _sgtelib_model_manager->get_extended_ub() << std::endl;
-    
     
     // Max eval
     model_param.set_MAX_BB_EVAL ( _p.get_SGTELIB_MODEL_EVAL_NB() );
@@ -1411,12 +1392,12 @@ bool NOMAD::Sgtelib_Model_Search::optimize_model ( const NOMAD::Cache      & cac
     const int nb_candidates = (i<=0) ? _p.get_bb_max_block_size() : i;
     
     
-    if ( nb_candidates==1 )
+    if (nb_candidates==1)
     {
-        if ( xf )
-            oracle_pts.push_back(xf);
-        else if ( xi )
-            oracle_pts.push_back(xi);
+        NOMAD::Eval_Point * x_add = NULL;
+        if (xf)      x_add = new NOMAD::Eval_Point(*xf,_p.get_bb_nb_outputs());
+        else if (xi) x_add = new NOMAD::Eval_Point(*xi,_p.get_bb_nb_outputs());
+        oracle_pts.push_back(x_add);
     }
     else
     {
@@ -1486,10 +1467,6 @@ bool NOMAD::Sgtelib_Model_Search::optimize_model ( const NOMAD::Cache      & cac
     
     return !error;
 }
-
-
-
-
 
 
 /*------------------------------------------------------*/
@@ -1592,8 +1569,6 @@ void NOMAD::Sgtelib_Model_Search::get_best_projection ( const NOMAD::Cache   & c
         for (i=0 ; i<nb_voisins ; i++)
             set_index.insert(i);
     }
-    
-    
     
     // Build the set of neighboors
     //----------------------------
@@ -1906,8 +1881,3 @@ void NOMAD::Sgtelib_Model_Search::get_best_projection ( const NOMAD::Cache   & c
     
 }//
 
-
-
-
-
-// #endif

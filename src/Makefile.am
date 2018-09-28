@@ -1,8 +1,8 @@
 lib_LIBRARIES = libnomad.a
-libnomad_a_SOURCES = Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.cpp\
+libnomad_a_SOURCES = Algo_Parameters.cpp Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.cpp\
 	Cache_Search.cpp Clock.cpp Direction.cpp Directions.cpp Display.cpp\
 	Double.cpp Eval_Point.cpp Evaluator_Control.cpp Evaluator.cpp\
-	Exception.cpp Extended_Poll.cpp L_Curve.cpp LH_Search.cpp Mads.cpp\
+	Extended_Poll.cpp L_Curve.cpp LH_Search.cpp Mads.cpp\
 	SMesh.cpp XMesh.cpp Model_Sorted_Point.cpp Model_Stats.cpp Multi_Obj_Evaluator.cpp\
 	Parameter_Entries.cpp Parameter_Entry.cpp Parameters.cpp\
 	Pareto_Front.cpp Pareto_Point.cpp Phase_One_Evaluator.cpp\
@@ -11,13 +11,14 @@ libnomad_a_SOURCES = Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.cpp\
 	RNG.cpp Signature.cpp Slave.cpp Speculative_Search.cpp Stats.cpp\
 	utils.cpp Variable_Group.cpp VNS_Search.cpp OrthogonalMesh.cpp \
 	GMesh.cpp Sgtelib_Model_Evaluator.cpp Sgtelib_Model_Manager.cpp \
-	Sgtelib_Model_Search.cpp
+	Sgtelib_Model_Search.cpp NelderMead_Search.cpp NelderMead_Simplex_Eval_Point.cpp \
+	TrendMatrix_Line_Search.cpp
 
 
-libnomadmpi_a_SOURCES = Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.cpp\
+libnomadmpi_a_SOURCES = Algo_Parameters.cpp Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.cpp\
 	Cache_Search.cpp Clock.cpp Direction.cpp Directions.cpp Display.cpp\
 	Double.cpp Eval_Point.cpp Evaluator_Control.cpp Evaluator.cpp\
-	Exception.cpp Extended_Poll.cpp L_Curve.cpp LH_Search.cpp Mads.cpp\
+	Extended_Poll.cpp L_Curve.cpp LH_Search.cpp Mads.cpp\
 	SMesh.cpp XMesh.cpp Model_Sorted_Point.cpp Model_Stats.cpp Multi_Obj_Evaluator.cpp\
 	Parameter_Entries.cpp Parameter_Entry.cpp Parameters.cpp\
 	Pareto_Front.cpp Pareto_Point.cpp Phase_One_Evaluator.cpp\
@@ -26,9 +27,10 @@ libnomadmpi_a_SOURCES = Barrier.cpp Cache.cpp Cache_File_Point.cpp Cache_Point.c
 	RNG.cpp Signature.cpp Slave.cpp Speculative_Search.cpp Stats.cpp\
 	utils.cpp Variable_Group.cpp VNS_Search.cpp OrthogonalMesh.cpp \
 	GMesh.cpp Sgtelib_Model_Evaluator.cpp Sgtelib_Model_Manager.cpp \
-	Sgtelib_Model_Search.cpp
+	Sgtelib_Model_Search.cpp NelderMead_Search.cpp NelderMead_Simplex_Eval_Point.cpp \
+	TrendMatrix_Line_Search.cpp
 
-pkginclude_HEADERS = Cache_File_Point.hpp Cache.hpp Cache_Point.hpp\
+pkginclude_HEADERS = Algo_Parameters.hpp Cache_File_Point.hpp Cache.hpp Cache_Point.hpp\
 	Cache_Search.hpp Clock.hpp defines.hpp Direction.hpp Directions.hpp\
 	Display.hpp Double.hpp Eval_Point.hpp Evaluator_Control.hpp\
 	Evaluator.hpp Exception.hpp Extended_Poll.hpp Filter_Point.hpp\
@@ -44,7 +46,8 @@ pkginclude_HEADERS = Cache_File_Point.hpp Cache.hpp Cache_Point.hpp\
 	Stats.hpp Uncopyable.hpp utils.hpp Variable_Group.hpp\
 	VNS_Search.hpp Barrier.hpp OrthogonalMesh.hpp \
 	GMesh.hpp Sgtelib_Model_Evaluator.hpp Sgtelib_Model_Manager.hpp \
-	Sgtelib_Model_Search.hpp
+	Sgtelib_Model_Search.hpp NelderMead_Search.hpp NelderMead_Simplex_Eval_Point.hpp \
+	TrendMatrix_Line_Search.hpp
 
 libnomad_a_CXXFLAGS = $(SGTELIB_CFLAGS)
 

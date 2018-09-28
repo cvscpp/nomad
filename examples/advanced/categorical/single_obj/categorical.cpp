@@ -274,6 +274,7 @@ _s3           ( NULL )
 						 ub_1                       ,
 						 p.get_direction_types   () ,
 						 p.get_sec_poll_dir_types() ,
+						 p.get_int_poll_dir_types() ,
 						 _p.out()                     );
 	
 	// signature for 2 assets:
@@ -300,6 +301,7 @@ _s3           ( NULL )
 							 ub_2                       ,
 							 p.get_direction_types   () ,
 							 p.get_sec_poll_dir_types() ,
+							 p.get_int_poll_dir_types() ,
 							 _p.out()                     );
 	}
 	
@@ -327,6 +329,7 @@ _s3           ( NULL )
 							 ub_3                       ,
 							 p.get_direction_types   () ,
 							 p.get_sec_poll_dir_types() ,
+							 p.get_int_poll_dir_types() ,
 							 _p.out()                     );
 	}
 }

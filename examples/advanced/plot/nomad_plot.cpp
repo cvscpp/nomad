@@ -5,6 +5,7 @@
 using namespace std;
 using namespace NOMAD;
 
+
 class Interface_Graphique
 {
   public:
@@ -269,168 +270,79 @@ void GUI_wait ( void ) {
 /*------------------------------------------*/
 /*            NOMAD main function           */
 /*------------------------------------------*/
-int main ( int argc , char ** argv ) {
-
-  // display:
-  Display out ( std::cout );
-  out.precision ( DISPLAY_PRECISION_STD );
-
-  // NOMAD initializations:
-  begin ( argc , argv );
-
-  try {
-
-    // usage:
-    if ( argc < 2 ) {
-      display_usage ( cerr );
-      return EXIT_SUCCESS;
+int main ( int argc , char ** argv )
+{
+    
+    // display:
+    Display out ( std::cout );
+    out.precision ( DISPLAY_PRECISION_STD );
+    
+    // NOMAD initializations:
+    begin ( argc , argv );
+    
+    try {
+        
+        // usage:
+        if ( argc < 2 )
+        {
+            cerr << "usage: " << argv[0] << " param_file "  << endl;
+            return EXIT_FAILURE;
+        }
+        
+        // parameters file:
+        string param_file_name = argv[1];
+        
+        // parameters creation:
+        Parameters p ( out );
+        
+        // read parameters file:
+        p.read ( param_file_name );
+        
+        // parameters check:
+        p.check();
+        
+        // parameters display:
+        if ( p.get_display_degree() > 2 )
+            out << endl << "parameters:" << endl << p << endl;
+        
+        // single-objective:
+        if ( p.get_nb_obj() == 1 ) {
+            
+            // custom evaluator:
+            My_Evaluator ev ( p );
+            
+            // algorithm creation and execution:
+            Mads mads ( p , &ev );
+            mads.run();
+            
+            // plot the last point:
+            const Eval_Point * bf = mads.get_best_feasible();
+            if ( bf )
+                ev.plot_success ( mads.get_stats().get_bb_eval() , bf->get_f() );
+        }
+        
+        // bi-objective:
+        else {
+            
+            // custom evaluator:
+            My_Multi_Obj_Evaluator ev ( p );
+            
+            // algorithm creation and execution:
+            Mads mads ( p , &ev );
+            mads.multi_run();
+        }
+        
+        
     }
-
-    // parameters file:
-    string param_file_name = argv[1];
-    string opt             = param_file_name;
-    NOMAD::toupper(opt);
-
-    // display version if option '-v' has been specified:
-    if ( opt == "-V" ) {
-      display_version ( out );
-      return EXIT_SUCCESS;
-    }
-
-    // display info if option '-i' has been specified:
-    if ( opt == "-I" || opt == "-INFO" ) {
-      display_info  ( out );
-      display_usage ( out );
-      return EXIT_SUCCESS;
+    catch ( exception & e ) {
+        cerr << "\nNOMAD has been interrupted (" << e.what() << ")\n\n";
     }
     
-    // parameters creation:
-    Parameters p ( out );
-
-    // display help on parameters if option '-h' has been specified:
-    if ( opt == "-H" || opt == "-HELP" ) {
-      p.help( (argc>2) ? argv[2] : "all" );
-      return EXIT_SUCCESS;
-    }
-
-    // read parameters file:
-    p.read ( param_file_name );
-
-    // parameters check:
-    p.check();
-
-    // display NOMAD info:
-    if ( p.get_display_degree() > 1 )
-      display_info ( out );
-
-    // parameters display:
-    if ( p.get_display_degree() > 2 )
-      out << endl << "parameters:" << endl << p << endl;
-
-    // single-objective:
-    if ( p.get_nb_obj() == 1 ) {
-
-      // custom evaluator:
-      My_Evaluator ev ( p );
-
-      // algorithm creation and execution:
-      Mads mads ( p , &ev );
-      mads.run();
-
-      // plot the last point:
-      const Eval_Point * bf = mads.get_best_feasible();
-      if ( bf )
-	ev.plot_success ( mads.get_stats().get_bb_eval() , bf->get_f() );
-    }
-
-    // bi-objective:
-    else {
-
-      // custom evaluator:
-      My_Multi_Obj_Evaluator ev ( p );
-
-      // algorithm creation and execution:
-      Mads mads ( p , &ev );
-      mads.multi_run();
-    }
-
-
-  }
-  catch ( exception & e ) {
-    cerr << "\nNOMAD has been interrupted (" << e.what() << ")\n\n";
-  }
-
-  GUI_wait();
-
-
-  Slave::stop_slaves ( out );
-  end();
-
-  return EXIT_SUCCESS;
-}
-
-/*------------------------------------------*/
-/*            display NOMAD version         */
-/*------------------------------------------*/
-void NOMAD::display_version ( const NOMAD::Display & out )
-{
-#ifdef USE_MPI
-  if ( !NOMAD::Slave::is_master() )
-    return;
-#endif
-  out << std::endl << "NOMAD - version " << NOMAD::VERSION << " - www.gerad.ca/nomad"
-      << std::endl << std::endl;
-}
-
-/*------------------------------------------*/
-/*          display NOMAD information       */
-/*------------------------------------------*/
-void NOMAD::display_info ( const NOMAD::Display & out )
-{
-#ifdef USE_MPI
-  if ( !NOMAD::Slave::is_master() )
-    return;
-#endif
-  NOMAD::display_version ( out );
-  out << NOMAD::open_block ( "Copyright (C) 2001-2010" )
-      << "Mark A. Abramson     - The Boeing Company"                 << std::endl
-      << "Charles Audet        - Ecole Polytechnique de Montreal"    << std::endl
-      << "Gilles Couture       - Ecole Polytechnique de Montreal"    << std::endl
-      << "John E. Dennis, Jr.  - Rice University"                    << std::endl
-      << "Sebastien Le Digabel - Ecole Polytechnique de Montreal"    << std::endl
-      << NOMAD::close_block()
-      << std::endl
-      << "Funded in part by AFOSR and Exxon Mobil."                  << std::endl
-      << std::endl
-      << "License   : \'" << NOMAD::LGPL_FILE       << "\'" << std::endl
-      << "User guide: \'" << NOMAD::USER_GUIDE_FILE << "\'" << std::endl
-      << "Examples  : \'" << NOMAD::EXAMPLES_DIR    << "\'" << std::endl
-      << "Tools     : \'" << NOMAD::TOOLS_DIR       << "\'" << std::endl
-      << std::endl
-      << "Please report bugs to nomad@gerad.ca"
-      << std::endl;
-}
-
-/*------------------------------------------*/
-/*             display NOMAD usage          */
-/*------------------------------------------*/
-void NOMAD::display_usage ( const NOMAD::Display & out )
-{
-#ifdef USE_MPI
-  if ( !NOMAD::Slave::is_master() )
-    return;
-  out << std::endl
-      << "Run NOMAD.MPI: mpirun -np p nomad.MPI parameters_file" << std::endl
-      << "Info         : nomad -i"                    << std::endl
-      << "Help         : nomad -h keyword (or 'all')" << std::endl
-      << "Version      : nomad -v"                    << std::endl
-      << std::endl;  
-#else
-  out << std::endl
-      << "Run NOMAD: nomad parameters_file"          << std::endl
-      << "Info     : nomad -i"                       << std::endl
-      << "Help     : nomad -h keyword(s) (or 'all')" << std::endl
-      << "Version  : nomad -v"                       << std::endl
-      << std::endl; 
-#endif
+    GUI_wait();
+    
+    
+    Slave::stop_slaves ( out );
+    end();
+    
+    return EXIT_SUCCESS;
 }

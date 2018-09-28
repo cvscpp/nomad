@@ -623,10 +623,10 @@ void My_Extended_Poll::create_signature ( int n )
 //    var_groups.insert ( vg2 );
     
    
-    NOMAD::Double mesh_update_basis = 1.0;
-    NOMAD::Double poll_update_basis = 1.0;
-    int mesh_coarsening_exponent = 1;
-    int mesh_refining_exponent = 1;
+    // NOMAD::Double mesh_update_basis = 1.0;
+    // NOMAD::Double poll_update_basis = 1.0;
+    // int mesh_coarsening_exponent = 1;
+    // int mesh_refining_exponent = 1;
 
     
 //// create the signature:
@@ -663,6 +663,7 @@ void My_Extended_Poll::create_signature ( int n )
                                     ub                 ,
                                     _p.get_direction_types   () ,
                                     _p.get_sec_poll_dir_types() ,
+                                    _p.get_int_poll_dir_types() ,
                                     _p.out() );
 
     

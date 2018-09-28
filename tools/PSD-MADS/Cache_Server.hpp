@@ -27,13 +27,11 @@ private:
     const Eval_Point        * _bi1;
     const Eval_Point        * _bi2;
     
-    Eval_Point              * _stop_point;       // stopping point
-    
     mutable int               _multiple_evals;   // number of multiple evaluations
     mutable int               _cache_hits;       // number of cache hits
     mutable int               _cache_search_pts; // number of cache search points
     
-    Point                  ** _waited_pts;      // list of points beeing evaluated
+    Point                  ** _waited_pts;      // list of points being evaluated
     list<const Eval_Point*> * _clients_ext_pts; // replaces _extern_pts
     
     string                    _history_file;
@@ -54,7 +52,6 @@ private:
     void update_best_points ( const Eval_Point & x , int source );
     
 public:
-    
     static const int  TAG_SIGNAL;
     static const int  TAG_CACHE_HIT;
     static const int  TAG_X1;

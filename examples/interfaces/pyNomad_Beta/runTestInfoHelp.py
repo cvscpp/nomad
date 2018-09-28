@@ -2,4 +2,4 @@ import PyNomad
 
 PyNomad.info()
 
-PyNomad.help("BB_OUTPUT")
+PyNomad.help('BB_OUTPUT')

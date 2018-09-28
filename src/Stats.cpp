@@ -1,46 +1,45 @@
-/*------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
-/*          version 3.8.1                                                       */
-/*                                                                              */
-/*  NOMAD - version 3.8.1 has been created by                                   */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
-/*  and IVADO.                                                                  */
-/*                                                                              */
-/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
-/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
-/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
-/*                                                                              */
-/*  Contact information:                                                        */
-/*    Ecole Polytechnique de Montreal - GERAD                                   */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
-/*    e-mail: nomad@gerad.ca                                                    */
-/*    phone : 1-514-340-6053 #6928                                              */
-/*    fax   : 1-514-340-5665                                                    */
-/*                                                                              */
-/*  This program is free software: you can redistribute it and/or modify it     */
-/*  under the terms of the GNU Lesser General Public License as published by    */
-/*  the Free Software Foundation, either version 3 of the License, or (at your  */
-/*  option) any later version.                                                  */
-/*                                                                              */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT */
-/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
-/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
-/*  for more details.                                                           */
-/*                                                                              */
-/*  You should have received a copy of the GNU Lesser General Public License    */
-/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
-/*                                                                              */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
-/*------------------------------------------------------------------------------*/
-
+/*---------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -                */
+/*                                                                                 */
+/*  NOMAD - version 3.9.1 has been created by                                      */
+/*                 Charles Audet               - Ecole Polytechnique de Montreal   */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  The copyright of NOMAD - version 3.9.1 is owned by                             */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                             */
+/*                                                                                 */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created     */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.     */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                          */
+/*                                                                                 */
+/*  Contact information:                                                           */
+/*    Ecole Polytechnique de Montreal - GERAD                                      */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada              */
+/*    e-mail: nomad@gerad.ca                                                       */
+/*    phone : 1-514-340-6053 #6928                                                 */
+/*    fax   : 1-514-340-5665                                                       */
+/*                                                                                 */
+/*  This program is free software: you can redistribute it and/or modify it        */
+/*  under the terms of the GNU Lesser General Public License as published by       */
+/*  the Free Software Foundation, either version 3 of the License, or (at your     */
+/*  option) any later version.                                                     */
+/*                                                                                 */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT    */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or          */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License    */
+/*  for more details.                                                              */
+/*                                                                                 */
+/*  You should have received a copy of the GNU Lesser General Public License       */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.           */
+/*                                                                                 */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad           */
+/*---------------------------------------------------------------------------------*/
 
 /**
  \file   Stats.cpp
@@ -60,7 +59,7 @@ NOMAD::Stats & NOMAD::Stats::operator = ( const NOMAD::Stats & s )
     _sim_bb_eval       = s._sim_bb_eval;
     _sgte_eval         = s._sgte_eval;
     _bb_eval           = s._bb_eval;
-    _block_eval         = s._block_eval;
+    _block_eval        = s._block_eval;
     _failed_eval       = s._failed_eval;
     _cache_hits        = s._cache_hits;
     _interrupted_eval  = s._interrupted_eval;
@@ -80,6 +79,17 @@ NOMAD::Stats & NOMAD::Stats::operator = ( const NOMAD::Stats & s )
     _nb_LH_searches    = s._nb_LH_searches;
     _LH_pts            = s._LH_pts;
     _LH_success        = s._LH_success;
+    _nb_NM_searches    = s._nb_NM_searches;
+    _NM_pts            = s._NM_pts;
+    _NM_success        = s._NM_success;
+    _NM_step           = s._NM_step;
+    _NM_initial_step   = s._NM_initial_step;
+    _NM_expand_step    = s._NM_expand_step;
+    _NM_reflect_step   = s._NM_reflect_step;
+    _NM_inside_contraction_step  = s._NM_inside_contraction_step;
+    _NM_outside_contraction_step = s._NM_outside_contraction_step;
+    _NM_shrink_step    = s._NM_shrink_step;
+    _NM_bb_eval        = s._NM_bb_eval;
     _nb_cache_searches = s._nb_cache_searches;
     _CS_pts            = s._CS_pts;
     _CS_success        = s._CS_success;
@@ -113,11 +123,11 @@ NOMAD::Stats & NOMAD::Stats::operator = ( const NOMAD::Stats & s )
 /*---------------------------------------------------------*/
 void NOMAD::Stats::reset ( void )
 {
-    _eval                =
+    _eval              =
     _sim_bb_eval       =
     _sgte_eval         =
     _bb_eval           =
-    _block_eval         =
+    _block_eval        =
     _failed_eval       =
     _cache_hits        =
     _interrupted_eval  =
@@ -136,6 +146,21 @@ void NOMAD::Stats::reset ( void )
     _nb_LH_searches    =
     _LH_pts            =
     _LH_success        =
+    _nb_NM_searches    =
+    _NM_pts            =
+    _NM_success        =
+    _NM_step           =
+    _NM_initial_step   =
+    _NM_expand_step    =
+    _NM_inside_contraction_step  =
+    _NM_reflect_step   =
+    _NM_outside_contraction_step =
+    _NM_shrink_step    =
+    _NM_bb_eval        =
+    _nb_TM_searches    =
+    _TM_pts            =
+    _TM_success        =
+    _TM_bb_eval        =
     _nb_cache_searches =
     _CS_pts            =
     _CS_success        =
@@ -190,6 +215,21 @@ void NOMAD::Stats::update ( const NOMAD::Stats & s , bool for_search )
     _nb_LH_searches    += s._nb_LH_searches;
     _LH_pts            += s._LH_pts;
     _LH_success        += s._LH_success;
+    _nb_NM_searches    += s._nb_NM_searches;
+    _NM_pts            += s._NM_pts;
+    _NM_success        += s._NM_success;
+    _NM_step           += s._NM_step;
+    _NM_initial_step   += s._NM_initial_step;
+    _NM_expand_step    += s._NM_expand_step;
+    _NM_reflect_step   += s._NM_reflect_step;
+    _NM_inside_contraction_step  += s._NM_inside_contraction_step;
+    _NM_outside_contraction_step += s._NM_outside_contraction_step;
+    _NM_shrink_step    += s._NM_shrink_step;
+    _NM_bb_eval        += s._NM_bb_eval;
+    _nb_TM_searches    += s._nb_TM_searches;
+    _TM_pts            += s._TM_pts;
+    _TM_success        += s._TM_success;
+    _TM_bb_eval        += s._TM_bb_eval;
     _nb_cache_searches += s._nb_cache_searches;
     _CS_pts            += s._CS_pts;
     _CS_success        += s._CS_success;
@@ -317,6 +357,25 @@ void NOMAD::Stats::display ( const NOMAD::Display & out ) const
     if ( _nb_LH_searches > 0 )
         out << "LH search successes             : " << _LH_success          << std::endl
         << "LH search points                : " << _LH_pts              << std::endl;
+    out << "number of NM searches           : "   << _nb_NM_searches      << std::endl;
+    if ( _nb_NM_searches > 0 )
+        out << "NM search successes             : " << _NM_success          << std::endl
+        << "NM search points                : " << _NM_pts << std::endl
+        << "NM blackbox evaluations         : " << _NM_bb_eval         << std::endl
+        << "NM search steps                 : " << _NM_step
+        << " ( initial: " << _NM_initial_step
+        << ", expands: " << _NM_expand_step
+        << ", reflects: " << _NM_reflect_step
+        << ", inside contractions: " << _NM_inside_contraction_step
+        << ", outside contractions: " << _NM_outside_contraction_step
+        << ", shrinks: " << _NM_shrink_step << " )" << std::endl
+        << "NM search successes             : " << _NM_success << std::endl;
+    
+    out << "number of TM line searches      : "   << _nb_TM_searches      << std::endl;
+    if ( _nb_TM_searches > 0 )
+        out << "TM line search successes        : " << _TM_success          << std::endl
+        << "TM line search points           : " << _TM_pts << std::endl
+        << "TM blackbox evaluations         : " << _TM_bb_eval         << std::endl;
     out << "number of cache searches        : "   << _nb_cache_searches   << std::endl;
     if ( _nb_cache_searches > 0 )
         out << "cache search successes          : " << _CS_success          << std::endl
@@ -363,7 +422,7 @@ void NOMAD::Stats::display ( const NOMAD::Display & out ) const
     if ( _MPI_data_size < 0 )
         out << "-";
     else
-        out.display_size_of ( _MPI_data_size );
+        out.display_size_of ( static_cast<float>(_MPI_data_size) );
     out << std::endl;
 #endif
     

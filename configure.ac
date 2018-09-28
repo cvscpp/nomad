@@ -1,6 +1,9 @@
-AC_INIT(nomad, 3.8.1, miroslav.shaltev@shaltev.de)
+AC_INIT(nomad, 3.9.1, miroslav.shaltev@shaltev.de)
 AC_PREREQ([2.63])
 AC_CONFIG_HEADERS([config.h])
+
+AC_CONFIG_MACRO_DIRS([m4])
+LT_INIT
 
 # Checks for programs.
 AC_PROG_AWK
@@ -53,6 +56,13 @@ NOMAD_ENABLE_MODULE([MPI],[mpi])
 
 PKG_CHECK_MODULES(SGTELIB, sgtelib)
 
+AM_PATH_PYTHON
+
+AX_PKG_SWIG(3.0.0, [], [ AC_MSG_ERROR([SWIG is required to build..]) ])
+AX_SWIG_ENABLE_CXX
+AX_SWIG_MULTI_MODULE_SUPPORT
+AX_SWIG_PYTHON
+
 AC_PROG_CPP
-AC_CONFIG_FILES([Makefile src/Makefile docs/Makefile nomad.pc nomadmpi.pc])
+AC_CONFIG_FILES([Makefile src/Makefile docs/Makefile python/Makefile nomad.pc nomadmpi.pc])
 AC_OUTPUT

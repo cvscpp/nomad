@@ -41,9 +41,9 @@ Cache_Server::Cache_Server ( const Display & out                  ,
 _rank             ( rank        ) ,
 _np               ( np          ) ,
 _debug            ( debug       ) ,
+_clock            ( Clock()     ) ,
 _h_min            ( h_min       ) ,
 _max_bbe          ( max_bbe     ) ,
-_history_file     ( history_file) ,
 _bf               ( NULL        ) ,
 _bi1              ( NULL        ) ,
 _bi2              ( NULL        ) ,
@@ -51,7 +51,8 @@ _multiple_evals   ( 0           ) ,
 _cache_hits       ( 0           ) ,
 _cache_search_pts ( 0           ) ,
 _waited_pts       ( NULL        ) ,
-_clients_ext_pts  ( NULL        )
+_clients_ext_pts  ( NULL        ) ,
+_history_file     ( history_file)
 {
     
     // cache server:
@@ -159,7 +160,7 @@ void Cache_Server::start ( void )
                     _out << " (POLLSTER)";
                 _out << endl;
             }
-            int nb_client_extern_pts = _clients_ext_pts[source].size();
+            int nb_client_extern_pts = static_cast<int>(_clients_ext_pts[source].size());
             MPI_Rsend ( &nb_client_extern_pts , 1 , MPI_INT , source ,
                        Cache_Server::TAG_NB_EP , MPI_COMM_WORLD );
         }
@@ -251,7 +252,6 @@ void Cache_Server::process_ep_signal ( int source ) const
     // send and remove the extern point:
     if ( nb_pt > 0 )
     {
-        
         const Eval_Point * x = *(_clients_ext_pts[source].begin());
         
         ++_cache_search_pts;
@@ -269,22 +269,30 @@ void Cache_Server::process_ep_signal ( int source ) const
             itab[4]=static_cast<int>((x->get_signature()->get_mesh()->get_mesh_indices())[0].value());
         }
         else
+        {
             itab[3] = itab[4] = 0;
+        }
         
         double * rtab = new double[n+2*m];
         for ( i = 0 ; i < n ; ++i )
+        {
             rtab[i] = (*x)[i].value();
+        }
         
         const Point & bbo = x->get_bb_outputs();
         
         for ( i = 0 ; i < m ; ++i )
+        {
             if ( bbo[i].is_defined() )
             {
                 rtab[2*i+n  ] = 1.0;
                 rtab[2*i+n+1] = bbo[i].value();
             }
             else
+            {
                 rtab[2*i+n] = rtab[2*i+n+1] = -1.0;
+            }
+        }
         
         MPI_Send ( itab , 5 , MPI_INT , source ,
                   Cache_Server::TAG_X5 , MPI_COMM_WORLD );
@@ -294,6 +302,8 @@ void Cache_Server::process_ep_signal ( int source ) const
         
         // remove the point:
         _clients_ext_pts[source].pop_front();
+
+        delete [] rtab;
     }
 }
 
@@ -302,12 +312,11 @@ void Cache_Server::process_ep_signal ( int source ) const
 /*-------------------------------*/
 void Cache_Server::process_find_signal ( int source ) const
 {
-    
-    MPI_Status status;
     int i;
     
     // receive the point coordinates:
     int itab[2];
+    MPI_Status status;
     MPI_Recv ( itab , 2 , MPI_INT , source ,
               Cache_Server::TAG_X1 , MPI_COMM_WORLD , &status );
     
@@ -323,31 +332,38 @@ void Cache_Server::process_find_signal ( int source ) const
     Eval_Point * x = new Eval_Point ( n , m );
     
     for ( i = 0 ; i < n ; ++i )
+    {
         (*x)[i] = rtab[i];
+    }
     
     delete [] rtab;
     
     // search in cache, or stop the algorithm:
-    const Eval_Point * cache_x;
+    const Eval_Point* cache_x;
+    bool delete_cache_x = false;    // Delete cache_x only if it is initialized from new stop_point. See below.
     
-    if ( _max_bbe > 0 && size() >= _max_bbe )
+    if (_max_bbe > 0 && size() >= _max_bbe)
     {
-        Eval_Point * stop_point = new Eval_Point ( n , m );
+        Eval_Point* stop_point = new Eval_Point(n, m);
         for ( i = 0 ; i < n ; ++i )
+        {
             (*stop_point)[i] = (*x)[i];
-        stop_point->set_eval_status ( EVAL_FAIL );
+        }
+        stop_point->set_eval_status(EVAL_FAIL);
         cache_x = stop_point;
+        delete_cache_x = true;
     }
     else
-        cache_x = Cache::find ( *x );
+    {
+        cache_x = Cache::find (*x);
+    }
     
     // cache hit signal :
     int cache_hit;
     
     // point in cache :
-    if ( cache_x )
+    if (cache_x)
     {
-        
         delete x;
         
         cache_hit = 1;
@@ -402,32 +418,42 @@ void Cache_Server::process_find_signal ( int source ) const
                 ++it;
             }
         }
+        if (delete_cache_x)
+        {
+            delete cache_x;
+        }
     }
     
     // point not in cache :
     else
     {
-        
         cache_hit = 0;
         
         // evaluation in progress ?
         if ( _waited_pts )
         {
-            
             for ( i = 0 ; i < _np ; ++i )
+            {
                 if ( _waited_pts[i] && *_waited_pts[i] == *x )
                 {
                     cache_hit = -1;
                     break;
                 }
+            }
             
             if ( cache_hit == 0 )
+            {
                 _waited_pts[source] = x;
+            }
             else
+            {
                 delete x;
+            }
         }
         else
+        {
             delete x;
+        }
         
         MPI_Rsend ( &cache_hit , 1 , MPI_INT , source ,
                    Cache_Server::TAG_CACHE_HIT , MPI_COMM_WORLD );
@@ -496,13 +522,13 @@ const Eval_Point * Cache_Server::find ( const Eval_Point & x ) const
     // C. cache hit: receive the point outputs:
     if ( cache_hit == 1 )
     {
-        
-        // C.1. bb output values and eval status:
         rtab = new double[m];
+        char * ctab = new char[m+1];
+
+        // C.1. bb output values and eval status:
         MPI_Recv ( rtab , m , MPI_DOUBLE , npm1 ,
                   Cache_Server::TAG_BBOR , MPI_COMM_WORLD , &status );
         
-        char * ctab = new char[m+1];
         MPI_Recv ( ctab , m+1 , MPI_CHAR , npm1 ,
                   Cache_Server::TAG_BBOC , MPI_COMM_WORLD , &status );
         
@@ -517,7 +543,9 @@ const Eval_Point * Cache_Server::find ( const Eval_Point & x ) const
         Eval_Point * y = new Eval_Point ( n , m );
         y->set_bb_output ( bbo );
         for ( i = 0 ; i < n ; ++i )
+        {
             (*y)[i] = x[i];
+        }
         
         y->set_eval_status ( (ctab[m]=='1') ? EVAL_OK : EVAL_FAIL );
         
@@ -547,10 +575,9 @@ void Cache_Server::process_insert_signal ( int source )
         _waited_pts[source] = NULL;
     }
     
-    MPI_Status status;
-    
     // receive the evaluation point:
     int itab[7];
+    MPI_Status status;
     MPI_Recv ( itab , 7 , MPI_INT , source ,
               Cache_Server::TAG_X3 , MPI_COMM_WORLD , &status );
     

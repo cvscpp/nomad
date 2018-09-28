@@ -18,9 +18,8 @@ char       Master_Slaves::OPTI_DATA_SIGNAL = 'D';
 /*--------------------------------*/
 /*  start the master (process 0)  */
 /*--------------------------------*/
-void Master_Slaves::start ( void ) const
+void Master_Slaves::start_master ( void ) const
 {
-    
     if ( _rank != 0 )
         return;
     
@@ -30,7 +29,7 @@ void Master_Slaves::start ( void ) const
     int        n                   = _p.get_dimension();
     int        nb_stops            = 0;
     int        pollster_mesh_index = 0;
-    bool       stop_algo           = false;
+    bool       stop_pollster_slave           = false;
     double   * best_feasible       = NULL;
     double   * best_infeasible     = new double [n+2];
     
@@ -43,12 +42,12 @@ void Master_Slaves::start ( void ) const
     best_infeasible[n+1] = INF;
     
     
-    /*-------------*/
-    /*  main loop  */
-    /*-------------*/
-    while ( nb_stops != _np-2 )
+    // --------------------------------------
+    // Main loop.
+    // Proceed until all slaves (pollster + all regular slaves) have stopped.
+    // --------------------------------------
+    while (nb_stops < _np-2)
     {
-        
         MPI_Recv ( &signal , 1 , MPI_CHAR , MPI_ANY_SOURCE ,
                   Master_Slaves::TAG_SIGNAL , MPI_COMM_WORLD , &status );
         
@@ -82,7 +81,7 @@ void Master_Slaves::start ( void ) const
             }
             
             send_optimization_data ( pollster_mesh_index ,
-                                    stop_algo           ,
+                                    stop_pollster_slave           ,
                                     best_feasible       ,
                                     best_infeasible     ,
                                     source                );
@@ -96,6 +95,8 @@ void Master_Slaves::start ( void ) const
             {
                 _p.out() << "MASTER: receive optimization result from slave "
                 << source;
+                if ( source == 1 )
+                    _p.out() << " (POLLSTER)";
                 
             }
             
@@ -103,12 +104,18 @@ void Master_Slaves::start ( void ) const
             if ( source == 1 )
             {
                 receive_optimization_result ( pollster_mesh_index ,
-                                             stop_algo           ,
+                                             stop_pollster_slave           ,
                                              best_feasible       ,
                                              best_infeasible     ,
                                              source                );
-                if ( _debug && best_feasible )
-                    _p.out() << "(POLLSTER): NEW_F" << best_feasible[n+1] <<endl;
+                if ( _debug )
+                {
+                    if (best_feasible)
+                    {
+                        _p.out() << " NEW_F: " << best_feasible[n+1] << endl;
+                    }
+                    _p.out() << endl;
+                }
             }
             
             // other slaves:
@@ -121,13 +128,15 @@ void Master_Slaves::start ( void ) const
                                              best_feasible   ,
                                              best_infeasible ,
                                              source            );
-                if ( _debug && best_feasible )
-                    _p.out() << ": NEW_F" << best_feasible[n+1] <<endl;
-                
+                if (_debug)
+                {
+                    if (best_feasible)
+                    {
+                        _p.out() << " NEW_F: " << best_feasible[n+1];
+                    }
+                    _p.out() << endl;
+                }
             }
-            if ( _debug )
-                _p.out() << endl;
-            
         }
     }
     
@@ -138,9 +147,10 @@ void Master_Slaves::start ( void ) const
 }
 
 /*------------------------------------------*/
-/*  stop the master (processes 1 to _np-2)  */
+/*  stop the slave (processes 1 to _np-2)   */
+/*  process 1 = pollster.                   */
 /*------------------------------------------*/
-void Master_Slaves::stop ( void ) const
+void Master_Slaves::stop_slave ( void ) const
 {
     if ( _rank == 0 || _rank == _np-1 )
         return;
@@ -152,26 +162,28 @@ void Master_Slaves::stop ( void ) const
 /*----------------------------------------*/
 /*                MADS run                */
 /*----------------------------------------*/
-void Master_Slaves::mads_run ( Cache & cache , Cache & init_cache )
+void Master_Slaves::mads_slave_run ( Cache & cache , Cache & init_cache )
 {
-    
     const Eval_Point * best_feasible   = NULL;
     const Eval_Point * best_infeasible = NULL;
     Double             old_f           = INF;
-    bool               stop_algo       = false;
+    bool               stop_this_slave = false;
     int                run_index       = 0;
     int                mesh_index      = 0;
     double             default_eps     = Double::get_epsilon();
     int                n               = _p.get_dimension();
     int              * free_vars       = new int [_ns];
-    Point              x0 ( n ) , delta_0 , delta_min;
+    Point              x0 (n), delta_0, delta_min;
+    bool is_pollster_slave             = (1 == _rank);
+    bool is_regular_slave              = !is_pollster_slave;
+    int nb_cons_failed_runs            = 0;
     
     /*---------------------*/
     /*      main loop      */
     /*---------------------*/
-    while ( !stop_algo )
+    while ( !stop_this_slave )
     {
-        
+        bool first_run  = (0 == run_index);
         best_feasible   = NULL;
         best_infeasible = NULL;
         
@@ -179,16 +191,15 @@ void Master_Slaves::mads_run ( Cache & cache , Cache & init_cache )
         RNG::set_seed ( 99 * _rank + 20 * run_index );
         
         // first run:
-        if ( run_index == 0 )
+        if ( first_run )
         {
-            
             // max number of evaluations for regular slaves:
-            if ( _rank != 1 )
+            if (is_regular_slave)
+            {
                 _p.set_MAX_BB_EVAL ( _bbe );
+            }
             
             // display:
-            // p.set_DISPLAY_STATS ( "process #" + itos(_rank) + " BBE OBJ" );
-            // p.set_DISPLAY_DEGREE ( FULL_DISPLAY );
             _p.set_DISPLAY_DEGREE ( NO_DISPLAY );
         }
         
@@ -198,311 +209,21 @@ void Master_Slaves::mads_run ( Cache & cache , Cache & init_cache )
         /*------------------*/
         /*  pollster slave  */
         /*------------------*/
-        if ( _rank == 1 )
+        if (is_pollster_slave)
         {
+            stop_this_slave = mads_pollster_slave_run(first_run, default_eps,
+                                                 cache, init_cache,
+                                                 best_feasible, best_infeasible,
+                                                 mesh_index, x0, old_f,
+                                                 nb_cons_failed_runs);
             
-            bool cache_file_init_success = false;
-            
-            stop_type stop_reason = UNKNOWN_STOP_REASON;
-            
-            _p.check();   // must do check to get a valid signature
-            _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n,mesh_index ) );
-            delta_0=_p.get_signature()->get_mesh()->get_delta ( );
-            
-            
-            // we set a very small epsilon in order to accept
-            // very small initial mesh sizes:
-            Double::set_epsilon ( 1e-16 );
-            
-            if ( !check_delta ( delta_0 ) )
-                stop_algo = true;
-            
-            else
-            {
-                
-                // first run:
-                if ( run_index == 0 )
-                {
-                    
-                    if ( init_cache.size() > 0 )
-                    {
-                        
-                        NOMAD::Mads mads ( _p , NULL , NULL , &cache , NULL );
-                        
-                        const NOMAD::Eval_Point * x;
-                        NOMAD::Eval_Point * pt;
-                        
-                        // we copy all the temporary cache points
-                        // into the list of points to be evaluated:
-                        x = init_cache.begin();
-                        
-                        while ( x )
-                        {
-                            // Points will be inserted in cache
-                            pt = new NOMAD::Eval_Point ( *x );
-                            pt->set_signature ( _p.get_signature() );
-                            
-                            mads.get_evaluator_control().add_eval_point ( pt              ,
-                                                                         NOMAD::NO_DISPLAY ,
-                                                                         false           ,
-                                                                         NOMAD::Double() ,
-                                                                         NOMAD::Double() ,
-                                                                         NOMAD::Double() ,
-                                                                         NOMAD::Double()   );
-                            
-                            x = init_cache.next();
-                        }
-                        
-                        
-                        // Eval objective and constraints from points in the cache
-                        // -------------------------
-                        NOMAD::success_type       success;
-                        NOMAD::stop_type stop_reason;
-                        bool stop=false;
-                        mads.get_evaluator_control().eval_list_of_points ( NOMAD::X0_EVAL ,
-                                                                          mads.get_true_barrier()  ,
-                                                                          mads.get_sgte_barrier()  ,
-                                                                          mads.get_pareto_front()  ,
-                                                                          stop           ,
-                                                                          stop_reason    ,
-                                                                          best_feasible   ,
-                                                                          best_infeasible ,
-                                                                          success          );
-                        
-                        
-                        
-                        if ( best_feasible )
-                        {
-                            
-                            if ( _debug )
-                            _p.out() << "POLLSTER: new feasible incumbent from init cache file NEW_F=" << best_feasible->get_f() << endl ;
-                            
-                            cache_file_init_success = true;
-                            
-                        }
-                        else if ( best_infeasible )
-                        {
-                            if ( _debug )
-                            _p.out() << "MASTER: new infeasible incumbent from init cache file NEW_F=" << best_infeasible->get_f() << endl ;
-                            
-                            cache_file_init_success = true;
-                            
-                        }
-                    }
-                    
-                    
-                    if ( ! cache_file_init_success )
-                    {
-                        // directions:
-                        {
-                            bool use_orthomads = _p.has_orthomads_directions();
-                            _p.reset_directions   ( );
-                            _p.set_DIRECTION_TYPE ( (use_orthomads) ? ORTHO_1 : LT_1 );
-                        }
-                        
-                        // cache search:
-                        _p.set_CACHE_SEARCH               ( true  );
-                        _p.set_OPPORTUNISTIC_CACHE_SEARCH ( false );
-                    }
-                    else
-                    {
-                        _p.check();
-                        stop_algo = false;
-                        stop_reason = NOMAD::NO_STOP;
-                    }
-                    
-                }
-                
-                // other runs:
-                else
-                {
-                    
-                    // stop_algo may be set to 'false' here:
-                    receive_optimization_data ( stop_algo , x0 , old_f );
-                    
-                    // starting point:
-                    _p.reset_X0();
-                    _p.set_X0 ( x0 );
-                }
-                
-                if ( !stop_algo && !cache_file_init_success )
-                {
-                    
-                    // check the parameters:
-                    _p.set_DISPLAY_DEGREE(NOMAD::NO_DISPLAY);
-                    _p.check();
-                    
-                    _p.get_signature()->get_mesh()->set_min_mesh_sizes( delta_0 );
-                    
-                    if ( mesh_index <= 0 )
-                        _p.get_signature()->get_mesh()->set_limit_mesh_index ( mesh_index );
-                    else
-                        _p.get_signature()->get_mesh()->set_limit_mesh_index ( 0 );
-
-                    
-                    Double::set_epsilon ( default_eps );
-                    
-                    Mads mads ( _p , NULL , NULL , &cache , NULL );
-                    stop_reason     = mads.run();
-                    best_feasible   = mads.get_best_feasible();
-                    best_infeasible = mads.get_best_infeasible();
-                    
-                    bool success = false;
-                    
-                    if ( best_feasible )
-                    {
-                        
-                        success = (best_feasible->get_f() < old_f);
-                        
-                        if ( _debug )
-                            _p.out() << "POLLSTER: ELL="
-                            << mesh_index << " BBE="
-                            << mads.get_stats().get_bb_eval()
-                            << " OLD_F=" << old_f << " NEW_F="
-                            << best_feasible->get_f()
-                            << " SUCCESS=" << success << endl;
-                    }
-                    
-                    // pollster mesh update:
-                    if ( success )
-                        ++mesh_index;
-                    else
-                        --mesh_index;
-                    
-                }
-            }
-            
-            send_optimization_result ( mesh_index      ,
-                                      stop_algo       ,
-                                      best_feasible   ,
-                                      best_infeasible ,
-                                      stop_reason       );
         }
-        
         /*------------------*/
         /*  regular slaves  */
         /*------------------*/
         else
         {
-            
-            int i , j , pollster_mesh_index;
-            
-            receive_optimization_data ( stop_algo           ,
-                                       x0                  ,
-                                       old_f               ,
-                                       pollster_mesh_index ,
-                                       free_vars             );
-            
-            if ( _debug )
-            {
-                _p.out() << "SLAVE #" << _rank
-                << ": OPTIM. DATA: [STOP=" << stop_algo
-                << "] [POLLSTER_MESH_INDEX=" << pollster_mesh_index
-                << "] [X0=" << x0 << " ] [f(X0)="
-                << old_f << "] [FREE VARS= ";
-                for ( i = 0 ; i < _ns ; ++i )
-                    _p.out() << free_vars[i] << " ";
-                _p.out() << " ]" << endl;
-            }
-            
-            if ( !stop_algo )
-            {
-                
-                // starting point:
-                _p.reset_X0();
-                _p.set_X0 ( x0 );
-                
-                // mesh of the regular slave:
-                int ell_0 = 0;
-                if ( pollster_mesh_index > ell_0 )
-                    ell_0 = pollster_mesh_index;
-                
-                _p.check();  // Must do check to access signature
-                _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n,ell_0 ) );
-                delta_0=_p.get_signature()->get_mesh()->get_delta();
-                
-                _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n ,pollster_mesh_index ) );
-                delta_min=_p.get_signature()->get_mesh()->get_delta();
-                
-                
-                
-                Double::set_epsilon ( 1e-16 );
-                if ( !check_delta ( delta_0 ) || !check_delta ( delta_min ) )
-                    stop_algo = true;
-                
-                else
-                {
-                    
-                    
-                    // free variables:
-                    {
-                        _p.reset_fixed_variables();
-                        bool fix_var;
-                        for ( i = 0 ; i < n ; ++i )
-                        {
-                            fix_var = true;
-                            for ( j = 0 ; j < _ns ; ++j )
-                                if ( free_vars[j] == i )
-                                {
-                                    fix_var = false;
-                                    break;
-                                }
-                            if ( fix_var )
-                                _p.set_FIXED_VARIABLE ( i );
-                        }
-                    }
-                    
-                    // check the parameters:
-                    _p.check();
-                    
-                    
-                    // modify mesh termination criterions
-                    _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n,ell_0 ) );
-                    
-                    if ( pollster_mesh_index <=0 )
-                        _p.get_signature()->get_mesh()->set_limit_mesh_index( pollster_mesh_index );
-                    else
-                        _p.get_signature()->get_mesh()->set_limit_mesh_index( 0 );
-                    
-                    _p.get_signature()->get_mesh()->set_min_mesh_sizes( delta_min );
-                    _p.get_signature()->get_mesh()->set_delta_0 ( delta_0 );
-                    
-                    
-                    
-                    Double::set_epsilon ( default_eps );
-                    
-                    // MADS run:
-                    Mads mads ( _p , NULL , NULL , &cache , NULL );
-                    mads.run();
-                    best_feasible   = mads.get_best_feasible();
-                    best_infeasible = mads.get_best_infeasible();
-                    
-                    if ( _debug && best_feasible )
-                    {
-                        _p.out() << "RANK #" << _rank << ": POLLSTER_ELL="
-                        << pollster_mesh_index << " VARS = [";
-                        for ( i = 0 ; i < _ns ; ++i )
-                            _p.out() << free_vars[i] << " ";
-                        _p.out() << " ] BBE=" << mads.get_stats().get_bb_eval()
-                        << " OLD_F=" << old_f << " NEW_F="
-                        << best_feasible->get_f()
-                        << " SUCCESS="
-                        << (best_feasible->get_f() < old_f)
-                        << endl;
-                    }
-                }
-            }
-            
-            {
-                int       tmp1 = -1;
-                bool      tmp2 = false;
-                stop_type tmp3 = UNKNOWN_STOP_REASON;
-                send_optimization_result ( tmp1            ,
-                                          tmp2            ,
-                                          best_feasible   ,
-                                          best_infeasible ,
-                                          tmp3              );
-            }
+            stop_this_slave = mads_regular_slave_run(default_eps, cache, best_feasible, best_infeasible, x0, old_f, free_vars);
         }
         
         // loop increment:
@@ -512,13 +233,387 @@ void Master_Slaves::mads_run ( Cache & cache , Cache & init_cache )
     delete [] free_vars;
 }
 
+
+/*---------------------------------------*/
+/*      MADS run for pollster slave      */
+/*---------------------------------------*/
+bool Master_Slaves::mads_pollster_slave_run(const bool first_run,
+                             const double default_eps,
+                             Cache &cache,
+                             const Cache &init_cache,
+                             const Eval_Point * best_feasible,
+                             const Eval_Point * best_infeasible,
+                             int &pollster_mesh_index,
+                             Point &x0,
+                             Double &old_f,
+                             int &nb_cons_failed_runs)
+{
+    bool stop_pollster = false;
+    bool cache_file_init_success = false;
+    int n = _p.get_dimension();
+    
+    stop_type stop_reason = UNKNOWN_STOP_REASON;
+    
+    _p.check();   // must do check to get a valid signature
+    _p.get_signature()->get_mesh()->set_mesh_indices(NOMAD::Point(n, pollster_mesh_index));
+    Point delta_0 = _p.get_signature()->get_mesh()->get_delta();
+    NOMAD::mesh_type mesh_type = _p.get_mesh_type();
+
+    
+    // we set a very small epsilon in order to accept
+    // very small initial mesh sizes:
+    Double::set_epsilon ( 1e-16 );
+    
+    // Stop PSD-MADS conditions
+    if ( !check_delta ( delta_0 ) )
+    {
+        stop_pollster = true;
+    }
+    
+    if (!check_mesh_index(mesh_type, pollster_mesh_index, nb_cons_failed_runs))
+    {
+        stop_pollster = true;
+    }
+
+    if (!stop_pollster)
+    {
+        // First run of pollster slave is a special case,
+        // including cache initialization.
+        if ( first_run )
+        {
+            cache_file_init_success = mads_pollster_slave_first_run(cache, init_cache,
+                                          best_feasible, best_infeasible);
+        }
+        
+        // other runs after the first 
+        else
+        {
+            
+            // stop_pollster may be set to 'false' here:
+            receive_optimization_data ( stop_pollster , x0 , old_f );
+            
+            // starting point:
+            _p.reset_X0();
+            _p.set_X0 ( x0 );
+        }
+        
+        if ( !stop_pollster && !cache_file_init_success )
+        {
+            // check the parameters:
+            _p.set_DISPLAY_DEGREE(NOMAD::NO_DISPLAY);
+            _p.check();
+            
+            _p.get_signature()->get_mesh()->set_min_mesh_sizes( delta_0 );
+            
+            if ( pollster_mesh_index <= 0 )
+                _p.get_signature()->get_mesh()->set_limit_mesh_index ( pollster_mesh_index );
+            else
+                _p.get_signature()->get_mesh()->set_limit_mesh_index ( 0 );
+
+            
+            Double::set_epsilon ( default_eps );
+            
+            Mads mads ( _p , NULL , NULL , &cache , NULL );
+            stop_reason     = mads.run();
+            best_feasible   = mads.get_best_feasible();
+            best_infeasible = mads.get_best_infeasible();
+            
+            bool success = false;
+            
+            if ( best_feasible )
+            {
+                success = (best_feasible->get_f() < old_f);
+            }
+                
+            if ( _debug )
+            {
+                if (best_feasible)
+                {
+                    _p.out() << "POLLSTER: POLLSTER_MESH_INDEX="
+                    << pollster_mesh_index << " BBE="
+                    << mads.get_stats().get_bb_eval()
+                    << " OLD_F=" << old_f << " NEW_F="
+                    << best_feasible->get_f()
+                    << " SUCCESS=" << success
+                    << " STOP_REASON=" << stop_reason
+                    << endl;
+                }
+                else
+                {
+                    _p.out() << "POLLSTER: POLLSTER_MESH_INDEX="
+                    << pollster_mesh_index << " BBE="
+                    << mads.get_stats().get_bb_eval()
+                    << " OLD_F=" << old_f 
+                    << " SUCCESS=" << success
+                    << " STOP_REASON=" << stop_reason
+                    << endl;
+                }
+            }
+            
+            // pollster mesh index update:
+            if ( success )
+            {
+                _p.get_signature()->get_mesh()->update(NOMAD::FULL_SUCCESS);
+                pollster_mesh_index++;
+                nb_cons_failed_runs = 0;
+            }
+            else
+            {
+                _p.get_signature()->get_mesh()->update(NOMAD::UNSUCCESSFUL);
+                pollster_mesh_index--;
+                nb_cons_failed_runs++;
+            }
+        }
+    }
+    
+    send_optimization_result ( pollster_mesh_index,
+                              stop_pollster,
+                              best_feasible,
+                              best_infeasible,
+                              stop_reason       );
+
+    return stop_pollster;
+}
+
+
+/*---------------------------------------------*/
+/*  MADS run for first run of pollster slave,  */
+/*  including cache initialization.            */
+/*---------------------------------------------*/
+bool Master_Slaves::mads_pollster_slave_first_run(Cache &cache,
+                             const Cache &init_cache,
+                             const Eval_Point * best_feasible,
+                             const Eval_Point * best_infeasible)
+{
+    bool cache_file_init_success = false;
+
+    if ( init_cache.size() > 0 )
+    {
+        NOMAD::Mads mads ( _p , NULL , NULL , &cache , NULL );
+        
+        const NOMAD::Eval_Point * x;
+        NOMAD::Eval_Point * pt;
+        
+        // we copy all the temporary cache points
+        // into the list of points to be evaluated:
+        x = init_cache.begin();
+        
+        while ( x )
+        {
+            // Points will be inserted in cache
+            pt = new NOMAD::Eval_Point ( *x );
+            pt->set_signature ( _p.get_signature() );
+            
+            mads.get_evaluator_control().add_eval_point ( pt              ,
+                                                         NOMAD::NO_DISPLAY ,
+                                                         false           ,
+                                                         NOMAD::Double() ,
+                                                         NOMAD::Double() ,
+                                                         NOMAD::Double() ,
+                                                         NOMAD::Double()   );
+            
+            x = init_cache.next();
+        }
+        
+        
+        // Eval objective and constraints from points in the cache
+        // -------------------------
+        NOMAD::success_type       success;
+        NOMAD::stop_type stop_reason;
+        bool stop=false;
+        mads.get_evaluator_control().eval_list_of_points ( NOMAD::X0_EVAL ,
+                                                          mads.get_true_barrier()  ,
+                                                          mads.get_sgte_barrier()  ,
+                                                          mads.get_pareto_front()  ,
+                                                          stop           ,
+                                                          stop_reason    ,
+                                                          best_feasible   ,
+                                                          best_infeasible ,
+                                                          success          );
+        
+        
+        
+        if (best_feasible)
+        {
+            if (_debug)
+            {
+                _p.out() << "POLLSTER: new feasible incumbent from init cache file NEW_F=" << best_feasible->get_f() << endl ;
+            }
+            cache_file_init_success = true;
+            
+        }
+        else if (best_infeasible)
+        {
+            if (_debug)
+            {
+                _p.out() << "MASTER: new infeasible incumbent from init cache file NEW_F=" << best_infeasible->get_f() << endl ;
+            }
+            cache_file_init_success = true;
+        }
+    }
+    
+    
+    if (!cache_file_init_success)
+    {
+        // directions:
+        {
+            bool use_orthomads = _p.has_orthomads_directions();
+            _p.reset_directions   ( );
+            _p.set_DIRECTION_TYPE ( (use_orthomads) ? ORTHO_1 : LT_1 );
+        }
+        
+        // cache search:
+        _p.set_CACHE_SEARCH               ( true  );
+        _p.set_OPPORTUNISTIC_CACHE_SEARCH ( false );
+    }
+    else
+    {
+        _p.check();
+    }
+
+    return cache_file_init_success;
+}
+
+
+/*---------------------------------------*/
+/*      MADS run for regular slave       */
+/*---------------------------------------*/
+bool Master_Slaves::mads_regular_slave_run(
+                             const double default_eps,
+                             Cache &cache,
+                             const Eval_Point * best_feasible,
+                             const Eval_Point * best_infeasible,
+                             Point &x0,
+                             Double &old_f,
+                             int *free_vars)
+{
+    bool stop_regular_slave = false;
+    int i, j, pollster_mesh_index;
+    int n = _p.get_dimension();
+    Point delta_0, delta_min;
+
+    receive_optimization_data (stop_regular_slave,
+                               x0,
+                               old_f,
+                               pollster_mesh_index,
+                               free_vars);
+    
+    if ( _debug )
+    {
+        _p.out() << "SLAVE #" << _rank
+        << ": OPTIM. DATA: [STOP=" << stop_regular_slave
+        << "] [POLLSTER_MESH_INDEX=" << pollster_mesh_index
+        << "] [X0=" << x0 << " ] [f(X0)="
+        << old_f << "] [FREE VARS= ";
+        for ( i = 0 ; i < _ns ; ++i )
+            _p.out() << free_vars[i] << " ";
+        _p.out() << " ]" << endl;
+    }
+    
+    // mesh of the regular slave:
+    int ell_0 = 0;
+    if ( pollster_mesh_index > ell_0 )
+    {
+        ell_0 = pollster_mesh_index;
+    }
+        
+    if ( !stop_regular_slave )
+    {
+        // starting point:
+        _p.reset_X0();
+        _p.set_X0 ( x0 );
+        
+        _p.check();  // Must do check to access signature
+        _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n,ell_0 ) );
+        delta_0=_p.get_signature()->get_mesh()->get_delta();
+        
+        _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n ,pollster_mesh_index ) );
+        delta_min=_p.get_signature()->get_mesh()->get_delta();
+        
+        
+        
+        Double::set_epsilon ( 1e-16 );
+        if ( !check_delta ( delta_0 ) || !check_delta ( delta_min ) )
+        {
+            stop_regular_slave = true;
+        }
+    }
+    if (!stop_regular_slave)
+    {
+        // free variables:
+        _p.reset_fixed_variables();
+        bool fix_var;
+        for ( i = 0 ; i < n ; ++i )
+        {
+            fix_var = true;
+            for ( j = 0 ; j < _ns ; ++j )
+                if ( free_vars[j] == i )
+                {
+                    fix_var = false;
+                    break;
+                }
+            if ( fix_var )
+                _p.set_FIXED_VARIABLE ( i );
+        }
+        
+        // check the parameters:
+        _p.check();
+        
+        
+        // modify mesh termination criterions
+        _p.get_signature()->get_mesh()->set_mesh_indices( NOMAD::Point( n,ell_0 ) );
+        
+        if ( pollster_mesh_index <=0 )
+            _p.get_signature()->get_mesh()->set_limit_mesh_index( pollster_mesh_index );
+        else
+            _p.get_signature()->get_mesh()->set_limit_mesh_index( 0 );
+        
+        _p.get_signature()->get_mesh()->set_min_mesh_sizes( delta_min );
+        _p.get_signature()->get_mesh()->set_delta_0 ( delta_0 );
+        
+        
+        Double::set_epsilon ( default_eps );
+        
+        // MADS run:
+        Mads mads ( _p , NULL , NULL , &cache , NULL );
+        mads.run();
+        best_feasible   = mads.get_best_feasible();
+        best_infeasible = mads.get_best_infeasible();
+        
+        if ( _debug && best_feasible )
+        {
+            _p.out() << "RANK #" << _rank << ": POLLSTER_ELL="
+            << pollster_mesh_index << " VARS = [";
+            for ( i = 0 ; i < _ns ; ++i )
+                _p.out() << free_vars[i] << " ";
+            _p.out() << " ] BBE=" << mads.get_stats().get_bb_eval()
+            << " OLD_F=" << old_f << " NEW_F="
+            << best_feasible->get_f()
+            << " SUCCESS="
+            << (best_feasible->get_f() < old_f)
+            << endl;
+        }
+    }
+    
+    int       tmp1 = -1;
+    bool      tmp2 = false;
+    stop_type tmp3 = UNKNOWN_STOP_REASON;
+    send_optimization_result ( tmp1            ,
+                              tmp2            ,
+                              best_feasible   ,
+                              best_infeasible ,
+                              tmp3              );
+
+    return stop_regular_slave;
+}
+
 /*----------------------------------------------------*/
 /*  receive an optimization result from the pollster  */
 /*  POLLSTER --> MASTER                               */
 /*----------------------------------------------------*/
 void Master_Slaves::receive_optimization_result
 ( int     & pollster_mesh_index ,
- bool    & stop_algo           ,
+ bool    & stop_pollster_slave           ,
  double *& best_feasible       ,
  double *& best_infeasible     ,
  int       source                ) const
@@ -532,42 +627,27 @@ void Master_Slaves::receive_optimization_result
     
     pollster_mesh_index = itab[0];
     
-    // stop the algorithm ?
-    stop_algo = ( itab[4] == 1 );
+    // stop the algorithm PSD-MADS?
+    stop_pollster_slave = ( itab[4] == 1 );
     
-    if ( !stop_algo )
+    if ( !stop_pollster_slave )
     {
-        
         stop_type stop_reason = static_cast<stop_type>(itab[1]);
-        
-        switch ( stop_reason )
+        stop_pollster_slave = stop_pollster_for_reason(stop_reason);
+
+        if ( _debug )
         {
-            case ERROR:
-            case UNKNOWN_STOP_REASON:
-            case CTRL_C:
-            case MESH_PREC_REACHED:
-            case X0_FAIL:
-            case P1_FAIL:
-            case L_MAX_REACHED:
-            case L_LIMITS_REACHED:
-            case MAX_TIME_REACHED:
-            case MAX_BB_EVAL_REACHED:
-            case MAX_SGTE_EVAL_REACHED:
-            case MAX_EVAL_REACHED:
-            case MAX_SIM_BB_EVAL_REACHED:
-            case MAX_ITER_REACHED:
-            case FEAS_REACHED:
-            case F_TARGET_REACHED:
-            case STAT_SUM_TARGET_REACHED:
-            case L_CURVE_TARGET_REACHED:
-            case MULTI_MAX_BB_REACHED:
-            case MULTI_NB_MADS_RUNS_REACHED:
-            case MULTI_STAGNATION:
-            case MULTI_NO_PARETO_PTS:
-            case MAX_CACHE_MEMORY_REACHED:
-                stop_algo = true;
-            default:
-                stop_algo = false;
+            if (stop_reason != NO_STOP && stop_reason != UNKNOWN_STOP_REASON)
+            {
+                if (stop_pollster_slave)
+                {
+                    _p.out() << " [Stop reason: " << stop_reason << "]";
+                }
+                else
+                {
+                    _p.out() << " [No Stop reason: " << stop_reason << "]";
+                }
+            }
         }
     }
     
@@ -658,10 +738,14 @@ void Master_Slaves::receive_optimization_result
                         best_feasible = rtab;
                     }
                     else
+                    {
                         delete [] rtab;
+                    }
                 }
                 else
+                {
                     best_feasible = rtab;
+                }
             }
             
             // best infeasible update:
@@ -677,14 +761,88 @@ void Master_Slaves::receive_optimization_result
                         best_infeasible = rtab;
                     }
                     else
+                    {
                         delete [] rtab;
+                    }
                 }
                 else
+                {
                     best_infeasible = rtab;
+                }
             }
         }
     }
 }
+
+
+bool Master_Slaves::stop_pollster_for_reason(stop_type stop_reason) const
+{
+    bool stop_pollster_slave = false;
+    switch ( stop_reason )
+    {
+        case ERROR:
+        case UNKNOWN_STOP_REASON:
+        case CTRL_C:
+        case USER_STOPPED:
+        case MESH_PREC_REACHED:
+        case X0_FAIL:
+        case P1_FAIL:
+        case L_MAX_REACHED:
+        case MAX_TIME_REACHED:
+        case MAX_BB_EVAL_REACHED:
+        case MAX_SGTE_EVAL_REACHED:
+        case MAX_EVAL_REACHED:
+        case MAX_SIM_BB_EVAL_REACHED:
+        case FEAS_REACHED:
+        case F_TARGET_REACHED:
+        case STAT_SUM_TARGET_REACHED:
+        case L_CURVE_TARGET_REACHED:
+        case MULTI_MAX_BB_REACHED:
+        case MULTI_NB_MADS_RUNS_REACHED:
+        case MULTI_STAGNATION:
+        case MULTI_NO_PARETO_PTS:
+        case MAX_CACHE_MEMORY_REACHED:
+            // Stop reason is valid to stop the pollster run.
+            stop_pollster_slave = true;
+            break;
+        case NO_STOP:
+        case DELTA_M_MIN_REACHED:
+        case DELTA_P_MIN_REACHED:
+        case L_MIN_REACHED:
+        case L_LIMITS_REACHED:
+        case XL_LIMITS_REACHED:
+        case GL_LIMITS_REACHED:
+        case MAX_BLOCK_EVAL_REACHED:
+        case MAX_ITER_REACHED:
+        case MAX_CONS_FAILED_ITER:
+            // Stop reason is not enough to stop the run.
+            stop_pollster_slave = false;
+            break;
+         default:
+            // Tell the user that a new stop reason was ignored.
+            _p.out() << "POLLSTER: Unhandled STOP reason: " << stop_reason << std::endl;
+            stop_pollster_slave = false;
+            break;
+    }
+
+    if ( _debug )
+    {
+        if (stop_reason != NO_STOP && stop_reason != UNKNOWN_STOP_REASON)
+        {
+            if (stop_pollster_slave)
+            {
+                _p.out() << "Stop reason: " << stop_reason << std::endl;
+            }
+            else
+            {
+                _p.out() << "No Stop reason: " << stop_reason << std::endl;
+            }
+        }
+    }
+
+    return stop_pollster_slave;
+}
+
 
 /*---------------------------------------------*/
 /*  send an optimization result to the master  */
@@ -692,7 +850,7 @@ void Master_Slaves::receive_optimization_result
 /*---------------------------------------------*/
 void Master_Slaves::send_optimization_result
 ( int                pollster_mesh_index ,
- bool               stop_algo           ,
+ bool               stop_pollster_slave           ,
  const Eval_Point * bf                  ,
  const Eval_Point * bi                  ,
  stop_type          st                    ) const
@@ -702,20 +860,22 @@ void Master_Slaves::send_optimization_result
     MPI_Send ( &Master_Slaves::OPTI_RES_SIGNAL , 1 , MPI_CHAR ,
               0 , Master_Slaves::TAG_SIGNAL , MPI_COMM_WORLD );
     
+    int nb_pts = 0;
     // send the data:
     int itab[5];
     
     itab[0] = pollster_mesh_index;
     itab[1] = static_cast<int>(st);
     
-    int nb_pts = 0;
     if ( bf )
     {
         ++nb_pts;
         itab[2] = 1;
     }
     else
+    {
         itab[2] = 0;
+    }
     
     if ( bi )
     {
@@ -723,9 +883,11 @@ void Master_Slaves::send_optimization_result
         itab[3] = 1;
     }
     else
+    {
         itab[3] = 0;
+    }
     
-    itab[4] = (stop_algo) ? 1 : 0;
+    itab[4] = (stop_pollster_slave) ? 1 : 0;
     
     MPI_Send ( itab , 5 , MPI_INT , 0 ,
               Master_Slaves::TAG_I1 , MPI_COMM_WORLD );
@@ -765,7 +927,7 @@ void Master_Slaves::send_optimization_result
 /*  MASTER --> REGULAR SLAVE                   */
 /*---------------------------------------------*/
 void Master_Slaves::receive_optimization_data
-( bool   & stop_algo           ,
+( bool   & stop_regular_slave           ,
  Point  & x0                  ,
  Double & fx0                 ,
  int    & pollster_mesh_index ,
@@ -773,12 +935,12 @@ void Master_Slaves::receive_optimization_data
 {
     
     // step 1/2: receive common pollster data:
-    receive_optimization_data ( stop_algo , x0 , fx0 );
+    receive_optimization_data ( stop_regular_slave , x0 , fx0 );
     
     int i;
     
     // step 2/2: receive additional data for regular slaves:
-    if ( !stop_algo )
+    if ( !stop_regular_slave )
     {
         
         int      * itab = new int [_ns+1];
@@ -806,7 +968,7 @@ void Master_Slaves::receive_optimization_data
 /*  receive optimization data from the master  */
 /*  MASTER --> POLLSTER                        */
 /*---------------------------------------------*/
-void Master_Slaves::receive_optimization_data ( bool   & stop_algo ,
+void Master_Slaves::receive_optimization_data ( bool   & stop_pollster_slave ,
                                                Point  & x0        ,
                                                Double & fx0         ) const
 {
@@ -828,15 +990,14 @@ void Master_Slaves::receive_optimization_data ( bool   & stop_algo ,
     // stop:
     if ( c_stop == '1' )
     {
-        stop_algo = true;
+        stop_pollster_slave = true;
         x0.reset();
     }
     
     // continue:
     else
     {
-        
-        stop_algo     = false;
+        stop_pollster_slave     = false;
         double * rtab = new double [n+2];
         
         MPI_Recv ( rtab , n+2 , MPI_DOUBLE , 0 ,
@@ -895,20 +1056,20 @@ void Master_Slaves::receive_optimization_data ( bool   & stop_algo ,
 /*  MASTER --> POLLSTER or MASTER --> SLAVE            */
 /*-----------------------------------------------------*/
 void Master_Slaves::send_optimization_data
-( int            pollster_mesh_index ,
- bool           stop_algo           ,
+(int            pollster_mesh_index ,
+ bool           stop_this_slave     ,
  const double * best_feasible       ,
  const double * best_infeasible     ,
  int            source                ) const
 {
     
-    char c_stop = (stop_algo) ? '1' : '0';
+    char c_stop = (stop_this_slave) ? '1' : '0';
     
     MPI_Rsend ( &c_stop , 1 , MPI_CHAR , source ,
                Master_Slaves::TAG_CSTOP , MPI_COMM_WORLD );
     
     // continue:
-    if ( !stop_algo )
+    if ( !stop_this_slave )
     {
         
         int n = _p.get_dimension();
@@ -926,21 +1087,27 @@ void Master_Slaves::send_optimization_data
         {
             
             int * itab = new int [_ns+1];
-            
-            // choose the free varables:
-            {
-                Random_Pickup rp ( n );
-                
-                for ( int i = 0 ; i < _ns ; ++i )
-                    itab[i] = rp.pickup(); // index of the ith free variable
-            }
-            
+            choose_free_vars(n, itab);
             itab[_ns] = pollster_mesh_index;
             
             MPI_Send ( itab , _ns+1 , MPI_INT , source ,
                       Master_Slaves::TAG_I2 , MPI_COMM_WORLD );
             
             delete [] itab;
+        }
+    }
+}
+
+
+void Master_Slaves::choose_free_vars(int n, int* itab) const
+{
+    // choose the free varables:
+    {
+        Random_Pickup rp ( n );
+
+        for ( int i = 0 ; i < _ns ; ++i )
+        {
+            itab[i] = rp.pickup(); // index of the ith free variable
         }
     }
 }
@@ -957,4 +1124,32 @@ bool Master_Slaves::check_delta ( const Point & delta )
             return false;
     return true;
 }
+
+// Return false if we should stop the run for this mesh_index.
+bool Master_Slaves::check_mesh_index(NOMAD::mesh_type mesh_type, int mesh_index, int nb_cons_failed_runs)
+{
+    int limit = -50;
+    switch(mesh_type)
+    {
+        case NOMAD::SMESH:
+            limit = NOMAD::L_LIMITS;
+            break;
+        case NOMAD::XMESH:
+            limit = NOMAD::XL_LIMITS;
+            break;
+        case NOMAD::GMESH:
+            limit = NOMAD::GL_LIMITS;
+            break;
+        default:
+            break;
+    }
+
+    if (mesh_index < limit && nb_cons_failed_runs > fabs(limit))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 

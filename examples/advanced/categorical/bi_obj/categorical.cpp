@@ -270,6 +270,7 @@ My_Extended_Poll::My_Extended_Poll ( Parameters & p )
  			ub_1                       ,
  			p.get_direction_types   () ,
  			p.get_sec_poll_dir_types() ,
+ 			p.get_int_poll_dir_types() ,
 			_p.out()                     );
 
   // signature for 2 assets:
@@ -295,6 +296,7 @@ My_Extended_Poll::My_Extended_Poll ( Parameters & p )
 			  ub_2                       ,
 			  p.get_direction_types   () ,
 			  p.get_sec_poll_dir_types() ,
+			  p.get_int_poll_dir_types() ,
 			  _p.out()                     );
   }
 
@@ -321,6 +323,7 @@ My_Extended_Poll::My_Extended_Poll ( Parameters & p )
 			  ub_3                       ,
 			  p.get_direction_types   () ,
 			  p.get_sec_poll_dir_types() ,
+			  p.get_int_poll_dir_types() ,
 			  _p.out()                     );
   }
 }

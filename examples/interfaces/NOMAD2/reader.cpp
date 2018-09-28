@@ -1,7 +1,9 @@
-/*-------------------------------------------------------------------------------------*/
-/*  This program read informations files from NOMAD version 2 and create the           */
-/*  parameters files used by NOMAD version 3                                           */
-/*-------------------------------------------------------------------------------------*/
+
+/**
+ \file   reader.cpp
+ \brief  read informations files from NOMAD version 2 and create the parameters files used by NOMAD version 3
+ \author Quentin Reynaud
+ */
 
 #include <iostream>
 #include <fstream>
@@ -520,7 +522,6 @@ int main(int argc, char** argv)
 					}
 
 					if (isSurrogate)
-					{
 						if (surrogate != "")
 						{
 							fic << "SGTE_EXE\t\t" ;
@@ -530,7 +531,7 @@ int main(int argc, char** argv)
 						{
 							cout<< "Warning : you are using surrogate, but no surrogate function is given."<<endl;
 						}
-					}	
+						
 					// Parameters from parameters file
 					if (isParam[0])
 					{

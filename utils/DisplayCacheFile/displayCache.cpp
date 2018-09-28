@@ -37,13 +37,21 @@ int main ( int argc , char ** argv )
         // parameters creation:
         NOMAD::Cache cache1 ( out );
         
-        cache1.load(cache_file_name);
+
+        bool loadSuccess = cache1.load(cache_file_name);
         
+	if ( !loadSuccess )
+	{
+	    out << "Cannot load the cache file " << cache_file_name << ". Probably wrong format of file (endians!)." << endl;
+	   return -1;
+        } 
+
         const NOMAD::Eval_Point * cur = cache1.begin();
         int  nb = cache1.size();
         int cnt = 0;
         while ( cur )
         {
+            
             out << "point ";
             out.display_int_w ( ++cnt , nb );
             out << "/" << nb << ": ";

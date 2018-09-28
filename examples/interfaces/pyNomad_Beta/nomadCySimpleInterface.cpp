@@ -1,47 +1,48 @@
-/*------------------------------------------------------------------------------*/
-/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -             */
-/*          version 3.8.1                                                       */
-/*                                                                              */
-/*  NOMAD - version 3.8.1 has been created by                                   */
-/*                 Charles Audet        - Ecole Polytechnique de Montreal       */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  The copyright of NOMAD - version 3.8.1 is owned by                          */
-/*                 Sebastien Le Digabel - Ecole Polytechnique de Montreal       */
-/*                 Christophe Tribes    - Ecole Polytechnique de Montreal       */
-/*                                                                              */
-/*  NOMAD v3 has been funded by AFOSR, Exxon Mobil, Hydro Québec, Rio Tinto     */
-/*  and IVADO.                                                                  */
-/*                                                                              */
-/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created  */
-/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.  */
-/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                       */
-/*                                                                              */
-/*  Contact information:                                                        */
-/*    Ecole Polytechnique de Montreal - GERAD                                   */
-/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada           */
-/*    e-mail: nomad@gerad.ca                                                    */
-/*    phone : 1-514-340-6053 #6928                                              */
-/*    fax   : 1-514-340-5665                                                    */
-/*                                                                              */
-/*  This program is free software: you can redistribute it and/or modify it     */
-/*  under the terms of the GNU Lesser General Public License as published by    */
-/*  the Free Software Foundation, either version 3 of the License, or (at your  */
-/*  option) any later version.                                                  */
-/*                                                                              */
-/*  This program is distributed in the hope that it will be useful, but WITHOUT */
-/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       */
-/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License */
-/*  for more details.                                                           */
-/*                                                                              */
-/*  You should have received a copy of the GNU Lesser General Public License    */
-/*  along with this program. If not, see <http://www.gnu.org/licenses/>.        */
-/*                                                                              */
-/*  You can find information on the NOMAD software at www.gerad.ca/nomad        */
-/*------------------------------------------------------------------------------*/
+/*---------------------------------------------------------------------------------*/
+/*  NOMAD - Nonlinear Optimization by Mesh Adaptive Direct search -                */
+/*                                                                                 */
+/*  NOMAD - version 3.9.0 has been created by                                      */
+/*                 Charles Audet               - Ecole Polytechnique de Montreal   */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montaplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  The copyright of NOMAD - version 3.9.0 is owned by                             */
+/*                 Sebastien Le Digabel        - Ecole Polytechnique de Montreal   */
+/*                 Viviane Rochon Montaplaisir - Ecole Polytechnique de Montreal   */
+/*                 Christophe Tribes           - Ecole Polytechnique de Montreal   */
+/*                                                                                 */
+/*  NOMAD v3 has been funded by AFOSR and Exxon Mobil.                             */
+/*                                                                                 */
+/*  NOMAD v3 is a new version of NOMAD v1 and v2. NOMAD v1 and v2 were created     */
+/*  and developed by Mark Abramson, Charles Audet, Gilles Couture, and John E.     */
+/*  Dennis Jr., and were funded by AFOSR and Exxon Mobil.                          */
+/*                                                                                 */
+/*  Contact information:                                                           */
+/*    Ecole Polytechnique de Montreal - GERAD                                      */
+/*    C.P. 6079, Succ. Centre-ville, Montreal (Quebec) H3C 3A7 Canada              */
+/*    e-mail: nomad@gerad.ca                                                       */
+/*    phone : 1-514-340-6053 #6928                                                 */
+/*    fax   : 1-514-340-5665                                                       */
+/*                                                                                 */
+/*  This program is free software: you can redistribute it and/or modify it        */
+/*  under the terms of the GNU Lesser General Public License as published by       */
+/*  the Free Software Foundation, either version 3 of the License, or (at your     */
+/*  option) any later version.                                                     */
+/*                                                                                 */
+/*  This program is distributed in the hope that it will be useful, but WITHOUT    */
+/*  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or          */
+/*  FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License    */
+/*  for more details.                                                              */
+/*                                                                                 */
+/*  You should have received a copy of the GNU Lesser General Public License       */
+/*  along with this program. If not, see <http://www.gnu.org/licenses/>.           */
+/*                                                                                 */
+/*  You can find information on the NOMAD software at www.gerad.ca/nomad           */
+/*---------------------------------------------------------------------------------*/
 
-#define NOMAD_PYTHON_VERSION "1.0 (beta)  [Feb, 3rd, 2017]"
+
+#define NOMAD_PYTHON_VERSION "1.0 (beta)  [Oct, 11th, 2017]"
 
 #include "nomad.hpp"
 #include "defines.hpp"
@@ -50,8 +51,8 @@
 
 using namespace std;
 
-typedef int (*Callback)(void * apply, NOMAD::Eval_Point &sv);
-typedef int (*CallbackL)(void * apply, std::list<NOMAD::Eval_Point *> &sv);
+typedef int (*Callback)(void * apply, NOMAD::Eval_Point &sv, bool hasSgte , bool sgte_eval);
+typedef int (*CallbackL)(void * apply, std::list<NOMAD::Eval_Point *> &sv, bool hasSgte , bool sgte_eval);
 
 //Print Nomad general Information
 //Print Nomad general Information
@@ -125,8 +126,9 @@ static void printPyNomadUsage()
 }
 
 //Print Nomad usage
-static void printNomadHelp( string about )
+static void printNomadHelp(string about )
 {
+    
 	NOMAD::Parameters p ( cout );
 	p.help ( about );
 }
@@ -139,11 +141,12 @@ private:
 	Callback cb;
 	CallbackL cbL;
 	void * apply;
+	bool hasSgte ;
 
     
 public:
     //Constructor
-    pyEval(const NOMAD::Parameters &p, Callback _cb, CallbackL _cbL, void * _apply) : cb(_cb),cbL(_cbL),apply(_apply),NOMAD::Evaluator(p){}
+    pyEval(const NOMAD::Parameters &p, Callback _cb, CallbackL _cbL, void * _apply) : cb(_cb),cbL(_cbL),apply(_apply),NOMAD::Evaluator(p),hasSgte(p.has_sgte()){}
       
     //Destructor
     ~pyEval(void) {}    
@@ -152,11 +155,14 @@ public:
 	{
 		int success=0;
 
+		bool sgte_eval = (x.get_eval_type()==NOMAD::SGTE)? true:false;
+
 		//Call Python blackbox function on a single Eval_Point
 		try
 		{
-			count_eval = true;           
-			success = cb(apply,x);
+			count_eval = true; 
+          
+			success = cb(apply,x,hasSgte,sgte_eval);
             if ( success == -1 )
             {
                 printf("Unrecoverable Error from Objective / Blackbox Callback, Exiting NOMAD...\n\n");
@@ -185,11 +191,14 @@ public:
 	{
 
 		int success=0;
+
+                // all evaluations in a block have the same eval_type -> check the first one
+                bool sgte_eval = (list_x.front()->get_eval_type()==NOMAD::SGTE)? true:false;
 	
 		//Call Python blackbox function on a list of Eval_Points
 		try
 		{
-			success = cbL(apply,list_x);
+			success = cbL(apply,list_x,hasSgte,sgte_eval);
             if ( success == -1 )
             {
                 printf("Unrecoverable Error from Objective / Blackbox Callback, Exiting NOMAD...\n\n");

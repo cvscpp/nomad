@@ -23,6 +23,7 @@ def info():
 
 # Define the interface function to get nomad help
 def help(about=''):
+    about = about.encode(u"ascii")
     printNomadHelp(about)
     
 def __doc__():
@@ -40,6 +41,9 @@ def optimize(f , pX0, pLB,pUB ,params):
     cdef double f_return
     cdef double h_return
     x_return=[]
+    cdef int nb_params = len(params)
+    for i in range(nb_params):
+         params[i] = params[i].encode(u"ascii")
     run_status = runNomad(cb, cbL, <void*> f, <vector[double]&> pX0, <vector[double]&> pLB, <vector[double]&> pUB , <vector[string]&> params , u_feas.c_ep ,u_infeas.c_ep , nb_evals, nb_iters)
     if u_feas.c_ep != NULL:
          f_return = u_feas.get_f()
@@ -111,8 +115,8 @@ cdef class PyNomadEval_Point:
         return m
 
 cdef extern from "nomadCySimpleInterface.cpp":
-    ctypedef int (*Callback)(void * apply, Eval_Point& x)
-    ctypedef int (*CallbackL)(void * apply, list[Eval_Point *] & x)
+    ctypedef int (*Callback)(void * apply, Eval_Point& x,bool hasSgte , bool sgte_eval)
+    ctypedef int (*CallbackL)(void * apply, list[Eval_Point *] & x,bool hasSgte , bool sgte_eval)
     void printPyNomadInfo()
     void printPyNomadUsage()
     void printNomadHelp( string about)
@@ -120,13 +124,17 @@ cdef extern from "nomadCySimpleInterface.cpp":
     int runNomad(Callback cb, CallbackL cbL, void* apply, vector[double] &X0, vector[double] &LB, vector[double] &UB , vector[string] & params , Eval_Point *& best_feas_sol ,Eval_Point *& best_infeas_sol , int & nb_evals, int & nb_iters) except+
 
 # Define callback function for a single Eval_Point ---> link with Python     
-cdef int cb(void *f, Eval_Point & x):
+cdef int cb(void *f, Eval_Point & x, bool hasSgte , bool sgte_eval ):
      cdef PyNomadEval_Point u = PyNomadEval_Point()
      u.c_ep = &x
-     return (<object>f)(u)  
+     if ( hasSgte ):
+        return (<object>f)(u,sgte_eval)
+     else:
+        return (<object>f)(u)
+       
  
 # Define callback function for block evaluation of a list of Eval_Points ---> link with Python    
-cdef int cbL(void *f, list[Eval_Point *] & x):
+cdef int cbL(void *f, list[Eval_Point *] & x, bool hasSgte , bool sgte_eval ):
       cdef size_t size = x.size()
       cdef PyNomadEval_Point u
       cdef list[Eval_Point *].iterator it = x.begin()
@@ -139,7 +147,10 @@ cdef int cbL(void *f, list[Eval_Point *] & x):
          c_ep = deref(it)
          u.c_ep = c_ep
          proc = []
-         p = Process(target=<object>f, args=(u,out,)) # u is copied
+         if ( hasSgte ):
+             p = Process(target=<object>f, args=(u,out,sgte_eval,)) # u is copied
+         else:
+              p = Process(target=<object>f, args=(u,out,)) # u is copied
          p.start()
          proc.append(p)
          inc(it)
