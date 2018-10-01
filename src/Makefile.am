@@ -47,7 +47,7 @@ pkginclude_HEADERS = Algo_Parameters.hpp Cache_File_Point.hpp Cache.hpp Cache_Po
 	VNS_Search.hpp Barrier.hpp OrthogonalMesh.hpp \
 	GMesh.hpp Sgtelib_Model_Evaluator.hpp Sgtelib_Model_Manager.hpp \
 	Sgtelib_Model_Search.hpp NelderMead_Search.hpp NelderMead_Simplex_Eval_Point.hpp \
-	TrendMatrix_Line_Search.hpp
+	TrendMatrix_Line_Search.hpp nomad_version.hpp
 
 libnomad_a_CXXFLAGS = $(SGTELIB_CFLAGS)
 
